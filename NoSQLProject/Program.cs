@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using NoSQLProject.Other;
+using NoSQLProject.Repositories;
 using System.Collections.Generic;
 
 namespace NoSQLProject
@@ -45,6 +46,8 @@ namespace NoSQLProject
                 return client.GetDatabase(dbName);
             });
 
+            // Adding Repositories
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
