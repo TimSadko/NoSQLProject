@@ -2,13 +2,15 @@
 
 <h1>Employees</h1>
 
-<table>
+<table class="table">
 	<thead>
 		<tr>
 			<th>First Name</th>
 			<th>Last Name</th>
 			<th>Email</th>
 			<th>Role</th>
+			<th>Status</th>
+			<th>Manages</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -20,6 +22,21 @@
 					<th>@employee.LastName</th>
 					<th>@employee.Email</th>
 					<th>@employee.Role</th>
+					<th>@employee.Status</th>
+
+					<th>
+						<div>
+							@{
+								if (employee.ManagedEmployeesId != null)
+								{
+									foreach (string str in employee.ManagedEmployeesId)
+									{
+										<div>@str</div>
+									}
+								}
+							}
+						</div>
+					</th>
 				</tr>
 			}
 		}
