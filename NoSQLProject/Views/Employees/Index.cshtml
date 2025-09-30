@@ -17,27 +17,42 @@
 		@{
 			foreach(Employee employee in Model)
 			{
-				<tr>
-					<th>@employee.FirstName</th>
-					<th>@employee.LastName</th>
-					<th>@employee.Email</th>
-					<th>@employee.Role</th>
-					<th>@employee.Status</th>
+				if(employee is ServiceDeskEmployee sde)
+				{
+					<tr>
+						<th>@sde.FirstName</th>
+						<th>@sde.LastName</th>
+						<th>@sde.Email</th>
+						<th>Service Desk Employee</th>
+						<th>@sde.Status</th>
 
-					<th>
-						<div>
-							@{
-								if (employee.ManagedEmployeesId != null)
-								{
-									foreach (string str in employee.ManagedEmployeesId)
+						<th>
+							<div>
+								@{
+									if (sde.ManagedEmployeesId != null)
 									{
-										<div>@str</div>
+										foreach (string str in sde.ManagedEmployeesId)
+										{
+											<div>@str</div>
+										}
 									}
 								}
-							}
-						</div>
-					</th>
-				</tr>
+							</div>
+						</th>
+					</tr>
+				}
+				else
+				{
+					<tr>
+						<th>@employee.FirstName</th>
+						<th>@employee.LastName</th>
+						<th>@employee.Email</th>
+						<th>Normal Employee</th>
+						<th>@employee.Status</th>
+
+						<th></th>
+					</tr>
+				}				
 			}
 		}
 	</tbody>
