@@ -17,5 +17,13 @@ namespace NoSQLProject.Repositories
         {
             return await _employees.Find(new BsonDocument()).ToListAsync();
         }
+
+        public async Task<Employee?> GetByCredentialsAsync(string login, string password)
+        {
+            var builder = Builders<Employee>.Filter;
+            var fillter = builder.And(builder.Eq("email", login), builder.Eq("password", password));
+
+            return await _employees.Find(fillter).FirstOrDefaultAsync();
+        }
     }
 }

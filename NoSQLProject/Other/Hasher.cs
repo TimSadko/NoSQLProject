@@ -21,7 +21,6 @@ namespace NoSQLProject.Other
                 return pbkdf2.GetBytes(32);
             }
         }
-
        
         public static string GetHashedString(string input) // Convert hash bytes to a hex string
         {        

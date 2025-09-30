@@ -12,9 +12,13 @@ namespace NoSQLProject
             // Load .env before building configuration so env vars are available
             DotNetEnv.Env.TraversePath().Load();
 
+            //
+
             var builder = WebApplication.CreateBuilder(args);
 
             Hasher.SetSalt(builder.Configuration.GetSection("Salt").Value); // Get salt from appsetting.json file and give it to hasher (used for hashing passwords)
+
+            Console.WriteLine(Hasher.GetHashedString("123"));
 
             // 1) Register MongoClient as a SINGLETON (one shared instance for the whole app)
             // WHY: MongoClient is thread-safe and internally manages a connection pool.
@@ -52,6 +56,13 @@ namespace NoSQLProject
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            builder.Services.AddSession(options => // Configure sessions
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -68,6 +79,8 @@ namespace NoSQLProject
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession(); // Enable sessions
 
             app.MapControllerRoute(
                 name: "default",

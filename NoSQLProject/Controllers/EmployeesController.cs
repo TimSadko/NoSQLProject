@@ -12,11 +12,20 @@ namespace NoSQLProject.Controllers
             _rep = rep;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var list = await _rep.GetAllAsync();
+            try
+            {
+                var list = await _rep.GetAllAsync();
 
-            return View(list);
+                return View(list);
+            }
+            catch (Exception ex)
+            {
+                ViewData["Exception"] = ex.Message;
+                return View();
+            }
         }
     }
 }
