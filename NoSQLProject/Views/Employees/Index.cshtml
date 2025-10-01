@@ -1,0 +1,59 @@
+﻿@model List<Employee>
+
+<h1>Employees</h1>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>Email</th>
+			<th>Role</th>
+			<th>Status</th>
+			<th>Manages</th>
+		</tr>
+	</thead>
+	<tbody>
+		@{
+			foreach(Employee employee in Model)
+			{
+				if(employee is ServiceDeskEmployee sde)
+				{
+					<tr>
+						<th>@sde.FirstName</th>
+						<th>@sde.LastName</th>
+						<th>@sde.Email</th>
+						<th>Service Desk Employee</th>
+						<th>@sde.Status</th>
+
+						<th>
+							<div>
+								@{
+									if (sde.ManagedEmployeesId != null)
+									{
+										foreach (string str in sde.ManagedEmployeesId)
+										{
+											<div>@str</div>
+										}
+									}
+								}
+							</div>
+						</th>
+					</tr>
+				}
+				else
+				{
+					<tr>
+						<th>@employee.FirstName</th>
+						<th>@employee.LastName</th>
+						<th>@employee.Email</th>
+						<th>Normal Employee</th>
+						<th>@employee.Status</th>
+
+						<th></th>
+					</tr>
+				}				
+			}
+		}
+	</tbody>
+</table>
