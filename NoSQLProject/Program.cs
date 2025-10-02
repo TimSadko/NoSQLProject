@@ -8,17 +8,14 @@ namespace NoSQLProject
     public class Program
     {
         public static void Main(string[] args)
-        {
-            // Load .env before building configuration so env vars are available
-            DotNetEnv.Env.TraversePath().Load();
+        {           
+            DotNetEnv.Env.TraversePath().Load(); // Load .env before building configuration so env vars are available
 
-            //
-
-            var builder = WebApplication.CreateBuilder(args);
+			var builder = WebApplication.CreateBuilder(args);
 
             Hasher.SetSalt(builder.Configuration.GetSection("Salt").Value); // Get salt from appsetting.json file and give it to hasher (used for hashing passwords)
 
-            Console.WriteLine(Hasher.GetHashedString("123"));
+            //Console.WriteLine(Hasher.GetHashedString("123")); // Use if you need to hash the password
 
             // 1) Register MongoClient as a SINGLETON (one shared instance for the whole app)
             // WHY: MongoClient is thread-safe and internally manages a connection pool.

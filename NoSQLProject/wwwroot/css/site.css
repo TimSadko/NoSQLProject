@@ -20,3 +20,80 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.custom-navbar {
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    position: relative;
+}
+
+.navbar-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-menu li {
+    margin-bottom: 0.5rem;
+}
+
+.navbar-link {
+    color: #222;
+    text-decoration: none;
+    padding: 0.5rem;
+}
+
+.navbar-link:hover {
+    color: #222;
+    text-decoration: underline;
+}
+
+.navbar-links {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: auto;
+    margin-top: 0;
+}
+
+.navbar-menu {
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.navbar-menu li {
+    margin-bottom: 0;
+}
+
+.navbar-log-container {
+    margin-top: 0;
+    margin-left: 1rem;
+}
+
+.logo-link {
+    color: #222;
+    font-size: 20px;
+    text-decoration: none;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.logo-link:hover {
+    color: #222;
+    text-decoration: underline;
+}
