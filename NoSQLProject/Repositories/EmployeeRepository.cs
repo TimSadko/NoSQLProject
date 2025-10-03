@@ -15,7 +15,7 @@ namespace NoSQLProject.Repositories
 
         public async Task<List<Employee>> GetAllAsync()
         {
-            return await _employees.Find(new BsonDocument()).ToListAsync();
+            return await _employees.FindAsync(new BsonDocument()).Result.ToListAsync();
         }
 
         public async Task<Employee?> GetByCredentialsAsync(string login, string password)
@@ -23,7 +23,7 @@ namespace NoSQLProject.Repositories
             var builder = Builders<Employee>.Filter;
             var fillter = builder.And(builder.Eq("email", login), builder.Eq("password", password));
 
-            return await _employees.Find(fillter).FirstOrDefaultAsync();
+            return await _employees.FindAsync(fillter).Result.FirstOrDefaultAsync();
         }
     }
 }

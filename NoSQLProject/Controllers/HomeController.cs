@@ -72,7 +72,7 @@ namespace NoSQLProject.Controllers
             }
             else
             {
-                return RedirectToAction("Privacy");
+                return RedirectToAction("Index", "TicketsNormal");
             }
         }
 

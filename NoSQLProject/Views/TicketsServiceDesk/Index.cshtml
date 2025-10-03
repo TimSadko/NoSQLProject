@@ -1,0 +1,36 @@
+﻿@model List<NoSQLProject.Models.Ticket>
+
+@{
+	ViewData["Title"] = "Tickets";
+}
+
+<h1>Tickets:</h1>
+<a href="/TicketsServiceDesk/Add">Add new Ticket</a>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>Title</th>
+			<th>Status</th>
+			<th>Created At</th>
+			<th>Last Update</th>
+			<th>Created By</th>
+			<th>logs</th>
+		</tr>
+	</thead>
+	<tbody>
+		@{
+			foreach (Ticket t in Model)
+			{
+				<tr>
+					<th>@t.Title</th>
+					<th>@t.Status</th>
+					<th>@t.CreatedAt</th>
+					<th>@t.UpdatedAt</th>
+					<th>@t.CreatedById</th>
+					<th>@t.Logs.Count</th>
+				</tr>
+			}
+		}
+	</tbody>
+</table>

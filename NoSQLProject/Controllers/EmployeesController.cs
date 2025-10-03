@@ -17,7 +17,7 @@ namespace NoSQLProject.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            if(!Authenticate()) return RedirectToAction("Login", "Home");
+            if(!Authenticate()) return RedirectToAction("Login", "Home"); // If user is not logged in or not the right type, redirect to login page
 
             try
             {
