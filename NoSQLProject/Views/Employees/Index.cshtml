@@ -1,63 +1,67 @@
 ﻿@model List<Employee>
 
 @{
-	ViewData["Title"] = "Emploees List";
+    ViewData["Title"] = "Employees List";
 }
 
-<h1>Employees:</h1>
+<h1>Employees</h1>
 
-<table class="table">
-	<thead>
-		<tr>
-			<th>First Name</th>
-			<th>Last Name</th>
-			<th>Email</th>
-			<th>Role</th>
-			<th>Status</th>
-			<th>Manages</th>
-		</tr>
-	</thead>
-	<tbody>
-		@{
-			foreach(Employee employee in Model)
-			{
-				if(employee is ServiceDeskEmployee sde)
-				{
-					<tr>
-						<th>@sde.FirstName</th>
-						<th>@sde.LastName</th>
-						<th>@sde.Email</th>
-						<th>Service Desk Employee</th>
-						<th>@sde.Status</th>
+<div class="mb-3">
+    <a asp-action="Add" class="btn btn-success">Add Employee</a>
+</div>
 
-						<th>
-							<div>
-								@{
-									if (sde.ManagedEmployeesId != null)
-									{
-										foreach (string str in sde.ManagedEmployeesId)
-										{
-											<div>@str</div>
-										}
-									}
-								}
-							</div>
-						</th>
-					</tr>
-				}
-				else
-				{
-					<tr>
-						<th>@employee.FirstName</th>
-						<th>@employee.LastName</th>
-						<th>@employee.Email</th>
-						<th>Normal Employee</th>
-						<th>@employee.Status</th>
+<form id="employeeActionForm" method="get">
+    <input type="hidden" id="selectedEmployeeId" name="id" value="" />
+    <div class="mb-3">
+        <button type="submit" formaction="@Url.Action("Edit", "Employees")" class="btn btn-primary" id="editBtn" disabled>Edit</button>
+        <button type="submit" formaction="@Url.Action("Delete", "Employees")" class="btn btn-danger" id="deleteBtn" disabled>Delete</button>
+    </div>
 
-						<th></th>
-					</tr>
-				}				
-			}
-		}
-	</tbody>
-</table>
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Manages</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Employee employee in Model)
+            {
+                <tr>
+                    <td>
+                        <input type="radio" name="selectedEmployee" value="@employee.Id" onclick="onEmployeeSelect(this)" />
+                    </td>
+                    <th>@employee.FirstName</th>
+                    <th>@employee.LastName</th>
+                    <th>@employee.Email</th>
+                    <th>@(employee is ServiceDeskEmployee ? "Service Desk" : "Employee")</th>
+                    <th>@employee.Status</th>
+                    <th>
+                        @if (employee is ServiceDeskEmployee sde && sde.ManagedEmployeesId != null)
+                        {
+                            foreach (string str in sde.ManagedEmployeesId)
+                            {
+                                <div>@str</div>
+                            }
+                        }
+                    </th>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+@section Scripts {
+    <script>
+        function onEmployeeSelect(radio) {
+            document.getElementById('selectedEmployeeId').value = radio.value;
+            document.getElementById('editBtn').disabled = false;
+            document.getElementById('deleteBtn').disabled = false;
+        }
+    </script>
+}
