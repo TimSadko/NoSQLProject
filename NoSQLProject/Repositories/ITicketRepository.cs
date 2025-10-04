@@ -9,5 +9,6 @@ namespace NoSQLProject.Repositories
         Task AddAsync(Ticket t);
         Task EditAsync(Ticket t);
         Task DeleteAsync(string id);
+        Task CheckUpdateAsync(Ticket t);
     }
 }

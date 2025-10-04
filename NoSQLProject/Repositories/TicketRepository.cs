@@ -33,6 +33,32 @@ namespace NoSQLProject.Repositories
             await _tickets.ReplaceOneAsync(Builders<Ticket>.Filter.Eq("_id", t.Id), t);
         }
 
+        public async Task CheckUpdateAsync(Ticket t)
+        {
+            var old = await GetByIdAsync(t.Id); // Get 'db' version pf the ticket, then compare it to the 'edited' version
+
+            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); // Get the Ticket by id
+
+            List<Task<UpdateResult>> tsk = new List<Task<UpdateResult>>(); // Create list of Tasks
+
+            if(old.Title != t.Title) // If title was changed, update it in the db
+            {
+                tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("title", t.Title))); 
+            }
+
+            if(old.Description != t.Description) // If description was changed, update it in the db
+            {
+                tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("description", t.Description)));
+            }
+
+            if (old.Status != t.Status) // If status was changed, update it in the db
+            {
+                tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", t.Status)));
+            }
+
+            await Task.WhenAll(tsk); // wait for all of the updates to finish
+        }
+
         public async Task DeleteAsync(string id)
         {
             await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", id));

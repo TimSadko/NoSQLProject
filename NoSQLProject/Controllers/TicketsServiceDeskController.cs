@@ -25,21 +25,19 @@ namespace NoSQLProject.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
+            if (!Authenticate()) RedirectToAction("Login", "Home");
+
             return View(new Ticket());
         }
 
         [HttpPost]
         public async Task<IActionResult> Add(Ticket t)
         {
+            if (!Authenticate()) RedirectToAction("Login", "Home");
+
             try
             {
                 var emp = Authorization.GetLoggedInEmployee(HttpContext);
-
-                if (emp == null) // If session is expired, redirect to loggin page
-                {
-                    TempData["Exception"] = "Your session is over, login and try again";
-                    return RedirectToAction("Login", "Home");
-                }
                 
                 t.CreatedById = emp.Id;
 
@@ -58,6 +56,44 @@ namespace NoSQLProject.Controllers
             {
                 ViewData["Exception"] = ex.Message;
                 return View(t);
+            }
+        }
+
+        [HttpGet("TicketsServiceDesk/Edit/{id}")]
+        public async Task<IActionResult> Edit(string? id)
+        {
+            if (!Authenticate()) RedirectToAction("Login", "Home");
+
+            try
+            {
+                if(id == null) throw new ArgumentNullException("Id is null");
+
+                Ticket t = await _rep.GetByIdAsync((string)id);
+
+                return View(t);
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
+            }           
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Ticket t)
+        {
+            if (!Authenticate()) RedirectToAction("Login", "Home");
+
+            try
+            {
+                await _rep.CheckUpdateAsync(t);
+
+                return View(t);
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
             }
         }
 
