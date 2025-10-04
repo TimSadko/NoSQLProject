@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using NoSQLProject.Models;
 using System.Text.Json.Serialization;
 
 namespace NoSQLProject.Models
@@ -8,7 +9,7 @@ namespace NoSQLProject.Models
         Active = 0, Deactivated = 1, Archived = 2
     }
 
-	//[BsonDiscriminator(RootClass = true)]
+	[BsonDiscriminator(RootClass = true)]
 	[BsonKnownTypes(typeof(ServiceDeskEmployee))]
 	public class Employee
     {
@@ -53,6 +54,13 @@ namespace NoSQLProject.Models
 
         [BsonElement("status")]
         [JsonPropertyName("status")]
-        public Employee_Status Status { get => _status; set => _status = value; }      
+        public Employee_Status Status { get => _status; set => _status = value; }
     }
+    
+}
+public class ServiceDeskEmployee : Employee
+{
+    [BsonElement("managed_employees")]
+    [JsonPropertyName("managed_employees")]
+    public List<string> ManagedEmployees { get; set; } = new List<string>();
 }

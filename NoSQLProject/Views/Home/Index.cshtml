@@ -1,8 +1,26 @@
-﻿@{
+﻿@model NoSQLProject.Models.Employee
+@using NoSQLProject.Models
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome to The Garden Group</h1>
+    <p>For a greener world.</p>
 </div>
+
+@if (Model is ServiceDeskEmployee)
+{
+    <div class="alert alert-success">
+        <h2>Welcome, Service Desk Employee!</h2>
+        <p>You have full access.</p>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <h2>Welcome, Employee!</h2>
+        <p>You have limited access.</p>
+    </div>
+}

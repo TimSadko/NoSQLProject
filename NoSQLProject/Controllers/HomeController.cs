@@ -14,11 +14,20 @@ namespace NoSQLProject.Controllers
         {
             _rep = rep;
         }
-
+        //Index adjusted by Fernando for pre and post login redirections
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return RedirectToAction("Login"); ;
+            // Check if the user is logged in (session or authentication)
+            var emp = HttpContext.Session.GetObject<Employee>("LoggedInEmployee");
+            if (emp == null)
+            {
+                // Not logged in, redirect to Login
+                return RedirectToAction("Login");
+            }
+
+            // Logged in, show the Home page
+            return View(emp);
         }
 
         [HttpGet]
@@ -44,13 +53,21 @@ namespace NoSQLProject.Controllers
 
                 HttpContext.Session.SetObject("LoggedInEmployee", emp); // Save current logged in employee in session
 
-                return RedirectToAction("Index", "Employees");
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
                 return View();
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); // Ends the session
+            return RedirectToAction("Login", "Home");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
