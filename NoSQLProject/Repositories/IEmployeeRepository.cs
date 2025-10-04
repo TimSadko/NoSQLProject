@@ -7,5 +7,7 @@ namespace NoSQLProject.Repositories
         Task<List<Employee>> GetAllAsync();
 
         Task<Employee?> GetByCredentialsAsync(string login, string password);
+
+        Task<Employee?> GetByIdAsync(string id);
     }
 }

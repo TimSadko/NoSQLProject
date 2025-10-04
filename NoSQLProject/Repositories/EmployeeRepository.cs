@@ -13,6 +13,11 @@ namespace NoSQLProject.Repositories
             _employees = db.GetCollection<Employee>("employees");
         }
 
+        public async Task<Employee?> GetByIdAsync(string id)
+        {
+            return await _employees.FindAsync(Builders<Employee>.Filter.Eq("_id", ObjectId.Parse(id))).Result.FirstOrDefaultAsync();
+        }
+
         public async Task<List<Employee>> GetAllAsync()
         {
             return await _employees.FindAsync(new BsonDocument()).Result.ToListAsync();
