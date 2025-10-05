@@ -26,6 +26,8 @@
     </dl>
 </div>
 
+@Html.ValidationSummary(true, "", new { @class = "text-danger" }) @* this line is  validation summary support *@
+
 <form asp-action="Delete" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />

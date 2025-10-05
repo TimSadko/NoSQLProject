@@ -1,0 +1,24 @@
+﻿@model List<NoSQLProject.Models.Employee>
+
+@{
+    var sde = (NoSQLProject.Models.ServiceDeskEmployee)ViewBag.ServiceDeskEmployee;
+    ViewData["Title"] = "Managed Employees";
+}
+
+<h2>Managed Employees for @sde.FirstName @sde.LastName</h2>
+
+@if (Model != null && Model.Any())
+{
+    <ul>
+        @foreach (var emp in Model)
+        {
+            <li>@emp.FirstName @emp.LastName (@emp.Email)</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No employees managed.</p>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Back to Employees</a>

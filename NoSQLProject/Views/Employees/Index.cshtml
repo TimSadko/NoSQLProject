@@ -7,61 +7,56 @@
 <h1>Employees</h1>
 
 <div class="mb-3">
-    <a asp-action="Add" class="btn btn-success">Add Employee</a>
+    <a asp-action="Add" class="btn btn-success">+ Add Employee</a>
 </div>
 
-<form id="employeeActionForm" method="get">
-    <input type="hidden" id="selectedEmployeeId" name="id" value="" />
-    <div class="mb-3">
-        <button type="submit" formaction="@Url.Action("Edit", "Employees")" class="btn btn-primary" id="editBtn" disabled>Edit</button>
-        <button type="submit" formaction="@Url.Action("Delete", "Employees")" class="btn btn-danger" id="deleteBtn" disabled>Delete</button>
-    </div>
-
-    <table class="table">
-        <thead>
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Management</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Employee employee in Model)
+        {
             <tr>
-                <th></th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Manages</th>
+                <th>@employee.FirstName</th>
+                <th>@employee.LastName</th>
+                <th>@employee.Email</th>
+                <th>@(employee is ServiceDeskEmployee ? "Service Desk" : "Employee")</th>
+                <th>@employee.Status</th>
+                <th>
+                    @if (employee is ServiceDeskEmployee sde)
+                    {
+                        <a asp-action="ManagedEmployees" asp-controller="Employees" asp-route-id="@sde.Id" class="btn btn-info btn-sm">View Managed</a>
+                    }
+                    else
+                    {
+                        <span>Not applicable</span>
+                    }
+                </th>
+                <th>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@employee.Id">Edit</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-action="Delete" asp-route-id="@employee.Id">Delete</a>
+                            </li>
+                        </ul>
+                    </div>
+                </th>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (Employee employee in Model)
-            {
-                <tr>
-                    <td>
-                        <input type="radio" name="selectedEmployee" value="@employee.Id" onclick="onEmployeeSelect(this)" />
-                    </td>
-                    <th>@employee.FirstName</th>
-                    <th>@employee.LastName</th>
-                    <th>@employee.Email</th>
-                    <th>@(employee is ServiceDeskEmployee ? "Service Desk" : "Employee")</th>
-                    <th>@employee.Status</th>
-                    <th>
-                        @if (employee is ServiceDeskEmployee sde && sde.ManagedEmployeesId != null)
-                        {
-                            foreach (string str in sde.ManagedEmployeesId)
-                            {
-                                <div>@str</div>
-                            }
-                        }
-                    </th>
-                </tr>
-            }
-        </tbody>
-    </table>
-</form>
-
-@section Scripts {
-    <script>
-        function onEmployeeSelect(radio) {
-            document.getElementById('selectedEmployeeId').value = radio.value;
-            document.getElementById('editBtn').disabled = false;
-            document.getElementById('deleteBtn').disabled = false;
         }
-    </script>
-}
+    </tbody>
+</table>

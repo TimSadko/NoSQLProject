@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace NoSQLProject.Models
@@ -37,10 +38,12 @@ namespace NoSQLProject.Models
 
         [BsonElement("first_name")]
         [JsonPropertyName("first_name")]
+        [Display(Name = "First name")] // <-- Add this line
         public string FirstName { get => _first_name; set => _first_name = value; }
 
         [BsonElement("last_name")]
         [JsonPropertyName("last_name")]
+        [Display(Name = "Last name")] // <-- Add this line
         public string LastName { get => _last_name; set => _last_name = value; }
 
         [BsonElement("email")]
@@ -49,6 +52,7 @@ namespace NoSQLProject.Models
 
         [BsonElement("password")]
         [JsonPropertyName("password")]
+        [Display(Name = "New Password")]
         public string Password { get => _password; set => _password = value; }
 
         [BsonElement("status")]
