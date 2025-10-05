@@ -1,0 +1,36 @@
+﻿@model NoSQLProject.ViewModels.EmployeeTickets
+
+@{
+	ViewData["Title"] = "Tickets";
+}
+
+<h1>Tickets:</h1>
+<a href="/TicketsEmployee/Add">Add new Ticket</a>
+
+<table class="table">
+	<thead>
+	<tr>
+		<th>Title</th>
+		<th>Status</th>
+		<th>Created At</th>
+		<th>Last Update</th>
+		<th>Created By</th>
+		<th>Log numbers</th>
+	</tr>
+	</thead>
+	<tbody>
+	@{
+		foreach (var ticket in Model.Tickets)
+		{
+			<tr>
+				<th>@ticket.Title</th>
+				<th>@ticket.Status</th>
+				<th>@ticket.CreatedAt</th>
+				<th>@ticket.UpdatedAt</th>
+				<th>@Model.Employee.FirstName @Model.Employee.LastName</th>
+				<th>@ticket.Logs.Count</th>
+			</tr>
+		}
+	}
+	</tbody>
+</table>
