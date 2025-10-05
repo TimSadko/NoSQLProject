@@ -17,17 +17,12 @@
         <label asp-for="LastName"></label>
         <input asp-for="LastName" class="form-control" />
     </div>
-    <div class="form-group position-relative">
+    <div class="form-group">
         <label for="Role">Role</label>
-        <select id="Role" name="Role" class="form-control pr-5">
+        <select id="Role" name="Role" class="form-select">
             <option value="Employee" selected="@(isServiceDesk ? null : "selected")">Employee</option>
             <option value="ServiceDeskEmployee" selected="@(isServiceDesk ? "selected" : null)">Service Desk</option>
         </select>
-        <span class="dropdown-icon">
-            <svg style="position:absolute;right:16px;top:50%;transform:translateY(-50%);" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.24 4.4a.75.75 0 01-1.08 0l-4.24-4.4a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-            </svg>
-        </span>
     </div>
     <div class="form-group">
         <label asp-for="Email"></label>
@@ -38,14 +33,9 @@
         <input asp-for="Password" class="form-control" type="password" autocomplete="new-password" value="" />
         <small class="form-text text-muted">Leave blank to keep the current password.</small>
     </div>
-    <div class="form-group position-relative">
+    <div class="form-group">
         <label asp-for="Status"></label>
-        <select asp-for="Status" class="form-control pr-5" asp-items="Html.GetEnumSelectList<NoSQLProject.Models.Employee_Status>()"></select>
-        <span class="dropdown-icon">
-            <svg style="position:absolute;right:16px;top:50%;transform:translateY(-50%);" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.24 4.4a.75.75 0 01-1.08 0l-4.24-4.4a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-            </svg>
-        </span>
+        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<NoSQLProject.Models.Employee_Status>()"></select>
     </div>
 
     <button type="submit" class="btn btn-primary">Save</button>
@@ -56,8 +46,3 @@
     <partial name="_ValidationScriptsPartial" />
 }
 
-<style>
-    .dropdown-icon {
-        pointer-events: none;
-    }
-</style>
