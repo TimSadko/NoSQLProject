@@ -1,0 +1,44 @@
+﻿@model NoSQLProject.Models.Employee
+
+@{
+    ViewData["Title"] = "Add Employee";
+}
+<h2>Add Employee</h2>
+
+<form asp-action="Add" method="post">
+    <div class="form-group">
+        <label asp-for="FirstName"></label>
+        <input asp-for="FirstName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="LastName"></label>
+        <input asp-for="LastName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Role">Role</label>
+        <select id="Role" name="Role" class="form-select">
+            <option value="Employee">Employee</option>
+            <option value="ServiceDeskEmployee">Service Desk</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Password"></label>
+        <input asp-for="Password" class="form-control" type="password" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Status"></label>
+        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<NoSQLProject.Models.Employee_Status>()"></select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add</button>
+    <a asp-action="Index" class="btn btn-secondary ml-2">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

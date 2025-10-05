@@ -1,15 +1,25 @@
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using NoSQLProject.Models;
+using NoSQLProject.Other;
+using NoSQLProject.Repositories;
+using System.Collections.Generic;
+using NoSQLProject.Services;
 
 namespace NoSQLProject
 {
     public class Program
     {
         public static void Main(string[] args)
-        {
-            // Load .env before building configuration so env vars are available
-            DotNetEnv.Env.TraversePath().Load();
+        {           
 
-            var builder = WebApplication.CreateBuilder(args);
+            DotNetEnv.Env.TraversePath().Load(); // Load .env before building configuration so env vars are available
+
+			var builder = WebApplication.CreateBuilder(args);
+
+            Hasher.SetSalt(builder.Configuration.GetSection("Salt").Value); // Get salt from appsetting.json file and give it to hasher (used for hashing passwords)
+
+            //Console.WriteLine(Hasher.GetHashedString("123")); // Use if you need to hash the password
 
             // 1) Register MongoClient as a SINGLETON (one shared instance for the whole app)
             // WHY: MongoClient is thread-safe and internally manages a connection pool.
@@ -27,7 +37,8 @@ namespace NoSQLProject
 
                 return new MongoClient(settings);
             });
-
+            //Adding employee svcs 
+            builder.Services.AddScoped<EmployeeService>();
             // 2) Register IMongoDatabase as SCOPED (new per HTTP request)
             // WHY: Fits the ASP.NET request lifecycle and keeps each request cleanly separated.
             builder.Services.AddScoped(sp =>
@@ -41,9 +52,19 @@ namespace NoSQLProject
                 return client.GetDatabase(dbName);
             });
 
+            // Adding Repositories
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddSession(options => // Configure sessions
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
             var app = builder.Build();
 
@@ -62,9 +83,26 @@ namespace NoSQLProject
 
             app.UseAuthorization();
 
+            app.UseSession(); // Enable sessions
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            // BsonClassMap registration
+if (!BsonClassMap.IsClassMapRegistered(typeof(Employee)))
+{
+    BsonClassMap.RegisterClassMap<Employee>(cm =>
+    {
+        cm.AutoMap();
+        cm.SetIsRootClass(true);
+        cm.AddKnownType(typeof(ServiceDeskEmployee));
+    });
+}
+if (!BsonClassMap.IsClassMapRegistered(typeof(ServiceDeskEmployee)))
+{
+    BsonClassMap.RegisterClassMap<ServiceDeskEmployee>(cm => cm.AutoMap());
+}
 
             app.Run();
         }
