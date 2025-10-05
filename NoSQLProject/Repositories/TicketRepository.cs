@@ -30,6 +30,8 @@ namespace NoSQLProject.Repositories
 
         public async Task EditAsync(Ticket t)
         {
+            t.UpdatedAt = DateTime.Now;
+
             await _tickets.ReplaceOneAsync(Builders<Ticket>.Filter.Eq("_id", t.Id), t);
         }
 
@@ -39,24 +41,62 @@ namespace NoSQLProject.Repositories
 
             var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); // Get the Ticket by id
 
+
+            bool change = false;
+
             List<Task<UpdateResult>> tsk = new List<Task<UpdateResult>>(); // Create list of Tasks
 
             if(old.Title != t.Title) // If title was changed, update it in the db
             {
+                change = true;
+
                 tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("title", t.Title))); 
             }
 
             if(old.Description != t.Description) // If description was changed, update it in the db
             {
+                change = true;
+
                 tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("description", t.Description)));
             }
 
             if (old.Status != t.Status) // If status was changed, update it in the db
             {
+                change = true;
+
                 tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", t.Status)));
             }
 
+            if(change) tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now))); // If any change was made, the 'updated_at' is set to now
+
             await Task.WhenAll(tsk); // wait for all of the updates to finish
+        }
+
+        public async Task AddLogAsync(Ticket t, Log l, Employee e)
+        {
+            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); // Create filter for the Ticket
+
+            List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>(); // Create list of task, so they can be done in parallel
+
+            l.Id = ObjectId.GenerateNewId().ToString();
+            l.CreatedAt = DateTime.Now;
+            l.CreatedById = e.Id; 
+
+            Console.WriteLine(l.ToString());
+            Console.WriteLine(t.ToString());
+            Console.WriteLine(e.ToString());
+
+            //tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l))); // Add log to the ticket
+
+            //tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", l.NewStatus))); // Update the ticket status 
+
+            Console.WriteLine(_tickets.UpdateOne(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l)).ModifiedCount); // Add log to the ticket
+
+            Console.WriteLine(_tickets.UpdateOne(filter, Builders<Ticket>.Update.Set("status", l.NewStatus)).ModifiedCount); // Update the ticket status 
+
+            Console.WriteLine(_tickets.UpdateOne(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now)).ModifiedCount); // Update the ticket last update time 
+
+            //await Task.WhenAll(tasks);
         }
 
         public async Task DeleteAsync(string id)

@@ -12,7 +12,7 @@ namespace NoSQLProject.Models
 	[BsonKnownTypes(typeof(ServiceDeskEmployee))]
 	public class Employee
     {
-        protected string? _id = "";
+        protected string _id = "";
 		protected string _first_name = "";
 		protected string _last_name = "";
 		protected string _email = "";
@@ -33,7 +33,7 @@ namespace NoSQLProject.Models
 
         [BsonId]
         [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
-        public string? Id { get => _id; set => _id = value; }
+        public string Id { get => _id; set => _id = value; }
 
         [BsonElement("first_name")]
         [JsonPropertyName("first_name")]
@@ -53,6 +53,10 @@ namespace NoSQLProject.Models
 
         [BsonElement("status")]
         [JsonPropertyName("status")]
-        public Employee_Status Status { get => _status; set => _status = value; }      
+        public Employee_Status Status { get => _status; set => _status = value; }
+
+        [BsonIgnore]
+        [JsonIgnore]
+        public string FullName { get => $"{_first_name} {_last_name}"; }
     }
 }

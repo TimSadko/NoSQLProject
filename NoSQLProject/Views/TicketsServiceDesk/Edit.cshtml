@@ -20,52 +20,63 @@
     </div>
 
     <div class="form-group py-2 text-start">
-        <label for="Description">Description:</label>
+        <label for="Description">Status:</label>
         <select id="Status" name="Status" asp-for="Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
     </div>    
 
     <button type="submit" class="primary-button">Edit</button>
 </form>
 
+
 <div class="form-group py-2 text-start">
-    <label for="Logs">Logs:</label>
-    <table>
-        <thead>
-            <tr>
-                <th>Created By</th>
-                <th>Creation Time</th>
-                <th>New Status</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                foreach (Log log in Model.Logs)
-                {
+    <label>Logs:</label>
+    @{
+        if (Model?.Logs.Count == 0)
+        {
+            <div>No logs yet</div>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
                     <tr>
-                        <th></th>
-                        <th>@log.CreatedAt</th>
-                        <th>@log.NewStatus</th>
-                        @if (string.IsNullOrEmpty(log.Description)) // If deescription is empty
-                        {
-                            <th>-</th>
-                        }
-                        else
-                        {
-                            if (log.Description.Length > 100) // If it is too long, cut it
-                            {
-                                <th>@(log.Description.Substring(0, 100))...</th>
-                            }
-                            else // If it is short enough, put it ass it is
-                            {
-                                <th>@(log.Description.Substring(0, log.Description.Length))</th>
-                            }
-                        }
+                        <th>Created By</th>
+                        <th>Creation Time</th>
+                        <th>New Status</th>
+                        <th>Description</th>
                     </tr>
-                }
-            }
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (Log log in Model.Logs)
+                        {
+                            <tr>
+                                <th></th>
+                                <th>@log.CreatedAt</th>
+                                <th>@log.NewStatus</th>
+                                @if (string.IsNullOrEmpty(log.Description)) // If deescription is empty
+                                {
+                                    <th>-</th>
+                                }
+                                else
+                                {
+                                    if (log.Description.Length > 100) // If it is too long, cut it
+                                    {
+                                        <th>@(log.Description.Substring(0, 100))...</th>
+                                    }
+                                    else // If it is short enough, put it ass it is
+                                    {
+                                        <th>@(log.Description.Substring(0, log.Description.Length))</th>
+                                    }
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+    }  
+    <a href="/TicketsServiceDesk/AddLog/@Model.Id">Add New Log</a>
 </div>
 
 <a href="/TicketsServiceDesk/Index">Back to Ticket List</a>
