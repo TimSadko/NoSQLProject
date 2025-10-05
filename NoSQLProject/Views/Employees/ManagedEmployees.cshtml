@@ -1,24 +1,37 @@
-﻿@model List<NoSQLProject.Models.Employee>
-
+﻿@model IEnumerable<NoSQLProject.Models.Employee>
 @{
-    var sde = (NoSQLProject.Models.ServiceDeskEmployee)ViewBag.ServiceDeskEmployee;
     ViewData["Title"] = "Managed Employees";
 }
 
-<h2>Managed Employees for @sde.FirstName @sde.LastName</h2>
+<h2>Managed Employees</h2>
 
-@if (Model != null && Model.Any())
+@if (Model == null || !Model.Any())
 {
-    <ul>
-        @foreach (var emp in Model)
-        {
-            <li>@emp.FirstName @emp.LastName (@emp.Email)</li>
-        }
-    </ul>
+    <div class="alert alert-info">No employees managed.</div>
 }
 else
 {
-    <p>No employees managed.</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <!-- Add more columns as needed -->
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var emp in Model)
+        {
+            <tr>
+                <td>@emp.FirstName</td>
+                <td>@emp.LastName</td>
+                <td>@emp.Email</td>
+                <!-- Add more cells as needed -->
+            </tr>
+        }
+        </tbody>
+    </table>
 }
 
 <a asp-action="Index" class="btn btn-secondary">Back to Employees</a>

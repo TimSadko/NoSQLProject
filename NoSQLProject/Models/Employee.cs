@@ -9,7 +9,7 @@ namespace NoSQLProject.Models
         Active = 0, Deactivated = 1, Archived = 2
     }
 
-	//[BsonDiscriminator(RootClass = true)]
+	[BsonDiscriminator(RootClass = true)]
 	[BsonKnownTypes(typeof(ServiceDeskEmployee))]
 	public class Employee
     {

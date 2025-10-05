@@ -32,15 +32,15 @@ namespace NoSQLProject.Repositories
             return await _employees.FindAsync(fillter).Result.FirstOrDefaultAsync();
         }
 
+        public async Task<Employee?> GetByEmailAsync(string email)
+        {
+            var filter = Builders<Employee>.Filter.Eq(e => e.Email, email);
+            return await _employees.Find(filter).FirstOrDefaultAsync();
+        }
+
         // Add, Update, Delete methods added by Fernando
         public async Task Add(Employee employee)
         {
-            var filter = Builders<Employee>.Filter.Eq(e => e.Email, employee.Email);
-            var existing = await _employees.Find(filter).FirstOrDefaultAsync();
-            if (existing != null)
-                throw new InvalidOperationException("An employee with this email already exists.");
-
-            employee.Password = Hasher.GetHashedString(employee.Password);
             await _employees.InsertOneAsync(employee);
         }
 
@@ -54,6 +54,13 @@ namespace NoSQLProject.Repositories
         {
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, employee.Id);
             await _employees.DeleteOneAsync(filter);
+        }
+
+        public async Task<List<Employee>> GetEmployeesByIdsAsync(IEnumerable<string> ids)
+        {
+            var objectIds = ids.Select(id => ObjectId.Parse(id)).ToList();
+            var filter = Builders<Employee>.Filter.In("_id", objectIds);
+            return await _employees.Find(filter).ToListAsync();
         }
     }
 }

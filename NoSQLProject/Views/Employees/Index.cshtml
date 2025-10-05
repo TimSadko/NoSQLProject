@@ -10,6 +10,11 @@
     <a asp-action="Add" class="btn btn-success">+ Add Employee</a>
 </div>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div id="self-delete-error" class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
 <table class="table">
     <thead>
         <tr>
@@ -60,3 +65,16 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            var errorDiv = document.getElementById('self-delete-error');
+            if (errorDiv) {
+                setTimeout(function () {
+                    errorDiv.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+}
