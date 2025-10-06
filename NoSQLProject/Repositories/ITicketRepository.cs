@@ -5,6 +5,7 @@ namespace NoSQLProject.Repositories
     public interface ITicketRepository
     {
         Task<List<Ticket>> GetAllAsync();
+        Task<List<Ticket>> GetAllByEmployeeIdAsync(string id);
         Task<Ticket?> GetByIdAsync(string id);
         Task AddAsync(Ticket t);
         Task EditAsync(Ticket t);
