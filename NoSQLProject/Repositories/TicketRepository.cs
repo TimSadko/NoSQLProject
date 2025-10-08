@@ -20,6 +20,8 @@ namespace NoSQLProject.Repositories
 
         public async Task<Ticket?> GetByIdAsync(string id)
         {
+            if(string.IsNullOrEmpty(id)) return null;
+
             return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id))).Result.FirstOrDefaultAsync();
         }
 
@@ -40,7 +42,6 @@ namespace NoSQLProject.Repositories
             var old = await GetByIdAsync(t.Id); // Get 'db' version pf the ticket, then compare it to the 'edited' version
 
             var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); // Get the Ticket by id
-
 
             bool change = false;
 
@@ -82,21 +83,13 @@ namespace NoSQLProject.Repositories
             l.CreatedAt = DateTime.Now;
             l.CreatedById = e.Id; 
 
-            Console.WriteLine(l.ToString());
-            Console.WriteLine(t.ToString());
-            Console.WriteLine(e.ToString());
+            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l))); // Add log to the ticket
 
-            //tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l))); // Add log to the ticket
+            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", l.NewStatus))); // Update the ticket status 
 
-            //tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", l.NewStatus))); // Update the ticket status 
+            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now))); // Update the ticket last update time 
 
-            Console.WriteLine(_tickets.UpdateOne(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l)).ModifiedCount); // Add log to the ticket
-
-            Console.WriteLine(_tickets.UpdateOne(filter, Builders<Ticket>.Update.Set("status", l.NewStatus)).ModifiedCount); // Update the ticket status 
-
-            Console.WriteLine(_tickets.UpdateOne(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now)).ModifiedCount); // Update the ticket last update time 
-
-            //await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
         }
 
         public async Task DeleteAsync(string id)

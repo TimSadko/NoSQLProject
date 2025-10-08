@@ -4,6 +4,8 @@
 	ViewData["Title"] = "Tickets";
 }
 
+<partial name="_ErrorMessage" />
+
 <h1>Tickets:</h1>
 <a href="/TicketsServiceDesk/Add">Add new Ticket</a>
 
@@ -28,7 +30,7 @@
 					<th>@Model.Tickets[i].Status</th>
 					<th>@Model.Tickets[i].CreatedAt</th>
 					<th>@Model.Tickets[i].UpdatedAt</th>
-					<th>@Model.Employees[i].FullName</th>
+					<th>@(Model.Employees[i] == null ? "???" : Model.Employees[i].FullName)</th>
 					<th>@Model.Tickets[i].Logs.Count</th>
 					<th><a href="/TicketsServiceDesk/Edit/@Model.Tickets[i].Id">View</a></th>
 				</tr>

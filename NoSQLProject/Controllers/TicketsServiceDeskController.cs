@@ -27,7 +27,7 @@ namespace NoSQLProject.Controllers
 
                 view_model.Tickets = await _rep.GetAllAsync(); // Get all ticket
 
-                view_model.Employees = new List<Employee>(); // Create new list of employees
+                view_model.Employees = new List<Employee?>(); // Create new list of employees
 
                 List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
 
@@ -48,7 +48,7 @@ namespace NoSQLProject.Controllers
             catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
-                return View();
+                return View(new SDETickestsListViewModel(new List<Ticket>(), new List<Employee?>()));
             }
         }
 
@@ -102,7 +102,23 @@ namespace NoSQLProject.Controllers
 
                 if (t == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
 
-                return View(t);
+                var view_model = new SDETicketEditViewModel(t, new List<Employee?>());
+
+                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
+
+                for (int i = 0; i < view_model.Ticket.Logs.Count; i++)
+                {
+                    tasks.Add(_employees_rep.GetByIdAsync(t.Logs[i].CreatedById)); 
+                }
+
+                await Task.WhenAll(tasks); // Wait for all of the employees to load
+
+                for (int i = 0; i < tasks.Count; i++) // Add all of loaded the employees to the view model
+                {
+                    view_model.LogEmployees.Add(tasks[i].Result);
+                }
+
+                return View(view_model);
             }
             catch (Exception ex)
             {
@@ -112,15 +128,15 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Ticket t)
+        public async Task<IActionResult> Edit(SDETicketEditViewModel view_model)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
-                await _rep.CheckUpdateAsync(t);
+                await _rep.CheckUpdateAsync(view_model.Ticket);
 
-                return View(t);
+                return RedirectToAction("Edit", new {id = view_model.Ticket.Id});
             }
             catch (Exception ex)
             {

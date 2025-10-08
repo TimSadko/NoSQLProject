@@ -97,3 +97,7 @@ body {
     color: #222;
     text-decoration: underline;
 }
+
+.new-log-description-input {
+    /*height: 125px;*/
+}

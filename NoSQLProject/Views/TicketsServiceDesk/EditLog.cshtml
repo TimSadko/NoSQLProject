@@ -1,7 +1,7 @@
 ﻿@model LogViewModel
 
 @{
-	ViewData["Title"] = "Add New Log";
+    ViewData["Title"] = "Add New Log";
 }
 
 <partial name="_ErrorMessage" />
@@ -9,7 +9,7 @@
 <h1>New Log:</h1>
 
 <form action="/TicketsServiceDesk/AddLog" method="post">
-    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id"/>
+    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
     <input type="hidden" asp-for="@Model.Ticket.Status" value="@Model.Ticket.Status" />
 
     <div class="form-group py-2 text-start">
