@@ -118,6 +118,10 @@ namespace NoSQLProject.Controllers
                     view_model.LogEmployees.Add(tasks[i].Result);
                 }
 
+                Employee? creator = await _employees_rep.GetByIdAsync(t.CreatedById);
+
+                ViewData["creator"] = creator == null ? "???" : creator.FullName; 
+
                 return View(view_model);
             }
             catch (Exception ex)
@@ -188,6 +192,30 @@ namespace NoSQLProject.Controllers
             {
                 TempData["Exception"] = ex.Message;
                 return RedirectToAction("Edit", new { id = model.Ticket.Id });
+            }
+        }
+
+        [HttpGet("TicketsServiceDesk/EditLog/{id}")]
+        public async Task<IActionResult> EditLog(string id)
+        {
+            if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                Ticket? t = await _rep.GetByIdAsync(id);
+
+                if (t == null) throw new Exception($"Ticket with Id({id}) does not exist");
+
+                Log l = new Log();
+
+                l.NewStatus = t.Status;
+
+                return View(new LogViewModel(t, l));
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
             }
         }
 

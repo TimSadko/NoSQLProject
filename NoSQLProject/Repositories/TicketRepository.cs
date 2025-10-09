@@ -41,34 +41,28 @@ namespace NoSQLProject.Repositories
         {
             var old = await GetByIdAsync(t.Id); // Get 'db' version pf the ticket, then compare it to the 'edited' version
 
-            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); // Get the Ticket by id
+            if (old.Description == t.Description && old.Title == t.Title && old.Status == t.Status) return; // If not changes were made, return
 
-            bool change = false;
+            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); // Get the Ticket by id
 
             List<Task<UpdateResult>> tsk = new List<Task<UpdateResult>>(); // Create list of Tasks
 
             if(old.Title != t.Title) // If title was changed, update it in the db
             {
-                change = true;
-
                 tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("title", t.Title))); 
             }
 
             if(old.Description != t.Description) // If description was changed, update it in the db
             {
-                change = true;
-
                 tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("description", t.Description)));
             }
 
             if (old.Status != t.Status) // If status was changed, update it in the db
             {
-                change = true;
-
                 tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", t.Status)));
             }
 
-            if(change) tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now))); // If any change was made, the 'updated_at' is set to now
+            tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now))); // The 'updated_at' is set to now
 
             await Task.WhenAll(tsk); // wait for all of the updates to finish
         }
@@ -90,6 +84,11 @@ namespace NoSQLProject.Repositories
             tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now))); // Update the ticket last update time 
 
             await Task.WhenAll(tasks);
+        }
+
+        public async Task<Log?> GetLogById(string ticket_id, string log_id)
+        {
+
         }
 
         public async Task DeleteAsync(string id)
