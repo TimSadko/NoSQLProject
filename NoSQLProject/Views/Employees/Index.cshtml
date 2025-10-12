@@ -1,63 +1,80 @@
 ﻿@model List<Employee>
 
 @{
-	ViewData["Title"] = "Emploees List";
+    ViewData["Title"] = "Employees List";
 }
 
-<h1>Employees:</h1>
+<h1>Employees</h1>
+
+<div class="mb-3">
+    <a asp-action="Add" class="btn btn-success">+ Add Employee</a>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div id="self-delete-error" class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
 
 <table class="table">
-	<thead>
-		<tr>
-			<th>First Name</th>
-			<th>Last Name</th>
-			<th>Email</th>
-			<th>Role</th>
-			<th>Status</th>
-			<th>Manages</th>
-		</tr>
-	</thead>
-	<tbody>
-		@{
-			foreach(Employee employee in Model)
-			{
-				if(employee is ServiceDeskEmployee sde)
-				{
-					<tr>
-						<th>@sde.FirstName</th>
-						<th>@sde.LastName</th>
-						<th>@sde.Email</th>
-						<th>Service Desk Employee</th>
-						<th>@sde.Status</th>
-
-						<th>
-							<div>
-								@{
-									if (sde.ManagedEmployeesId != null)
-									{
-										foreach (string str in sde.ManagedEmployeesId)
-										{
-											<div>@str</div>
-										}
-									}
-								}
-							</div>
-						</th>
-					</tr>
-				}
-				else
-				{
-					<tr>
-						<th>@employee.FirstName</th>
-						<th>@employee.LastName</th>
-						<th>@employee.Email</th>
-						<th>Normal Employee</th>
-						<th>@employee.Status</th>
-
-						<th></th>
-					</tr>
-				}				
-			}
-		}
-	</tbody>
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Management</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Employee employee in Model)
+        {
+            <tr>
+                <th>@employee.FirstName</th>
+                <th>@employee.LastName</th>
+                <th>@employee.Email</th>
+                <th>@(employee is ServiceDeskEmployee ? "Service Desk" : "Employee")</th>
+                <th>@employee.Status</th>
+                <th>
+                    @if (employee is ServiceDeskEmployee sde)
+                    {
+                        <a asp-action="ManagedEmployees" asp-controller="Employees" asp-route-id="@sde.Id" class="btn btn-info btn-sm">View Managed</a>
+                    }
+                    else
+                    {
+                        <span>Not applicable</span>
+                    }
+                </th>
+                <th>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@employee.Id">Edit</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-action="Delete" asp-route-id="@employee.Id">Delete</a>
+                            </li>
+                        </ul>
+                    </div>
+                </th>
+            </tr>
+        }
+    </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            var errorDiv = document.getElementById('self-delete-error');
+            if (errorDiv) {
+                setTimeout(function () {
+                    errorDiv.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+}

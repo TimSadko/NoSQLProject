@@ -1,7 +1,10 @@
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using NoSQLProject.Models;
 using NoSQLProject.Other;
 using NoSQLProject.Repositories;
 using System.Collections.Generic;
+using NoSQLProject.Services;
 
 namespace NoSQLProject
 {
@@ -9,6 +12,7 @@ namespace NoSQLProject
     {
         public static void Main(string[] args)
         {           
+
             DotNetEnv.Env.TraversePath().Load(); // Load .env before building configuration so env vars are available
 
 			var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +37,8 @@ namespace NoSQLProject
 
                 return new MongoClient(settings);
             });
-
+            //Adding employee svcs 
+            builder.Services.AddScoped<EmployeeService>();
             // 2) Register IMongoDatabase as SCOPED (new per HTTP request)
             // WHY: Fits the ASP.NET request lifecycle and keeps each request cleanly separated.
             builder.Services.AddScoped(sp =>
@@ -83,6 +88,21 @@ namespace NoSQLProject
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            // BsonClassMap registration
+if (!BsonClassMap.IsClassMapRegistered(typeof(Employee)))
+{
+    BsonClassMap.RegisterClassMap<Employee>(cm =>
+    {
+        cm.AutoMap();
+        cm.SetIsRootClass(true);
+        cm.AddKnownType(typeof(ServiceDeskEmployee));
+    });
+}
+if (!BsonClassMap.IsClassMapRegistered(typeof(ServiceDeskEmployee)))
+{
+    BsonClassMap.RegisterClassMap<ServiceDeskEmployee>(cm => cm.AutoMap());
+}
 
             app.Run();
         }

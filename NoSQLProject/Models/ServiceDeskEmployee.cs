@@ -1,11 +1,15 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace NoSQLProject.Models
 {
     public class ServiceDeskEmployee : Employee
     {
-		protected List<string>? _managed_employees_id = null;
+        [BsonElement("managed_employees")]
+        public List<string> ManagedEmployees { get; set; } = new();
+
+        protected List<string>? _managed_employees_id = null;
 
 		public ServiceDeskEmployee() { }
 
@@ -13,9 +17,6 @@ namespace NoSQLProject.Models
 		{
 			_managed_employees_id = managed_employees_id;
 		}
-
-		[BsonElement("managed_employees")]
-		[JsonPropertyName("managed_employees")]
-		public List<string>? ManagedEmployeesId { get => _managed_employees_id; set => _managed_employees_id = value; }
-	}
+    }
 }
+

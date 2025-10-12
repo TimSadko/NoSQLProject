@@ -54,6 +54,7 @@ namespace NoSQLProject.Controllers
                 if (emp == null) throw new Exception("Incorrect Email or Password"); // If no employee found throw exception
 
                 Authorization.SetLoggedInEmployee(HttpContext, emp); // Save current logged in employee in session
+                HttpContext.Session.SetString("UserId", emp.Id); // Set the user ID in the session
 
                 return RedirectEmployee(emp);
             }
