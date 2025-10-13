@@ -40,7 +40,7 @@ namespace NoSQLProject.Repositories
         {
             t.UpdatedAt = DateTime.Now;
 
-            await _tickets.ReplaceOneAsync(Builders<Ticket>.Filter.Eq("_id", t.Id), t);
+            await _tickets.ReplaceOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)), t);
         }
 
         public async Task CheckUpdateAsync(Ticket t)
