@@ -6,7 +6,7 @@ using NoSQLProject.ViewModels;
 
 namespace NoSQLProject.Controllers
 {
-    public class TicketsEmployeeController(ITicketRepository repository) : Controller
+    public class TicketsEmployeeController(ITicketRepository ticketRepository, IEmployeeRepository employeeRepository) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -17,7 +17,7 @@ namespace NoSQLProject.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
-            var tickets = await repository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
+            var tickets = await ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
             var employeeTickets = new EmployeeTickets(tickets, authenticatedEmployee);
             return View(employeeTickets);
         }
@@ -47,13 +47,49 @@ namespace NoSQLProject.Controllers
                 ticket.Logs = [];
                 ticket.CreatedAt = DateTime.Now;
                 ticket.UpdatedAt = DateTime.Now;
-                await repository.AddAsync(ticket);
+                await ticketRepository.AddAsync(ticket);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
                 return View(ticket);
+            }
+        }
+        
+        [HttpGet("TicketsEmployee/Logs/{id}")]
+        public async Task<IActionResult> Logs(string? id)
+        {
+            if (!IsAuthenticated()) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                if (string.IsNullOrEmpty(id)) throw new Exception("Ticket id is empty or null!");
+                var logs = await ticketRepository.GetLogsByTicketIdAsync(id);
+
+                if (logs.Count == 0)
+                {
+                    TempData["Exception"] = "No logs found for this ticket.";
+                    return RedirectToAction("Index");
+                }
+
+                List<Tuple<Log, Employee>> employeeLogPairs = [];
+                foreach (var log in logs)
+                {
+                    var employee = await employeeRepository.GetByIdAsync(log.CreatedById);
+                    if (employee != null)
+                    {
+                        employeeLogPairs.Add(new Tuple<Log, Employee>(log, employee));
+                    }
+                }
+
+                var viewModel = new TicketLogsViewModel(employeeLogPairs);
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
             }
         }
 
