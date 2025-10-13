@@ -1,0 +1,39 @@
+﻿@model LogViewModel
+
+@{
+    ViewData["Title"] = "Delete Log";
+}
+
+<partial name="_ErrorMessage" />
+
+<h1>Log:</h1>
+
+<div class="form-group py-2 text-start">
+    <label>Created By:</label>
+    <input type="text" class="form-control input-background" readonly value="@ViewData["creator"]" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label>Created At:</label>
+    <input type="text" class="form-control input-background" readonly value="@Model.Log.CreatedAt" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label for="Description">Description:</label>
+    <input type="text" class="form-control input-background" readonly value="@Model.Log.Description" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label for="NewStatus">Status Change:</label>
+    <input type="text" class="form-control input-background" readonly value="@Model.Log.NewStatus" />
+</div>
+
+<form action="/TicketsServiceDesk/DeleteLog" method="post">
+    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
+    <input type="hidden" asp-for="@Model.Log.Id" value="@Model.Log.Id" />
+
+    <label>Are you sure you wnat to <b>delete</b> this log?</label>
+
+    <a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Cancel</a>
+    <button type="submit" class="btn-danger">Delete</button>
+</form>

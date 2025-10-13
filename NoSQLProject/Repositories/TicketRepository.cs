@@ -110,6 +110,14 @@ namespace NoSQLProject.Repositories
             await Task.WhenAll(tasks);
         }
 
+        public async Task DeleteLogAsync(string ticket_id, string log_id)
+        {
+            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id));
+            var update = Builders<Ticket>.Update.PullFilter(t => t.Logs, Builders<Log>.Filter.Eq("_id", ObjectId.Parse(log_id)));
+
+            await _tickets.UpdateOneAsync(filter, update);
+        }
+
         public async Task DeleteAsync(string id)
         {
             await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)));
