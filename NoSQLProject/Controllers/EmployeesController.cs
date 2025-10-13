@@ -11,9 +11,18 @@ public class EmployeesController : Controller
         _employeeService = employeeService;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string status)
     {
-        var employees = await _employeeService.GetAllEmployeesAsync();
+        List<Employee> employees;
+        if (string.IsNullOrEmpty(status))
+        {
+            employees = (await _employeeService.GetAllEmployeesAsync()).ToList();
+        }
+        else
+        {
+            employees = await _employeeService.GetEmployeesByStatusAsync(status);
+        }
+        ViewBag.Status = status;
         return View(employees);
     }
 
