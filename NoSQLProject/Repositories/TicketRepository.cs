@@ -123,6 +123,12 @@ namespace NoSQLProject.Repositories
             await _tickets.UpdateOneAsync(filter, update);
         }
 
+        public async Task<List<Log>> GetLogsByTicketIdAsync(string id)
+        {
+            var ticket = await GetByIdAsync(id);
+            return ticket == null ? [] : ticket.Logs;
+        }
+
         public async Task DeleteAsync(string id)
         {
             await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)));

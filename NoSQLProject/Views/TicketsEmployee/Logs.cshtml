@@ -1,0 +1,31 @@
+﻿@model NoSQLProject.ViewModels.TicketLogsViewModel
+
+@{
+    ViewData["Title"] = "Ticket Logs";
+}
+
+<h1>Logs for Ticket</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Description</th>
+        <th>New Status</th>
+        <th>Created At</th>
+        <th>Created By</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var (log, employee) in Model.EmployeeLogPairs)
+    {
+        <tr>
+            <td>@log.Description</td>
+            <td>@log.NewStatus</td>
+            <td>@log.CreatedAt</td>
+            <td>@employee.FullName</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a href="/TicketsEmployee/Index">Back to Ticket List</a>
