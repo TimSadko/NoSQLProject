@@ -1,0 +1,95 @@
+﻿@model NoSQLProject.Models.SDETicketEditViewModel
+
+@{
+    ViewData["Title"] = "Delete Ticket";
+}
+
+<partial name="_ErrorMessage" />
+
+<h1>Ticket:</h1>
+
+<div class="form-group py-2 text-start">
+    <label>Creator:</label>
+    <input type="text" class="form-control input-background" readonly value="@ViewData["creator"]" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label>Created At:</label>
+    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label>Last Update:</label>
+    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label for="Title">Title:</label>
+    <input type="text" class="form-control input-background" readonly value="@Model?.Ticket.Title" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label for="Description">Description:</label>
+    <input type="text" class="form-control input-background" readonly value="@Model?.Ticket.Description" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label>Logs:</label>
+    @{
+        if (Model?.Ticket.Logs.Count == 0)
+        {
+            <div>No logs</div>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Created By</th>
+                        <th>Creation Time</th>
+                        <th>New Status</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        for (int i = 0; i < Model.Ticket.Logs.Count; i++)
+                        {
+                            var log = Model.Ticket.Logs[i];
+
+                            <tr>
+                                <th>@(Model.LogEmployees[i] == null ? "???" : Model.LogEmployees[i].FullName)</th>
+                                <th>@log.CreatedAt</th>
+                                <th>@log.NewStatus</th>
+
+                                @if (string.IsNullOrEmpty(log.Description)) // If deescription is empty
+                                {
+                                    <th>-</th>
+                                }
+                                else
+                                {
+                                    if (log.Description.Length > 100) // If it is too long, cut it
+                                    {
+                                        <th>@(log.Description.Substring(0, 100))...</th>
+                                    }
+                                    else // If it is short enough, put it ass it is
+                                    {
+                                        <th>@(log.Description.Substring(0, log.Description.Length))</th>
+                                    }
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</div>
+
+<form action="/TicketsServiceDesk/Delete" method="post">
+    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
+
+    <label>Are you sure you want to <b>delete</b> this ticket?</label>
+    <a href="/TicketsServiceDesk/Index">Cancel</a>
+    <button type="submit" class="btn-danger">Delete</button>
+</form>

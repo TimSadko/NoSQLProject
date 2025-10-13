@@ -241,6 +241,67 @@ namespace NoSQLProject.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                if (id == null) throw new ArgumentNullException("Id is null");
+
+                Ticket? t = await _rep.GetByIdAsync((string)id);
+
+                if (t == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
+
+                var view_model = new SDETicketEditViewModel(t, new List<Employee?>());
+
+                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
+
+                for (int i = 0; i < view_model.Ticket.Logs.Count; i++)
+                {
+                    tasks.Add(_employees_rep.GetByIdAsync(t.Logs[i].CreatedById));
+                }
+
+                await Task.WhenAll(tasks); // Wait for all of the employees to load
+
+                for (int i = 0; i < tasks.Count; i++) // Add all of loaded the employees to the view model
+                {
+                    view_model.LogEmployees.Add(tasks[i].Result);
+                }
+
+                Employee? creator = await _employees_rep.GetByIdAsync(t.CreatedById);
+
+                ViewData["creator"] = creator == null ? "???" : creator.FullName;
+
+                return View(view_model);
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(SDETicketEditViewModel view_model)
+        {
+            if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                Console.WriteLine(view_model.Ticket.Id);
+                await _rep.DeleteAsync(view_model.Ticket.Id);
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
         public bool Authenticate()
         {
             Employee? emp = Authorization.GetLoggedInEmployee(this.HttpContext);

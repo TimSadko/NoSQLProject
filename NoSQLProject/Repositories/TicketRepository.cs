@@ -112,7 +112,7 @@ namespace NoSQLProject.Repositories
 
         public async Task DeleteAsync(string id)
         {
-            await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", id));
+            await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)));
         }
     }
 }
