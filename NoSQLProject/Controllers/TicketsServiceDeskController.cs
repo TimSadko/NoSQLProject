@@ -195,22 +195,44 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        [HttpGet("TicketsServiceDesk/EditLog/{id}")]
-        public async Task<IActionResult> EditLog(string id)
+        [HttpGet("TicketsServiceDesk/EditLog/{ticket_id}/{log_id}")]
+        public async Task<IActionResult> EditLog(string ticket_id, string log_id)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
-                Ticket? t = await _rep.GetByIdAsync(id);
+                Ticket? t = await _rep.GetByIdAsync(ticket_id);
 
-                if (t == null) throw new Exception($"Ticket with Id({id}) does not exist");
+                if (t == null) throw new Exception($"Ticket with Id({ticket_id}) does not exist");
 
-                Log l = new Log();
+                Log? l = t.Logs.FirstOrDefault(log => log.Id == log_id);
 
-                l.NewStatus = t.Status;
+                if (l == null) throw new Exception($"Log with Id({log_id}) does not exist");
+
+                Employee? creator = await _employees_rep.GetByIdAsync(l.CreatedById);
+
+                ViewData["creator"] = creator == null ? "???" : creator.FullName;
 
                 return View(new LogViewModel(t, l));
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditLog(LogViewModel view_model)
+        {
+            if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                await _rep.EditLogAsync(view_model.Ticket.Id, view_model.Log);
+
+                return RedirectToAction("Edit", new { id = view_model.Ticket.Id });
             }
             catch (Exception ex)
             {

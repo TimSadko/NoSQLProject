@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using NoSQLProject.Models;
+using System.Reflection.Metadata;
 
 namespace NoSQLProject.Repositories
 {
@@ -86,9 +87,27 @@ namespace NoSQLProject.Repositories
             await Task.WhenAll(tasks);
         }
 
-        public async Task<Log?> GetLogById(string ticket_id, string log_id)
+        public async Task<Log?> GetLogByIdAsync(string ticket_id, string log_id)
         {
+            Ticket? t = await GetByIdAsync(ticket_id);
 
+            if(t == null) return null;
+
+            Log? l = t.Logs.FirstOrDefault(log => log.Id == log_id);
+
+            return l;
+        }
+
+        public async Task EditLogAsync(string ticket_id, Log log)
+        {
+            var filter = Builders<Ticket>.Filter.And(Builders<Ticket>.Filter.Eq(t => t.Id, ticket_id), Builders<Ticket>.Filter.ElemMatch(t => t.Logs, l => l.Id == log.Id));
+
+            List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>();
+
+            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("logs.$.description", log.Description)));
+            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("logs.$.new_status", log.NewStatus)));
+
+            await Task.WhenAll(tasks);
         }
 
         public async Task DeleteAsync(string id)

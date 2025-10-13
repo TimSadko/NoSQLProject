@@ -63,6 +63,7 @@
                         <th>Creation Time</th>
                         <th>New Status</th>
                         <th>Description</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,6 +92,8 @@
                                         <th>@(log.Description.Substring(0, log.Description.Length))</th>
                                     }
                                 }
+
+                                <th><a href="/TicketsServiceDesk/EditLog/@(Model.Ticket.Id)/@(log.Id)">View</a></th>
                             </tr>
                         }
                     }

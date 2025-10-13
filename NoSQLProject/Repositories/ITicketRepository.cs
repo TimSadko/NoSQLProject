@@ -11,5 +11,7 @@ namespace NoSQLProject.Repositories
         Task DeleteAsync(string id);
         Task CheckUpdateAsync(Ticket t);
         Task AddLogAsync(Ticket t, Log l, Employee e);
+        Task<Log?> GetLogByIdAsync(string ticket_id, string log_id);
+        Task EditLogAsync(string ticket_id, Log log);
     }
 }

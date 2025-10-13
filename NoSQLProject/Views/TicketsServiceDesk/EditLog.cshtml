@@ -1,7 +1,7 @@
 ﻿@model LogViewModel
 
 @{
-    ViewData["Title"] = "Add New Log";
+    ViewData["Title"] = "Edit Log";
 }
 
 <partial name="_ErrorMessage" />
@@ -18,9 +18,13 @@
     <input type="text" class="form-control input-background" readonly value="@Model.Log.CreatedAt" />
 </div>
 
-<form action="/TicketsServiceDesk/AddLog" method="post">
+<form action="/TicketsServiceDesk/EditLog" method="post">
     <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
     <input type="hidden" asp-for="@Model.Ticket.Status" value="@Model.Ticket.Status" />
+
+    <input type="hidden" asp-for="@Model.Log.Id" value="@Model.Log.Id" />
+    <input type="hidden" asp-for="@Model.Log.CreatedById" value="@Model.Log.CreatedById" />
+    <input type="hidden" asp-for="@Model.Log.CreatedAt" value="@Model.Log.CreatedAt" />
 
     <div class="form-group py-2 text-start">
         <label for="Description">Description:</label>
@@ -32,7 +36,7 @@
         <select id="NewStatus" asp-for="@Model.Log.NewStatus" asp-items="@Html.GetEnumSelectList<Ticket_Status>()" required></select>
     </div>
 
-    <button type="submit" class="primary-button">Add</button>
+    <button type="submit" class="primary-button">Edit</button>
 </form>
 
 <a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Go Back To The Ticket</a>
