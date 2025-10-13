@@ -6,7 +6,9 @@ using NoSQLProject.ViewModels;
 
 namespace NoSQLProject.Controllers
 {
-    public class TicketsEmployeeController(ITicketRepository ticketRepository, IEmployeeRepository employeeRepository) : Controller
+    public class TicketsEmployeeController(
+        ITicketRepository ticketRepository,
+        IEmployeeRepository employeeRepository) : Controller
     {
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -29,15 +31,16 @@ namespace NoSQLProject.Controllers
             {
                 return RedirectToAction("Login", "Home");
             }
+
             return View(new Ticket());
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> Add(Ticket ticket)
         {
             var authenticatedEmployee = Authenticate();
 
-            if (authenticatedEmployee?.Id == null) 
+            if (authenticatedEmployee?.Id == null)
                 return RedirectToAction("Login", "Home");
 
             try
@@ -56,7 +59,57 @@ namespace NoSQLProject.Controllers
                 return View(ticket);
             }
         }
-        
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(string? id)
+        {
+            if (!IsAuthenticated())
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            if (string.IsNullOrEmpty(id)) throw new Exception("Ticket id is empty or null!");
+
+            var ticket = await ticketRepository.GetByIdAsync(id);
+            if (ticket == null)
+            {
+                TempData["Exception"] = "Ticket is null. Something went wrong!";
+            }
+
+            return View(ticket);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Ticket? ticket)
+        {
+            if (!IsAuthenticated())
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            try
+            {
+                if (string.IsNullOrEmpty(ticket?.Id)) throw new Exception("Ticket id is empty or null!");
+
+                var ticketToChange = await ticketRepository.GetByIdAsync(ticket.Id);
+                if (ticketToChange == null)
+                {
+                    TempData["Exception"] = "Ticket can not be found. Something went wrong!";
+                    return View(ticket);
+                }
+
+                ticketToChange.Title = ticket.Title;
+                ticketToChange.Description = ticket.Description;
+                await ticketRepository.EditAsync(ticketToChange);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
         [HttpGet("TicketsEmployee/Logs/{id}")]
         public async Task<IActionResult> Logs(string? id)
         {
@@ -98,8 +151,7 @@ namespace NoSQLProject.Controllers
             var employee = Authorization.GetLoggedInEmployee(HttpContext);
             return employee is null or ServiceDeskEmployee ? null : employee;
         }
-        
+
         private bool IsAuthenticated() => Authenticate() != null;
-        
     }
 }
