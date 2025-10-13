@@ -4,7 +4,7 @@
 	ViewData["Title"] = "Tickets";
 }
 
-<partial name="_ErrorMessage" />
+<partial name="_ErrorMessage"/>
 
 <h1>Tickets:</h1>
 <a href="/TicketsEmployee/Add">Add new Ticket</a>
@@ -31,9 +31,9 @@
 				<th>@ticket.CreatedAt</th>
 				<th>@ticket.UpdatedAt</th>
 				<th>@Model.Employee.FirstName @Model.Employee.LastName</th>
-				<th>@ticket.Logs.Count -  <a href="/TicketsEmployee/Logs/@ticket.Id">View</a></th>
+				<th>@ticket.Logs.Count - <a href="/TicketsEmployee/Logs/@ticket.Id">View</a></th>
 				<th>
-					
+					<a href="/TicketsEmployee/Edit/@ticket.Id">Edit</a>
 				</th>
 			</tr>
 		}
