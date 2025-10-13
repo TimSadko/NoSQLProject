@@ -63,11 +63,19 @@ namespace NoSQLProject.Services
 
         public async Task<List<Employee>> GetEmployeesManagedByAsync(string serviceDeskEmployeeId)
         {
-            var sde = await _employeeRepository.GetByIdAsync(serviceDeskEmployeeId) as ServiceDeskEmployee;
-            if (sde == null || sde.ManagedEmployees == null || !sde.ManagedEmployees.Any())
-                return new List<Employee>();
+        var sde = await _employeeRepository.GetByIdAsync(serviceDeskEmployeeId) as ServiceDeskEmployee;
+        if (sde == null || sde.ManagedEmployees == null || !sde.ManagedEmployees.Any())
+        return new List<Employee>();
 
-            return await _employeeRepository.GetEmployeesByIdsAsync(sde.ManagedEmployees);
+        return await _employeeRepository.GetEmployeesByIdsAsync(sde.ManagedEmployees);
+        }
+
+        public async Task<List<Employee>> GetEmployeesByStatusAsync(string status)
+        {
+            if (string.IsNullOrEmpty(status))
+                return (await _employeeRepository.GetAllAsync()).ToList();
+
+            return await _employeeRepository.GetByStatusAggregationAsync(status);
         }
     }
 }

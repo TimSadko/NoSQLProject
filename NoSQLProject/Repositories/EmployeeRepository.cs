@@ -62,5 +62,19 @@ namespace NoSQLProject.Repositories
             var filter = Builders<Employee>.Filter.In("_id", objectIds);
             return await _employees.Find(filter).ToListAsync();
         }
+        public async Task<List<Employee>> GetByStatusAggregationAsync(string status)
+        {
+            // Convert string to enum, then to int
+            if (!Enum.TryParse<Employee_Status>(status, out var enumStatus))
+                return new List<Employee>();
+
+            var statusInt = (int)enumStatus;
+            var pipeline = new[]
+            {
+                new BsonDocument("$match", new BsonDocument("status", statusInt))
+            };
+            return await _employees.Aggregate<Employee>(pipeline).ToListAsync();
+        }
+
     }
 }
