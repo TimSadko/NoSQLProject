@@ -2,9 +2,22 @@
 
 @{
     ViewData["Title"] = "Employees List";
+    var statuses = new[] { "Active", "Deactivated", "Archived" };
+    var status = ViewBag.Status?.ToString() ?? "";
 }
 
 <h1>Employees</h1>
+
+<form method="get" class="mb-3">
+    <label for="status">Filter by Status:</label>
+    <select id="status" name="status" onchange="this.form.submit()" class="form-select d-inline w-auto ms-2">
+        <option value="" selected="@(string.IsNullOrEmpty(status) ? "selected" : null)">All</option>
+        @foreach (var s in statuses)
+        {
+            <option value="@s" selected="@(status == s ? "selected" : null)">@s</option>
+        }
+    </select>
+</form>
 
 <div class="mb-3">
     <a asp-action="Add" class="btn btn-success">+ Add Employee</a>
