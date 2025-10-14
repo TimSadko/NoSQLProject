@@ -29,7 +29,7 @@ namespace NoSQLProject.Services
                 throw new InvalidOperationException("An employee with this email already exists.");
 
             employee.Password = Hasher.GetHashedString(employee.Password);
-            await _employeeRepository.Add(employee);
+            await _employeeRepository.AddAsync(employee);
         }
 
         public async Task UpdateEmployeeAsync(Employee employee)
@@ -55,11 +55,11 @@ namespace NoSQLProject.Services
                 sdeExisting.ManagedEmployees = sdeInput.ManagedEmployees;
             }
 
-            await _employeeRepository.Update(existing);
+            await _employeeRepository.UpdateAsync(existing);
         }
 
         public async Task DeleteEmployeeAsync(Employee employee)
-            => await _employeeRepository.Delete(employee);
+            => await _employeeRepository.DeleteAsync(employee);
 
         public async Task<List<Employee>> GetEmployeesManagedByAsync(string serviceDeskEmployeeId)
         {

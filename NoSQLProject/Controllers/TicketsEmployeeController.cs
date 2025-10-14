@@ -100,7 +100,9 @@ namespace NoSQLProject.Controllers
 
                 ticketToChange.Title = ticket.Title;
                 ticketToChange.Description = ticket.Description;
+
                 await ticketRepository.EditAsync(ticketToChange);
+
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
