@@ -110,6 +110,60 @@ namespace NoSQLProject.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Delete(string? id)
+        {
+            if (!IsAuthenticated())
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            if (string.IsNullOrEmpty(id)) throw new Exception("Ticket id is empty or null!");
+
+            var ticket = await ticketRepository.GetByIdAsync(id);
+            if (ticket == null)
+            {
+                TempData["Exception"] = "Ticket is null. Something went wrong!";
+            }
+
+            return View(ticket);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(Ticket? ticket)
+        {
+            if (!IsAuthenticated())
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            try
+            {
+                if (string.IsNullOrEmpty(ticket?.Id)) throw new Exception("Ticket id is empty or null!");
+               
+                var ticketToRemove = await ticketRepository.GetByIdAsync(ticket.Id);
+                if (ticketToRemove == null)
+                {
+                    TempData["Exception"] = "Ticket can not be found. Something went wrong!";
+                    return View(ticket);
+                }
+
+                if (ticketToRemove.Logs.Count > 0)
+                {
+                    TempData["Exception"] = "Ticket has some logs. You can not delete it!";
+                    return View(ticket);
+                }
+                
+                await ticketRepository.DeleteAsync(ticket.Id);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
         [HttpGet("TicketsEmployee/Logs/{id}")]
         public async Task<IActionResult> Logs(string? id)
         {
