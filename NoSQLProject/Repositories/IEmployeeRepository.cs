@@ -10,9 +10,9 @@ namespace NoSQLProject.Repositories
 
         Task<Employee?> GetByIdAsync(string id);
         //Following Add, Update, Delete added by Fernando
-        Task Add(Employee employee);
-        Task Update(Employee employee);
-        Task Delete(Employee employee);
+        Task AddAsync(Employee employee);
+        Task UpdateAsync(Employee employee);
+        Task DeleteAsync(Employee employee);
         Task<Employee?> GetByEmailAsync(string email);
         Task<List<Employee>> GetEmployeesByIdsAsync(IEnumerable<string> ids);
         Task<List<Employee>> GetByStatusAsync(string status);

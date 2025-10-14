@@ -38,18 +38,18 @@ namespace NoSQLProject.Repositories
         }
 
         // Add, Update, Delete methods added by Fernando
-        public async Task Add(Employee employee)
+        public async Task AddAsync(Employee employee)
         {
             await _employees.InsertOneAsync(employee);
         }
 
-        public async Task Update(Employee employee)
+        public async Task UpdateAsync(Employee employee)
         {
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, employee.Id);
             await _employees.ReplaceOneAsync(filter, employee);
         }
 
-        public async Task Delete(Employee employee)
+        public async Task DeleteAsync(Employee employee)
         {
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, employee.Id);
             await _employees.DeleteOneAsync(filter);
