@@ -1,7 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using NoSQLProject.Models;
-using NoSQLProject.Other; // For Hasher. Added by Fernando
 
 namespace NoSQLProject.Repositories
 {
@@ -58,22 +57,16 @@ namespace NoSQLProject.Repositories
 
         public async Task<List<Employee>> GetEmployeesByIdsAsync(IEnumerable<string> ids)
         {
-            var objectIds = ids.Select(id => ObjectId.Parse(id)).ToList();
-            var filter = Builders<Employee>.Filter.In("_id", objectIds);
+            var filter = Builders<Employee>.Filter.In(e => e.Id, ids);
             return await _employees.Find(filter).ToListAsync();
         }
-        public async Task<List<Employee>> GetByStatusAggregationAsync(string status)
+        public async Task<List<Employee>> GetByStatusAsync(string status)
         {
-            //string to enum, then int
             if (!Enum.TryParse<Employee_Status>(status, out var enumStatus))
                 return new List<Employee>();
 
-            var statusInt = (int)enumStatus;
-            var pipeline = new[]
-            {
-                new BsonDocument("$match", new BsonDocument("status", statusInt))
-            };
-            return await _employees.Aggregate<Employee>(pipeline).ToListAsync();
+            var filter = Builders<Employee>.Filter.Eq(e => e.Status, enumStatus);
+            return await _employees.Find(filter).ToListAsync();
         }
 
     }

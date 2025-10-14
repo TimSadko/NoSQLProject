@@ -15,6 +15,6 @@ namespace NoSQLProject.Repositories
         Task Delete(Employee employee);
         Task<Employee?> GetByEmailAsync(string email);
         Task<List<Employee>> GetEmployeesByIdsAsync(IEnumerable<string> ids);
-        Task<List<Employee>> GetByStatusAggregationAsync(string status);
+        Task<List<Employee>> GetByStatusAsync(string status);
     }
 }

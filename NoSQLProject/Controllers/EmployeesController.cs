@@ -14,20 +14,26 @@ public class EmployeesController : Controller
     public async Task<IActionResult> Index(string status)
     {
         List<Employee> employees;
+        string selectedStatus = status;
+
         if (string.IsNullOrEmpty(status))
         {
-            employees = (await _employeeService.GetAllEmployeesAsync()).ToList();
+            employees = await _employeeService.GetEmployeesByStatusAsync("Active");
+            selectedStatus = "Active";
         }
         else
         {
-            employees = await _employeeService.GetEmployeesByStatusAsync(status);
+            if (status == "All")
+                employees = (await _employeeService.GetAllEmployeesAsync()).ToList();
+            else
+                employees = await _employeeService.GetEmployeesByStatusAsync(status);
         }
-        ViewBag.Status = status;
+
+        ViewBag.Status = selectedStatus;
         return View(employees);
     }
 
     public IActionResult Add() => View();
-    //prepare FOR CONTROL Z
     [HttpPost]
     public async Task<IActionResult> Add(Employee employee, string Role)
     {
@@ -43,7 +49,6 @@ public class EmployeesController : Controller
                     Email = employee.Email,
                     Password = employee.Password,
                     Status = employee.Status,
-                    // Optionally initialize ManagedEmployees if needed
                 };
             }
             else
