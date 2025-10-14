@@ -1,4 +1,4 @@
-﻿@model List<NoSQLProject.Models.Ticket>
+﻿@* @model List<NoSQLProject.Models.Ticket>
 
 @{
 	ViewData["Title"] = "Tickets";
@@ -35,4 +35,56 @@
 			}
 		}
 	</tbody>
+</table> *@
+
+
+@model List<NoSQLProject.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Tickets (Service Desk)";
+}
+
+<h1>Tickets (Service Desk)</h1>
+<a href="/TicketsServiceDesk/Add" class="btn btn-primary mb-2">Add new Ticket</a>
+
+<!-- ✅✅✅ Added by TAREK — Sorting links for all ticket fields -->
+<!-- Allows Service Desk employees to sort tickets by Title, Status, CreatedAt, UpdatedAt -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a href="?sortField=Title&sortOrder=1">Title ↑</a> |
+                <a href="?sortField=Title&sortOrder=-1">↓</a>
+            </th>
+            <th>
+                <a href="?sortField=Status&sortOrder=1">Status ↑</a> |
+                <a href="?sortField=Status&sortOrder=-1">↓</a>
+            </th>
+            <th>
+                <a href="?sortField=CreatedAt&sortOrder=-1">Created ↓</a>
+            </th>
+            <th>
+                <a href="?sortField=UpdatedAt&sortOrder=-1">Updated ↓</a>
+            </th>
+            <th>Created By</th>
+            <th>Logs</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.Title</td>
+                <td>@t.Status</td>
+                <td>@t.CreatedAt.ToString("g")</td>
+                <td>@t.UpdatedAt.ToString("g")</td>
+                <td>@t.CreatedById</td>
+                <td>@t.Logs?.Count</td>
+                <td><a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-sm btn-outline-info">View</a></td>
+            </tr>
+        }
+    </tbody>
 </table>
+<!-- ✅ END of TAREK’s sorting implementation -->

@@ -11,5 +11,7 @@ namespace NoSQLProject.Repositories
         Task EditAsync(Ticket t);
         Task DeleteAsync(string id);
         Task CheckUpdateAsync(Ticket t);
+        Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreationDate", int sortOrder = -1);
+
     }
 }
