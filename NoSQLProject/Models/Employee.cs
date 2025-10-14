@@ -38,12 +38,12 @@ namespace NoSQLProject.Models
 
         [BsonElement("first_name")]
         [JsonPropertyName("first_name")]
-        [Display(Name = "First name")] // <-- Add this line
+        [Display(Name = "First name")] 
         public string FirstName { get => _first_name; set => _first_name = value; }
 
         [BsonElement("last_name")]
         [JsonPropertyName("last_name")]
-        [Display(Name = "Last name")] // <-- Add this line
+        [Display(Name = "Last name")] 
         public string LastName { get => _last_name; set => _last_name = value; }
 
         [BsonElement("email")]

@@ -64,7 +64,7 @@ namespace NoSQLProject.Repositories
         }
         public async Task<List<Employee>> GetByStatusAggregationAsync(string status)
         {
-            // Convert string to enum, then to int
+            //string to enum, then int
             if (!Enum.TryParse<Employee_Status>(status, out var enumStatus))
                 return new List<Employee>();
 
