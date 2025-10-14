@@ -37,19 +37,16 @@ namespace NoSQLProject.Services
             var existing = await _employeeRepository.GetByIdAsync(employee.Id);
             if (existing == null) throw new InvalidOperationException("Employee not found.");
 
-            // Only update the password if a new one is provided
             if (!string.IsNullOrWhiteSpace(employee.Password) && employee.Password != existing.Password)
             {
                 existing.Password = Hasher.GetHashedString(employee.Password);
             }
 
-            // Update other fields
             existing.FirstName = employee.FirstName;
             existing.LastName = employee.LastName;
             existing.Email = employee.Email;
             existing.Status = employee.Status;
 
-            // If ServiceDeskEmployee, update managed employees as well
             if (existing is ServiceDeskEmployee sdeExisting && employee is ServiceDeskEmployee sdeInput)
             {
                 sdeExisting.ManagedEmployees = sdeInput.ManagedEmployees;
