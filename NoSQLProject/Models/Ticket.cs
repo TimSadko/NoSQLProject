@@ -65,5 +65,10 @@ namespace NoSQLProject.Models
         [BsonElement("updated_at")]
         [JsonPropertyName("updated_at")]
         public DateTime UpdatedAt { get => _updated_at; set => _updated_at = value; }
+
+        public override string? ToString()
+        {
+            return $"Ticket: {{\nid: {_id},\ncreated_by_id: {_created_by_id},\ncreated_at: {_created_at},\nupdated_at: {_updated_at},\ntitle: {_title},\ndesc: {_description},\nstatus: {_status},\nlogs: {_logs.Count}\n}}";
+        }
     }
 }

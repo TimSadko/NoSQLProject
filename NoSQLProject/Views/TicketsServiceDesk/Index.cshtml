@@ -1,8 +1,10 @@
-﻿@* @model List<NoSQLProject.Models.Ticket>
+﻿@model NoSQLProject.Models.SDETickestsListViewModel
 
 @{
 	ViewData["Title"] = "Tickets";
 }
+
+<partial name="_ErrorMessage" />
 
 <h1>Tickets:</h1>
 <a href="/TicketsServiceDesk/Add">Add new Ticket</a>
@@ -21,16 +23,19 @@
 	</thead>
 	<tbody>
 		@{
-			foreach (Ticket t in Model)
+			for (int i = 0; i < Model.Tickets.Count; i++)
 			{
 				<tr>
-					<th>@t.Title</th>
-					<th>@t.Status</th>
-					<th>@t.CreatedAt</th>
-					<th>@t.UpdatedAt</th>
-					<th>@t.CreatedById</th>
-					<th>@t.Logs.Count</th>
-					<th><a href="/TicketsServiceDesk/Edit/@t.Id">View</a></th>
+					<th>@Model.Tickets[i].Title</th>
+					<th>@Model.Tickets[i].Status</th>
+					<th>@Model.Tickets[i].CreatedAt</th>
+					<th>@Model.Tickets[i].UpdatedAt</th>
+					<th>@(Model.Employees[i] == null ? "???" : Model.Employees[i].FullName)</th>
+					<th>@Model.Tickets[i].Logs.Count</th>
+					<th>
+						<a href="/TicketsServiceDesk/Edit/@Model.Tickets[i].Id">View</a>
+						<a class="text-danger" href="/TicketsServiceDesk/Delete/@Model.Tickets[i].Id">Delete</a>
+					</th>
 				</tr>
 			}
 		}

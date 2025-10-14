@@ -1,0 +1,42 @@
+﻿@model LogViewModel
+
+@{
+    ViewData["Title"] = "Edit Log";
+}
+
+<partial name="_ErrorMessage" />
+
+<h1>Log:</h1>
+
+<div class="form-group py-2 text-start">
+    <label>Created By:</label>
+    <input type="text" class="form-control input-background" readonly value="@ViewData["creator"]" />
+</div>
+
+<div class="form-group py-2 text-start">
+    <label>Created At:</label>
+    <input type="text" class="form-control input-background" readonly value="@Model.Log.CreatedAt" />
+</div>
+
+<form action="/TicketsServiceDesk/EditLog" method="post">
+    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
+    <input type="hidden" asp-for="@Model.Ticket.Status" value="@Model.Ticket.Status" />
+
+    <input type="hidden" asp-for="@Model.Log.Id" value="@Model.Log.Id" />
+    <input type="hidden" asp-for="@Model.Log.CreatedById" value="@Model.Log.CreatedById" />
+    <input type="hidden" asp-for="@Model.Log.CreatedAt" value="@Model.Log.CreatedAt" />
+
+    <div class="form-group py-2 text-start">
+        <label for="Description">Description:</label>
+        <input type="text" class="form-control input-background new-log-description-input" asp-for="@Model.Log.Description" required value="@Model.Log.Description" />
+    </div>
+
+    <div class="form-group py-2 text-start">
+        <label for="NewStatus">Status Change:</label>
+        <select id="NewStatus" asp-for="@Model.Log.NewStatus" asp-items="@Html.GetEnumSelectList<Ticket_Status>()" required></select>
+    </div>
+
+    <button type="submit" class="primary-button">Edit</button>
+</form>
+
+<a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Go Back To The Ticket</a>

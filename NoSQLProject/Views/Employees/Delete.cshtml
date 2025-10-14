@@ -4,6 +4,8 @@
     ViewData["Title"] = "Delete Employee";
 }
 
+<partial name="_ErrorMessage" />
+
 <h2>Delete Employee</h2>
 
 <div class="alert alert-danger">
@@ -31,6 +33,6 @@
 <form asp-action="Delete" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Delete</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-danger">Delete</button>
 </form>
