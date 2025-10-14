@@ -20,7 +20,7 @@ public class EmployeesController : Controller
         try
         {
             List<Employee> employees;
-            if (string.IsNullOrEmpty(status))
+            if (string.IsNullOrEmpty(status) || status == "All")
             {
                 employees = (await _employeeService.GetAllEmployeesAsync()).ToList();
             }
