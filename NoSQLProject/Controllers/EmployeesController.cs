@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NoSQLProject.Models;
+using NoSQLProject.Other;
 using NoSQLProject.Services;
 
 public class EmployeesController : Controller
@@ -11,28 +12,49 @@ public class EmployeesController : Controller
         _employeeService = employeeService;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Index(string status)
     {
-        List<Employee> employees;
-        if (string.IsNullOrEmpty(status))
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+        try
         {
-            employees = (await _employeeService.GetAllEmployeesAsync()).ToList();
+            List<Employee> employees;
+            if (string.IsNullOrEmpty(status))
+            {
+                employees = (await _employeeService.GetAllEmployeesAsync()).ToList();
+            }
+            else
+            {
+                employees = await _employeeService.GetEmployeesByStatusAsync(status);
+            }
+            ViewBag.Status = status;
+            return View(employees);
         }
-        else
+        catch (Exception ex)
         {
-            employees = await _employeeService.GetEmployeesByStatusAsync(status);
+            TempData["Exception"] = ex.Message;
+            return View();
         }
-        ViewBag.Status = status;
-        return View(employees);
     }
 
-    public IActionResult Add() => View();
-    //prepare FOR CONTROL Z
+    [HttpGet]
+    public IActionResult Add()
+    {
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+        return View();
+    }
+
     [HttpPost]
     public async Task<IActionResult> Add(Employee employee, string Role)
     {
-        if (ModelState.IsValid)
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+        try
         {
+            if (!ModelState.IsValid) throw new Exception("The model is invalid");
+            
             Employee toAdd;
             if (Role == "ServiceDeskEmployee")
             {
@@ -54,22 +76,43 @@ public class EmployeesController : Controller
             await _employeeService.AddEmployeeAsync(toAdd);
             return RedirectToAction("Index");
         }
-        return View(employee);
+        catch (Exception ex)
+        {
+            TempData["Exception"] = ex.Message;
+            return View(employee);
+        }
     }
 
+    [HttpGet]
     public async Task<IActionResult> Edit(string id)
     {
-        var employee = await _employeeService.GetEmployeeByIdAsync(id);
-        if (employee == null) return NotFound();
-        return View(employee);
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+        try
+        {
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
+            if (employee == null) throw new Exception("Employee not found");
+
+            return View(employee);
+        }
+        catch (Exception ex)
+        {
+            TempData["Exception"] = ex.Message;
+            return RedirectToAction("Index");
+        }
     }
 
     [HttpPost]
     public async Task<IActionResult> Edit(Employee employee, string Role)
     {
-        if (ModelState.IsValid)
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+        try
         {
+            if (!ModelState.IsValid) throw new Exception("The model is invalid");
+
             Employee toUpdate;
+
             if (Role == "ServiceDeskEmployee")
             {
                 // Optionally fetch existing managed employees if needed
@@ -93,42 +136,89 @@ public class EmployeesController : Controller
             }
 
             await _employeeService.UpdateEmployeeAsync(toUpdate);
+
             return RedirectToAction("Index");
         }
-        return View(employee);
+        catch (Exception ex)
+        {
+            TempData["Exception"] = ex.Message;
+            return View(employee);
+        }
     }
 
+    [HttpGet]
     public async Task<IActionResult> Delete(string id)
     {
-        var employee = await _employeeService.GetEmployeeByIdAsync(id);
-        if (employee == null) return NotFound();
-        return View(employee);
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+        try
+        {
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
+
+            if (employee == null) throw new Exception("Employee not found");
+
+            return View(employee);
+        }
+        catch (Exception ex)
+        {
+            TempData["Exception"] = ex.Message;
+            return RedirectToAction("Index");
+        }      
     }
 
     [HttpPost, ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(string id)
     {
-        // Get the currently logged-in user's ID from session
-        var currentUserId = HttpContext.Session.GetString("UserId");
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
 
-        if (currentUserId == id)
+        try
         {
-            // Optionally, add a message to TempData to show in the view
-            TempData["ErrorMessage"] = "You cannot delete your own account while logged in.";
-            return RedirectToAction("Index");
-        }
+            // Get the currently logged-in user's ID from session
+            var currentUserId = HttpContext.Session.GetString("UserId");
 
-        var employee = await _employeeService.GetEmployeeByIdAsync(id);
-        if (employee != null)
+            if (currentUserId == id)
+            {
+                throw new Exception("You cannot delete your own account while logged in.");
+            }
+
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
+            if (employee != null)
+
             await _employeeService.DeleteEmployeeAsync(employee);
 
-        return RedirectToAction("Index");
+            return RedirectToAction("Index");
+        }
+        catch (Exception ex)
+        {
+            TempData["Exception"] = ex.Message;
+            return RedirectToAction("Index");
+        }     
     }
 
+    [HttpGet]
     public async Task<IActionResult> ManagedEmployees(string id)
     {
-        var managedEmployees = await _employeeService.GetEmployeesManagedByAsync(id);
-        // Ensure managedEmployees is never null
-        return View(managedEmployees ?? new List<Employee>());
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+        try
+        {
+            var managedEmployees = await _employeeService.GetEmployeesManagedByAsync(id);
+            // Ensure managedEmployees is never null
+            return View(managedEmployees ?? new List<Employee>());
+        }
+        catch (Exception ex) 
+        {
+            TempData["Exception"] = ex.Message;
+            return View(new List<Employee>());
+        }       
+    }
+
+    public bool Authenticate()
+    {
+        Employee? emp = Authorization.GetLoggedInEmployee(this.HttpContext);
+
+        if (emp == null || emp is not ServiceDeskEmployee) return false;
+
+        return true;
     }
 }

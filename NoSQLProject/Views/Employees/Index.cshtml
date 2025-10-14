@@ -6,6 +6,8 @@
     var status = ViewBag.Status?.ToString() ?? "";
 }
 
+<partial name="_ErrorMessage" />
+
 <h1>Employees</h1>
 
 <form method="get" class="mb-3">
@@ -22,11 +24,6 @@
 <div class="mb-3">
     <a asp-action="Add" class="btn btn-success">+ Add Employee</a>
 </div>
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div id="self-delete-error" class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
 
 <table class="table">
     <thead>
