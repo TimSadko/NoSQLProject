@@ -65,7 +65,6 @@ public class EmployeesController : Controller
                     Email = employee.Email,
                     Password = employee.Password,
                     Status = employee.Status,
-                    // Optionally initialize ManagedEmployees if needed
                 };
             }
             else
@@ -115,7 +114,6 @@ public class EmployeesController : Controller
 
             if (Role == "ServiceDeskEmployee")
             {
-                // Optionally fetch existing managed employees if needed
                 var existing = await _employeeService.GetEmployeeByIdAsync(employee.Id);
                 var managed = (existing as ServiceDeskEmployee)?.ManagedEmployees ?? new List<string>();
 
@@ -173,7 +171,6 @@ public class EmployeesController : Controller
 
         try
         {
-            // Get the currently logged-in user's ID from session
             var currentUserId = HttpContext.Session.GetString("UserId");
 
             if (currentUserId == id)
@@ -203,7 +200,6 @@ public class EmployeesController : Controller
         try
         {
             var managedEmployees = await _employeeService.GetEmployeesManagedByAsync(id);
-            // Ensure managedEmployees is never null
             return View(managedEmployees ?? new List<Employee>());
         }
         catch (Exception ex)

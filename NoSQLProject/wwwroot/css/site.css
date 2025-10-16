@@ -19,6 +19,12 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: #6D8EA0; /* Morandi blue */
+}
+
+header,
+footer {
+  background-color: #fff !important; /* White, or choose another color */
 }
 
 .custom-navbar {

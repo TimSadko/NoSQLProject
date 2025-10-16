@@ -1,0 +1,19 @@
+﻿@model NoSQLProject.Models.Employee
+
+@{
+    ViewData["Title"] = "Home";
+    var employee = Model;
+}
+
+<h1>Welcome, @employee.FirstName!</h1>
+
+@if (employee is ServiceDeskEmployee)
+{
+    <p>You are logged in as a <strong>Service Desk Employee</strong>.</p>
+    <a asp-action="Index" asp-controller="Employees" class="btn btn-primary">Manage Employees</a>
+}
+else
+{
+    <p>You are logged in as a <strong>Regular Employee</strong>.</p>
+    <a asp-action="Index" asp-controller="TicketsEmployee" class="btn btn-primary">View Your Tickets</a>
+}
