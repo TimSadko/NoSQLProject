@@ -14,11 +14,15 @@ namespace NoSQLProject.Controllers
         {
             _rep = rep;
         }
-
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return RedirectToAction("Login"); ;
+            var loggedin = Authorization.GetLoggedInEmployee(HttpContext);
+            if (loggedin == null)
+                return RedirectToAction("Login");
+
+            // Pass the employee as the model
+            return View("Home", loggedin);
         }
 
         [HttpGet]
@@ -64,17 +68,10 @@ namespace NoSQLProject.Controllers
                 return View();
             }
         }
-
         private RedirectToActionResult RedirectEmployee(Employee emp)
         {
-            if (emp is ServiceDeskEmployee sde) // Depending on type of employee redirect to a different pages
-            {
-                return RedirectToAction("Index", "Employees");
-            }
-            else
-            {
-                return RedirectToAction("Index", "TicketsEmployee");
-            }
+            // Redirect all employees to the shared welcome page
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]

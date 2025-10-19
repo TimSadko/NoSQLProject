@@ -20,6 +20,17 @@ public class EmployeesController : Controller
         try
         {
             var employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder);
+            List<Employee> employees;
+            if (string.IsNullOrEmpty(status) || status == "All")
+            {
+                employees = (await _employeeService.GetAllEmployeesAsync()).ToList();
+            }
+            else
+            {
+                employees = await _employeeService.GetEmployeesByStatusAsync(status);
+            }
+            ViewBag.Status = status;
+
             return View(employees);
         }
         catch (Exception ex)
@@ -45,7 +56,7 @@ public class EmployeesController : Controller
         try
         {
             if (!ModelState.IsValid) throw new Exception("The model is invalid");
-            
+
             Employee toAdd;
 
             if (Role == "ServiceDeskEmployee")
@@ -56,7 +67,11 @@ public class EmployeesController : Controller
                     LastName = employee.LastName,
                     Email = employee.Email,
                     Password = employee.Password,
+
                     Status = employee.Status
+
+                    Status = employee.Status,
+
                 };
             }
             else
@@ -153,7 +168,7 @@ public class EmployeesController : Controller
         {
             TempData["Exception"] = ex.Message;
             return RedirectToAction("Index");
-        }      
+        }
     }
 
     [HttpPost, ActionName("Delete")]
@@ -163,7 +178,6 @@ public class EmployeesController : Controller
 
         try
         {
-            // Get the currently logged-in user's ID from session
             var currentUserId = HttpContext.Session.GetString("UserId");
 
             if (currentUserId == id)
@@ -174,7 +188,7 @@ public class EmployeesController : Controller
             var employee = await _employeeService.GetEmployeeByIdAsync(id);
             if (employee != null)
 
-            await _employeeService.DeleteEmployeeAsync(employee);
+                await _employeeService.DeleteEmployeeAsync(employee);
 
             return RedirectToAction("Index");
         }
@@ -182,7 +196,7 @@ public class EmployeesController : Controller
         {
             TempData["Exception"] = ex.Message;
             return RedirectToAction("Index");
-        }     
+        }
     }
 
     [HttpGet]
@@ -193,14 +207,13 @@ public class EmployeesController : Controller
         try
         {
             var managedEmployees = await _employeeService.GetEmployeesManagedByAsync(id);
-            // Ensure managedEmployees is never null
             return View(managedEmployees ?? new List<Employee>());
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             TempData["Exception"] = ex.Message;
             return View(new List<Employee>());
-        }       
+        }
     }
 
     public bool Authenticate()

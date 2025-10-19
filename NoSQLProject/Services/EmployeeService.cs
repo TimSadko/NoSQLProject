@@ -81,7 +81,7 @@ namespace NoSQLProject.Services
             if (string.IsNullOrEmpty(status))
                 return (await _employeeRepository.GetAllAsync()).ToList();
 
-            return await _employeeRepository.GetByStatusAggregationAsync(status);
+            return await _employeeRepository.GetByStatusAsync(status);
         }
 
         // ✅✅✅ Added by TAREK — Sorting functionality for Employees page (Assignment 2)
