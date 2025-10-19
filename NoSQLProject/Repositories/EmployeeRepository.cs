@@ -43,29 +43,26 @@ namespace NoSQLProject.Repositories
             return await _employees.Find(filter).FirstOrDefaultAsync();
         }
 
-        // ✅ CRUD methods added by Fernando
-        public async Task Add(Employee employee)
+        // Add, Update, Delete methods added by Fernando
+        public async Task AddAsync(Employee employee)
         {
             await _employees.InsertOneAsync(employee);
         }
 
-        public async Task Update(Employee employee)
+        public async Task UpdateAsync(Employee employee)
         {
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, employee.Id);
             await _employees.ReplaceOneAsync(filter, employee);
         }
 
-        public async Task Delete(Employee employee)
+        public async Task DeleteAsync(Employee employee)
         {
             var filter = Builders<Employee>.Filter.Eq(e => e.Id, employee.Id);
             await _employees.DeleteOneAsync(filter);
         }
 
         public async Task<List<Employee>> GetEmployeesByIdsAsync(IEnumerable<string> ids)
-
         {
-            
-
             var objectIds = ids.Select(id => ObjectId.Parse(id)).ToList();
             var filter = Builders<Employee>.Filter.In("_id", objectIds);
             return await _employees.Find(filter).ToListAsync();
@@ -104,6 +101,24 @@ namespace NoSQLProject.Repositories
                                    .Sort(sortDef)
                                    .ToListAsync();
         }
+<<<<<<< HEAD
         //  END of TAREK’s sorting method
+=======
+        // ✅ END of TAREK’s sorting method
+        public async Task<List<Employee>> GetByStatusAggregationAsync(string status)
+        {
+            // Convert string to enum, then to int
+            if (!Enum.TryParse<Employee_Status>(status, out var enumStatus))
+                return new List<Employee>();
+
+            var statusInt = (int)enumStatus;
+            var pipeline = new[]
+            {
+                new BsonDocument("$match", new BsonDocument("status", statusInt))
+            };
+            return await _employees.Aggregate<Employee>(pipeline).ToListAsync();
+        }
+
+>>>>>>> 2198fd4e205037c5592e0f4e2cd81e946b9e0874
     }
 }

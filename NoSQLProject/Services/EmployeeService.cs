@@ -35,7 +35,7 @@ namespace NoSQLProject.Services
                 throw new InvalidOperationException("An employee with this email already exists.");
 
             employee.Password = Hasher.GetHashedString(employee.Password);
-            await _employeeRepository.Add(employee);
+            await _employeeRepository.AddAsync(employee);
         }
 
         // ✅ Update employee (hashes new password if changed)
@@ -59,21 +59,29 @@ namespace NoSQLProject.Services
                 sdeExisting.ManagedEmployees = sdeInput.ManagedEmployees;
             }
 
-            await _employeeRepository.Update(existing);
+            await _employeeRepository.UpdateAsync(existing);
         }
 
         // ✅ Delete employee
         public async Task DeleteEmployeeAsync(Employee employee)
-            => await _employeeRepository.Delete(employee);
+            => await _employeeRepository.DeleteAsync(employee);
 
         // ✅ Get all employees managed by a specific Service Desk employee
         public async Task<List<Employee>> GetEmployeesManagedByAsync(string serviceDeskEmployeeId)
         {
-            var sde = await _employeeRepository.GetByIdAsync(serviceDeskEmployeeId) as ServiceDeskEmployee;
-            if (sde == null || sde.ManagedEmployees == null || !sde.ManagedEmployees.Any())
-                return new List<Employee>();
+        var sde = await _employeeRepository.GetByIdAsync(serviceDeskEmployeeId) as ServiceDeskEmployee;
+        if (sde == null || sde.ManagedEmployees == null || !sde.ManagedEmployees.Any())
+        return new List<Employee>();
 
-            return await _employeeRepository.GetEmployeesByIdsAsync(sde.ManagedEmployees);
+        return await _employeeRepository.GetEmployeesByIdsAsync(sde.ManagedEmployees);
+        }
+
+        public async Task<List<Employee>> GetEmployeesByStatusAsync(string status)
+        {
+            if (string.IsNullOrEmpty(status))
+                return (await _employeeRepository.GetAllAsync()).ToList();
+
+            return await _employeeRepository.GetByStatusAggregationAsync(status);
         }
 
         // ✅✅✅ Added by TAREK — Sorting functionality for Employees page (Assignment 2)
