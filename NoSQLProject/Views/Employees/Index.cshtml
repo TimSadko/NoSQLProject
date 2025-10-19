@@ -1,4 +1,4 @@
-﻿@model List<Employee>
+﻿@* @model List<Employee>
 
 @{
     ViewData["Title"] = "Employees List";
@@ -88,6 +88,104 @@ else
 
 @section Scripts {
     <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            var errorDiv = document.getElementById('self-delete-error');
+            if (errorDiv) {
+                setTimeout(function () {
+                    errorDiv.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+} *@
+
+
+@model List<Employee>
+
+@{
+    ViewData["Title"] = "Employees List";
+}
+
+<h1>Employees</h1>
+
+<div class="mb-3">
+    <a asp-action="Add" class="btn btn-success">+ Add Employee</a>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div id="self-delete-error" class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<!--  Added by TAREK — Sorting links for all Employee fields -->
+<!-- Allows sorting by FirstName, LastName, Email, and Status -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a href="?sortField=FirstName&sortOrder=1">First Name ↑</a> |
+                <a href="?sortField=FirstName&sortOrder=-1">↓</a>
+            </th>
+            <th>
+                <a href="?sortField=LastName&sortOrder=1">Last Name ↑</a> |
+                <a href="?sortField=LastName&sortOrder=-1">↓</a>
+            </th>
+            <th>
+                <a href="?sortField=Email&sortOrder=1">Email ↑</a> |
+                <a href="?sortField=Email&sortOrder=-1">↓</a>
+            </th>
+            <th>Role</th>
+            <th>
+                <a href="?sortField=Status&sortOrder=1">Status ↑</a> |
+                <a href="?sortField=Status&sortOrder=-1">↓</a>
+            </th>
+            <th>Management</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Employee employee in Model)
+        {
+            <tr>
+                <td>@employee.FirstName</td>
+                <td>@employee.LastName</td>
+                <td>@employee.Email</td>
+                <td>@(employee is ServiceDeskEmployee ? "Service Desk" : "Employee")</td>
+                <td>@employee.Status</td>
+                <td>
+                    @if (employee is ServiceDeskEmployee sde)
+                    {
+                        <a asp-action="ManagedEmployees" asp-controller="Employees" asp-route-id="@sde.Id" class="btn btn-info btn-sm">View Managed</a>
+                    }
+                    else
+                    {
+                        <span>Not applicable</span>
+                    }
+                </td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@employee.Id">Edit</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-action="Delete" asp-route-id="@employee.Id">Delete</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<!-- ✅ END of TAREK’s sorting implementation -->
+
+@section Scripts {
+    <script>
+        // Automatically hide error message after 5 seconds
         window.addEventListener('DOMContentLoaded', function () {
             var errorDiv = document.getElementById('self-delete-error');
             if (errorDiv) {
