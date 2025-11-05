@@ -6,15 +6,17 @@ using NoSQLProject.ViewModels;
 
 namespace NoSQLProject.Controllers
 {
-    public class TicketsEmployeeController(
-        ITicketRepository ticketRepository,
-        IEmployeeRepository employeeRepository) : Controller
+    public class TicketsEmployeeController : Controller
     {
-        private readonly ITicketRepository _repository;
+        private readonly ITicketRepository _ticketRepository;
+        private readonly IEmployeeRepository _employeeRepository;
 
-        public TicketsEmployeeController(ITicketRepository repository)
+        public TicketsEmployeeController(
+            ITicketRepository ticketRepository,
+            IEmployeeRepository employeeRepository)
         {
-            _repository = repository;
+            _ticketRepository = ticketRepository;
+            _employeeRepository = employeeRepository;
         }
 
         // ✅ Index: Displays tickets with optional sorting
@@ -27,7 +29,7 @@ namespace NoSQLProject.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
-            var tickets = await ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
+            var tickets = await _ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
             var employeeTickets = new EmployeeTickets(tickets, authenticatedEmployee);
             return View(employeeTickets);
         }
@@ -59,7 +61,7 @@ namespace NoSQLProject.Controllers
                 ticket.Logs = new List<Log>();
                 ticket.CreatedAt = DateTime.Now;
                 ticket.UpdatedAt = DateTime.Now;
-                await ticketRepository.AddAsync(ticket);
+                await _ticketRepository.AddAsync(ticket);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -79,7 +81,7 @@ namespace NoSQLProject.Controllers
 
             if (string.IsNullOrEmpty(id)) throw new Exception("Ticket id is empty or null!");
 
-            var ticket = await ticketRepository.GetByIdAsync(id);
+            var ticket = await _ticketRepository.GetByIdAsync(id);
             if (ticket == null)
             {
                 TempData["Exception"] = "Ticket is null. Something went wrong!";
@@ -100,7 +102,7 @@ namespace NoSQLProject.Controllers
             {
                 if (string.IsNullOrEmpty(ticket?.Id)) throw new Exception("Ticket id is empty or null!");
 
-                var ticketToChange = await ticketRepository.GetByIdAsync(ticket.Id);
+                var ticketToChange = await _ticketRepository.GetByIdAsync(ticket.Id);
                 if (ticketToChange == null)
                 {
                     TempData["Exception"] = "Ticket can not be found. Something went wrong!";
@@ -110,7 +112,7 @@ namespace NoSQLProject.Controllers
                 ticketToChange.Title = ticket.Title;
                 ticketToChange.Description = ticket.Description;
 
-                await ticketRepository.EditAsync(ticketToChange);
+                await _ticketRepository.EditAsync(ticketToChange);
 
                 return RedirectToAction("Index");
             }
@@ -131,7 +133,7 @@ namespace NoSQLProject.Controllers
 
             if (string.IsNullOrEmpty(id)) throw new Exception("Ticket id is empty or null!");
 
-            var ticket = await ticketRepository.GetByIdAsync(id);
+            var ticket = await _ticketRepository.GetByIdAsync(id);
             if (ticket == null)
             {
                 TempData["Exception"] = "Ticket is null. Something went wrong!";
@@ -152,7 +154,7 @@ namespace NoSQLProject.Controllers
             {
                 if (string.IsNullOrEmpty(ticket?.Id)) throw new Exception("Ticket id is empty or null!");
                
-                var ticketToRemove = await ticketRepository.GetByIdAsync(ticket.Id);
+                var ticketToRemove = await _ticketRepository.GetByIdAsync(ticket.Id);
                 if (ticketToRemove == null)
                 {
                     TempData["Exception"] = "Ticket can not be found. Something went wrong!";
@@ -165,7 +167,7 @@ namespace NoSQLProject.Controllers
                     return View(ticket);
                 }
                 
-                await ticketRepository.DeleteAsync(ticket.Id);
+                await _ticketRepository.DeleteAsync(ticket.Id);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -183,7 +185,7 @@ namespace NoSQLProject.Controllers
             try
             {
                 if (string.IsNullOrEmpty(id)) throw new Exception("Ticket id is empty or null!");
-                var logs = await ticketRepository.GetLogsByTicketIdAsync(id);
+                var logs = await _ticketRepository.GetLogsByTicketIdAsync(id);
 
                 if (logs.Count == 0)
                 {
@@ -194,7 +196,7 @@ namespace NoSQLProject.Controllers
                 List<Tuple<Log, Employee>> employeeLogPairs = [];
                 foreach (var log in logs)
                 {
-                    var employee = await employeeRepository.GetByIdAsync(log.CreatedById);
+                    var employee = await _employeeRepository.GetByIdAsync(log.CreatedById);
                     if (employee != null)
                     {
                         employeeLogPairs.Add(new Tuple<Log, Employee>(log, employee));

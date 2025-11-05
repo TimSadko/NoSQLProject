@@ -1,5 +1,4 @@
-﻿
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using NoSQLProject.Models;
 
@@ -104,10 +103,8 @@ namespace NoSQLProject.Repositories
         //  END of TAREK’s sorting method
 
         // ✅ END of TAREK’s sorting method
-        public async Task<List<Employee>> GetByStatusAggregationAsync(string status)
 
         public async Task<List<Employee>> GetByStatusAsync(string status)
-
         {
             if (!Enum.TryParse<Employee_Status>(status, out var enumStatus))
                 return new List<Employee>();
@@ -115,7 +112,6 @@ namespace NoSQLProject.Repositories
             var filter = Builders<Employee>.Filter.Eq(e => e.Status, enumStatus);
             return await _employees.Find(filter).ToListAsync();
         }
-
 
     }
 }
