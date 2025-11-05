@@ -1,4 +1,4 @@
-﻿@model NoSQLProject.ViewModels.EmployeeTickets
+﻿@* @model NoSQLProject.ViewModels.EmployeeTickets
 
 @{
 	ViewData["Title"] = "Tickets";
@@ -40,4 +40,59 @@
 		}
 	}
 	</tbody>
+</table> *@
+
+
+@model NoSQLProject.ViewModels.EmployeeTickets
+
+@{
+    ViewData["Title"] = "Tickets";
+    string currentSort = Context.Request.Query["sortField"];
+    int currentOrder = int.TryParse(Context.Request.Query["sortOrder"], out int order) ? order : -1;
+}
+
+<h1>Tickets:</h1>
+<a href="/TicketsEmployee/Add">Add new Ticket</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a href="?sortField=Title&sortOrder=1">↑</a>
+                <a href="?sortField=Title&sortOrder=-1">↓</a>
+                Title
+            </th>
+            <th>
+                <a href="?sortField=Status&sortOrder=1">↑</a>
+                <a href="?sortField=Status&sortOrder=-1">↓</a>
+                Status
+            </th>
+            <th>
+                <a href="?sortField=CreatedAt&sortOrder=1">↑</a>
+                <a href="?sortField=CreatedAt&sortOrder=-1">↓</a>
+                Created At
+            </th>
+            <th>
+                <a href="?sortField=UpdatedAt&sortOrder=1">↑</a>
+                <a href="?sortField=UpdatedAt&sortOrder=-1">↓</a>
+                Last Update
+            </th>
+            <th>Created By</th>
+            <th>Logs Count</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var ticket in Model.Tickets)
+        {
+            <tr>
+                <td>@ticket.Title</td>
+                <td>@ticket.Status</td>
+                <td>@ticket.CreatedAt.ToString("g")</td>
+                <td>@ticket.UpdatedAt.ToString("g")</td>
+                <td>@Model.Employee.FirstName @Model.Employee.LastName</td>
+                <td>@ticket.Logs.Count</td>
+            </tr>
+        }
+    </tbody>
 </table>

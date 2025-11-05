@@ -10,8 +10,16 @@ namespace NoSQLProject.Controllers
         ITicketRepository ticketRepository,
         IEmployeeRepository employeeRepository) : Controller
     {
+        private readonly ITicketRepository _repository;
+
+        public TicketsEmployeeController(ITicketRepository repository)
+        {
+            _repository = repository;
+        }
+
+        // ✅ Index: Displays tickets with optional sorting
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortField = "CreatedAt", int sortOrder = -1)
         {
             var authenticatedEmployee = Authenticate();
             if (authenticatedEmployee?.Id == null)
@@ -24,6 +32,7 @@ namespace NoSQLProject.Controllers
             return View(employeeTickets);
         }
 
+        // ✅ GET: Add ticket page
         [HttpGet]
         public IActionResult Add()
         {
@@ -47,7 +56,7 @@ namespace NoSQLProject.Controllers
             {
                 ticket.CreatedById = authenticatedEmployee.Id;
                 ticket.Status = Ticket_Status.Open;
-                ticket.Logs = [];
+                ticket.Logs = new List<Log>();
                 ticket.CreatedAt = DateTime.Now;
                 ticket.UpdatedAt = DateTime.Now;
                 await ticketRepository.AddAsync(ticket);

@@ -13,12 +13,13 @@ public class EmployeesController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string status)
+    public async Task<IActionResult> Index(string sortField = "Status", int sortOrder = 1)
     {
         if (!Authenticate()) return RedirectToAction("Login", "Home");
 
         try
         {
+            var employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder);
             List<Employee> employees;
             if (string.IsNullOrEmpty(status) || status == "All")
             {
@@ -29,6 +30,7 @@ public class EmployeesController : Controller
                 employees = await _employeeService.GetEmployeesByStatusAsync(status);
             }
             ViewBag.Status = status;
+
             return View(employees);
         }
         catch (Exception ex)
@@ -45,7 +47,7 @@ public class EmployeesController : Controller
 
         return View();
     }
-
+    
     [HttpPost]
     public async Task<IActionResult> Add(Employee employee, string Role)
     {
@@ -56,6 +58,7 @@ public class EmployeesController : Controller
             if (!ModelState.IsValid) throw new Exception("The model is invalid");
 
             Employee toAdd;
+
             if (Role == "ServiceDeskEmployee")
             {
                 toAdd = new ServiceDeskEmployee
@@ -64,7 +67,11 @@ public class EmployeesController : Controller
                     LastName = employee.LastName,
                     Email = employee.Email,
                     Password = employee.Password,
+
+                    Status = employee.Status
+
                     Status = employee.Status,
+
                 };
             }
             else
