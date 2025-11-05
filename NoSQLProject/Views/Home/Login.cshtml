@@ -17,6 +17,7 @@
     <div class="form-group py-2">
         <label for="Password">Password:</label>
         <input type="password" id="Password" name="Password" class="form-control form-control-sm" required value="@Model?.Password" />
+        <a asp-action="ForgotPassword" asp-controller="Home" class="btn btn-link btn-sm ms-2">Forgot password?</a>
     </div>
 
     <button type="submit" class="btn btn-login w-100 mt-3">Login</button>

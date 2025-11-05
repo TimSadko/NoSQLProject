@@ -82,6 +82,56 @@ namespace NoSQLProject.Controllers
             return RedirectToAction("Login");
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            ViewData["Title"] = "Forgot Password";
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string Email, string NewPassword, string ConfirmPassword)
+        {
+            ViewData["Title"] = "Forgot Password";
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(Email) ||
+                    string.IsNullOrWhiteSpace(NewPassword) ||
+                    string.IsNullOrWhiteSpace(ConfirmPassword))
+                {
+                    ModelState.AddModelError(string.Empty, "Please fill all fields.");
+                    return View();
+                }
+
+                if (NewPassword != ConfirmPassword)
+                {
+                    ModelState.AddModelError(string.Empty, "Passwords do not match.");
+                    return View();
+                }
+
+                var employee = await _rep.GetByEmailAsync(Email);
+                if (employee == null)
+                {
+                    TempData["Success"] = "If an account for that email exists, a password reset was attempted.";
+                    return RedirectToAction("Login");
+                }
+
+                // Hash and persist the new password
+                employee.Password = NoSQLProject.Other.Hasher.GetHashedString(NewPassword);
+                await _rep.UpdateAsync(employee);
+
+                TempData["Success"] = "Password updated successfully. Please login with your new password.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                ViewData["Exception"] = ex.Message;
+                return View();
+            }
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
