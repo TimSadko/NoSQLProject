@@ -3,86 +3,104 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData[""]MyTicketTracker</title>
+    <title>@ViewData["Title"] - NoSQLProject</title>
     <link rel="icon" type="image/png" href="~/favicon.png" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/NoSQLProject.styles.css" asp-append-version="true" />
 </head>
+
 <body>
     <header>
         <nav class="custom-navbar">
             <div class="navbar-container">
-                <a class="logo-link" asp-area="" asp-controller="Home" asp-action="Index">My Ticket Tracker</a>
-                <div class="navbar-links" id="navbarLinks">
-                    <ul class="navbar-menu">
-                        <li>
-                            <a class="navbar-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        
-                        @{
-                            var emp = NoSQLProject.Other.Authorization.GetLoggedInEmployee(this.Context);
-
-                            if ((string?)ViewData["Title"] == "Privacy") // Change links in the navbar depending on the page name 
+                <a class="logo-link" asp-controller="Home" asp-action="Index">My Ticket Tracker</a>
+                <ul class="navbar-menu">
+                    <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                    @{
+                        var emp = NoSQLProject.Other.Authorization.GetLoggedInEmployee(this.Context);
+                        if (emp != null)
+                        {
+                            <li><a asp-controller="Home" asp-action="Logout">Logout</a></li>
+                            if (emp is NoSQLProject.Models.ServiceDeskEmployee)
                             {
-                                if(emp != null) // Check if user is logged in
-                                {
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
-                                    </li>
-                                }
+                                <li><a asp-controller="Employees" asp-action="Index">Employees</a></li>
+                                <li><a asp-controller="TicketsServiceDesk" asp-action="Index">Tickets</a></li>
                             }
-                            else if ((string?)ViewData["Title"] != "Login")
+                            else
                             {
-                                <li class="navbar-log-container">
-                                    <a class="navbar-link" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
-                                </li>
+                                <li><a asp-controller="TicketsEmployee" asp-action="Index">Tickets</a></li>
                             }
-
-                            if(emp != null)
-                            {
-                                if (emp is ServiceDeskEmployee) // Change navbar links depending on employee type
-                                {
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="Employees" asp-action="Index">Employees</a>
-                                    </li>
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="TicketsServiceDesk" asp-action="Index">Tickets</a>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="TicketsEmployee" asp-action="Index">Tickets</a>
-                                    </li>
-                                }
-                            }                      
                         }
-                    </ul>
-                </div>
+                        else
+                        {
+                            <li><a asp-controller="Home" asp-action="Login">Login</a></li>
+                        }
+                    }
+                </ul>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main class="flex-grow-1 py-4">
         <div class="container">
-            &copy; 2025 - NoSQLProject - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @RenderBody()
         </div>
+    </main>
+
+    <footer class="footer text-muted text-center">
+        © 2025 - NoSQLProject - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<style>
+/* Make full-page layout stable */
+html, body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+/* Ensure main content expands and footer stays at bottom */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix footer position */
+footer.footer {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  text-align: center;
+  padding: 14px 0;
+  width: 100%;
+  margin-top: auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* Remove excess gap between content and footer */
+.container:last-child,
+main .container {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Adjust cards (like Employees) so they don't create a false gap */
+.employees-card {
+  margin-bottom: 20px !important; /* smaller spacing to footer */
+}
+
+
+
+</style>

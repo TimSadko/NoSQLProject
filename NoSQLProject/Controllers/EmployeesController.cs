@@ -13,22 +13,28 @@ public class EmployeesController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(string sortField = "Status", int sortOrder = 1)
+    public async Task<IActionResult> Index(string sortField = "Status", int sortOrder = 1, string status = "All")
     {
         if (!Authenticate()) return RedirectToAction("Login", "Home");
 
         try
         {
-            var employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder);
             List<Employee> employees;
+
             if (string.IsNullOrEmpty(status) || status == "All")
             {
-                employees = (await _employeeService.GetAllEmployeesAsync()).ToList();
+                // Default: show all employees sorted
+                employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder);
             }
             else
             {
+                // Filter by status if provided
                 employees = await _employeeService.GetEmployeesByStatusAsync(status);
             }
+
+            // ✅ These lines allow the view to know current sort info for toggling
+            ViewBag.SortField = sortField;
+            ViewBag.SortOrder = sortOrder;
             ViewBag.Status = status;
 
             return View(employees);
@@ -44,7 +50,6 @@ public class EmployeesController : Controller
     public IActionResult Add()
     {
         if (!Authenticate()) return RedirectToAction("Login", "Home");
-
         return View();
     }
     
@@ -67,11 +72,7 @@ public class EmployeesController : Controller
                     LastName = employee.LastName,
                     Email = employee.Email,
                     Password = employee.Password,
-
                     Status = employee.Status
-
-                    Status = employee.Status,
-
                 };
             }
             else
@@ -98,7 +99,6 @@ public class EmployeesController : Controller
         {
             var employee = await _employeeService.GetEmployeeByIdAsync(id);
             if (employee == null) throw new Exception("Employee not found");
-
             return View(employee);
         }
         catch (Exception ex)
@@ -141,7 +141,6 @@ public class EmployeesController : Controller
             }
 
             await _employeeService.UpdateEmployeeAsync(toUpdate);
-
             return RedirectToAction("Index");
         }
         catch (Exception ex)
@@ -159,9 +158,7 @@ public class EmployeesController : Controller
         try
         {
             var employee = await _employeeService.GetEmployeeByIdAsync(id);
-
             if (employee == null) throw new Exception("Employee not found");
-
             return View(employee);
         }
         catch (Exception ex)
@@ -179,15 +176,11 @@ public class EmployeesController : Controller
         try
         {
             var currentUserId = HttpContext.Session.GetString("UserId");
-
             if (currentUserId == id)
-            {
                 throw new Exception("You cannot delete your own account while logged in.");
-            }
 
             var employee = await _employeeService.GetEmployeeByIdAsync(id);
             if (employee != null)
-
                 await _employeeService.DeleteEmployeeAsync(employee);
 
             return RedirectToAction("Index");
@@ -219,9 +212,6 @@ public class EmployeesController : Controller
     public bool Authenticate()
     {
         Employee? emp = Authorization.GetLoggedInEmployee(this.HttpContext);
-
-        if (emp == null || emp is not ServiceDeskEmployee) return false;
-
-        return true;
+        return emp is ServiceDeskEmployee;
     }
 }

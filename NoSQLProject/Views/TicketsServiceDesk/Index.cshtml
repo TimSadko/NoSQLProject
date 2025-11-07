@@ -1,59 +1,15 @@
-﻿@model NoSQLProject.Models.SDETickestsListViewModel
-
-@{
-	ViewData["Title"] = "Tickets";
-}
-
-<partial name="_ErrorMessage" />
-
-<h1>Tickets:</h1>
-<a href="/TicketsServiceDesk/Add">Add new Ticket</a>
-
-<table class="table">
-	<thead>
-		<tr>
-			<th>Title</th>
-			<th>Status</th>
-			<th>Created At</th>
-			<th>Last Update</th>
-			<th>Created By</th>
-			<th>logs</th>
-			<th>Actions</th>
-		</tr>
-	</thead>
-	<tbody>
-		@{
-			for (int i = 0; i < Model.Tickets.Count; i++)
-			{
-				<tr>
-					<th>@Model.Tickets[i].Title</th>
-					<th>@Model.Tickets[i].Status</th>
-					<th>@Model.Tickets[i].CreatedAt</th>
-					<th>@Model.Tickets[i].UpdatedAt</th>
-					<th>@(Model.Employees[i] == null ? "???" : Model.Employees[i].FullName)</th>
-					<th>@Model.Tickets[i].Logs.Count</th>
-					<th>
-						<a href="/TicketsServiceDesk/Edit/@Model.Tickets[i].Id">View</a>
-						<a class="text-danger" href="/TicketsServiceDesk/Delete/@Model.Tickets[i].Id">Delete</a>
-					</th>
-				</tr>
-			}
-		}
-	</tbody>
-</table> *@
-
-
-@model List<NoSQLProject.Models.Ticket>
+﻿@model List<NoSQLProject.Models.Ticket>
 
 @{
     ViewData["Title"] = "Tickets (Service Desk)";
 }
 
+<partial name="_ErrorMessage" />
+
 <h1>Tickets (Service Desk)</h1>
 <a href="/TicketsServiceDesk/Add" class="btn btn-primary mb-2">Add new Ticket</a>
 
-<!-- ✅✅✅ Added by TAREK — Sorting links for all ticket fields -->
-<!-- Allows Service Desk employees to sort tickets by Title, Status, CreatedAt, UpdatedAt -->
+<!-- ✅ Sorting links for ticket fields -->
 <table class="table table-striped">
     <thead>
         <tr>
@@ -87,9 +43,12 @@
                 <td>@t.UpdatedAt.ToString("g")</td>
                 <td>@t.CreatedById</td>
                 <td>@t.Logs?.Count</td>
-                <td><a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-sm btn-outline-info">View</a></td>
+                <td>
+                    <a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-sm btn-outline-info">View</a>
+                    <a href="/TicketsServiceDesk/Delete/@t.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
             </tr>
         }
     </tbody>
 </table>
-<!-- ✅ END of TAREK’s sorting implementation -->
+
