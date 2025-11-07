@@ -6,33 +6,103 @@
 
 <partial name="_ErrorMessage" />
 
-<h2>Delete Employee</h2>
+<div class="fade-in">
+    <div class="delete-card shadow-lg">
+        <h2 class="delete-title">⚠️ Delete Employee</h2>
 
-<div class="alert alert-danger">
-    <strong>Are you sure you want to delete this employee?</strong>
+        <div class="alert alert-danger text-center fw-semibold rounded-pill shadow-sm py-3 mb-4">
+            Are you sure you want to permanently delete this employee?
+        </div>
+
+        <div class="employee-info mb-4">
+            <div class="info-row">
+                <strong>First Name:</strong> <span>@Model.FirstName</span>
+            </div>
+            <div class="info-row">
+                <strong>Last Name:</strong> <span>@Model.LastName</span>
+            </div>
+            <div class="info-row">
+                <strong>Email:</strong> <span>@Model.Email</span>
+            </div>
+            <div class="info-row">
+                <strong>Status:</strong> <span>@Model.Status</span>
+            </div>
+        </div>
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger small" })
+
+        <form asp-action="Delete" method="post" class="d-flex justify-content-between">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <a asp-action="Index" class="btn btn-secondary px-4 py-2">Cancel</a>
+            <button type="submit" class="btn btn-delete px-4 py-2">Delete</button>
+        </form>
+    </div>
 </div>
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">First Name</dt>
-        <dd class="col-sm-10">@Model.FirstName</dd>
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
 
-        <dt class="col-sm-2">Last Name</dt>
-        <dd class="col-sm-10">@Model.LastName</dd>
+    /* 🧊 Delete card */
+    .delete-card {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 45px 55px;
+        max-width: 600px;
+        width: 100%;
+        margin: 0 auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.8s ease-in-out forwards;
+        text-align: left;
+    }
 
-        <dt class="col-sm-2">Email</dt>
-        <dd class="col-sm-10">@Model.Email</dd>
+    .delete-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #c0392b;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
 
-        <dt class="col-sm-2">Status</dt>
-        <dd class="col-sm-10">@Model.Status</dd>
-    </dl>
-</div>
+    .employee-info {
+        border-top: 2px solid #eee;
+        border-bottom: 2px solid #eee;
+        padding: 20px 0;
+    }
 
-@Html.ValidationSummary(true, "", new { @class = "text-danger" }) @* this line is  validation summary support *@
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 1.05rem;
+        color: #333;
+    }
 
-<form asp-action="Delete" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-    <button type="submit" class="btn btn-danger">Delete</button>
-</form>
+    /* 🚨 Delete button */
+    .btn-delete {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(192, 57, 43, 0.3);
+    }
+
+    /* 🪶 Animation */
+   @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 📱 Responsive */
+    
+</style>

@@ -105,9 +105,19 @@ namespace NoSQLProject.Repositories
 
         // ✅ END of TAREK’s sorting method
         public async Task<List<Employee>> GetByStatusAggregationAsync(string status)
+        {
+            if (!Enum.TryParse<Employee_Status>(status, out var enumStatus))
+                return new List<Employee>();
+
+            // Use an aggregation pipeline to match by status
+            var aggregation = _employees
+                .Aggregate()
+                .Match(Builders<Employee>.Filter.Eq(e => e.Status, enumStatus));
+
+            return await aggregation.ToListAsync();
+        }
 
         public async Task<List<Employee>> GetByStatusAsync(string status)
-
         {
             if (!Enum.TryParse<Employee_Status>(status, out var enumStatus))
                 return new List<Employee>();

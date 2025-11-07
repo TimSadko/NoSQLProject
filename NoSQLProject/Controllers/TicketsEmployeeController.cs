@@ -10,13 +10,6 @@ namespace NoSQLProject.Controllers
         ITicketRepository ticketRepository,
         IEmployeeRepository employeeRepository) : Controller
     {
-        private readonly ITicketRepository _repository;
-
-        public TicketsEmployeeController(ITicketRepository repository)
-        {
-            _repository = repository;
-        }
-
         // ✅ Index: Displays tickets with optional sorting
         [HttpGet]
         public async Task<IActionResult> Index(string sortField = "CreatedAt", int sortOrder = -1)
