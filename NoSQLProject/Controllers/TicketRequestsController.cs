@@ -74,9 +74,7 @@ namespace NoSQLProject.Controllers
             {
                 var view_model = new AddTicketRequestViewModel();
 
-                view_model.Request = new TicketRequest();
-                view_model.Request.TicketId = ticket_id;
-                view_model.Request.Message = "";
+                view_model.TicketId = ticket_id;
 
                 return View(view_model);
             }
@@ -102,7 +100,10 @@ namespace NoSQLProject.Controllers
 
                 if(emp.Id == logged_in_employee.Id) throw new Exception($"You cannot sent ticket request to yourself");
 
-                var request = view_model.Request;
+                var request = new TicketRequest();
+
+                request.TicketId = view_model.TicketId;
+                request.Message = view_model.Message;
 
                 request.SenderId = logged_in_employee.Id;
                 request.RecipientId = emp.Id;
