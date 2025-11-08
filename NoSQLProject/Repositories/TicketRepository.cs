@@ -45,13 +45,13 @@ namespace NoSQLProject.Repositories
 
         public async Task CheckUpdateAsync(Ticket t)
         {
-            var old = await GetByIdAsync(t.Id); // Get 'db' version pf the ticket, then compare it to the 'edited' version
+            var old = await GetByIdAsync(t.Id);
 
-            if (old.Description == t.Description && old.Title == t.Title && old.Status == t.Status) return; // If not changes were made, return
+            if (old.Description == t.Description && old.Title == t.Title && old.Status == t.Status) return;
 
-            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); // Get the Ticket by id
+            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id));
 
-            List<Task<UpdateResult>> tsk = new List<Task<UpdateResult>>(); // Create list of Tasks
+            List<Task<UpdateResult>> tsk = new List<Task<UpdateResult>>();
 
             if (old.Title != t.Title)
             {
@@ -68,26 +68,26 @@ namespace NoSQLProject.Repositories
                 tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", t.Status)));
             }
 
-            tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now))); // The 'updated_at' is set to now
+            tsk.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.UtcNow))); 
 
-            await Task.WhenAll(tsk); // wait for all of the updates to finish
+            await Task.WhenAll(tsk);
         }
 
         public async Task AddLogAsync(Ticket t, Log l, Employee e)
         {
-            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); // Create filter for the Ticket
+            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)); 
 
-            List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>(); // Create list of task, so they can be done in parallel
+            List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>();
 
             l.Id = ObjectId.GenerateNewId().ToString();
             l.CreatedAt = DateTime.Now;
             l.CreatedById = e.Id; 
 
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l))); // Add log to the ticket
+            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l))); 
 
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", l.NewStatus))); // Update the ticket status 
+            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", l.NewStatus)));
 
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.Now))); // Update the ticket last update time 
+            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.UtcNow)));
 
             await Task.WhenAll(tasks);
         }
@@ -134,33 +134,17 @@ namespace NoSQLProject.Repositories
             await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)));
         }
 
-        // ✅✅✅ Added by TAREK — Sorting for Tickets (Assignment 2)
-        // Allows sorting by any field; defaults to CreatedAt descending.
+        // Added by TAREK — Sorting for Tickets (Assignment 2)
         public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1)
         {
-            // 🟢 Add this console log HERE at the start of the method:
             Console.WriteLine($"[TAREK] Sorting Tickets by {sortField} ({(sortOrder == 1 ? "ASC" : "DESC")})");
 
             var sortBuilder = Builders<Ticket>.Sort;
             SortDefinition<Ticket> sortDef;
 
-            if (sortField == "CreatedAt")
-            {
-                // ✅ Default: show newest tickets first
-                sortDef = sortBuilder.Descending(t => t.CreatedAt);
-            }
-            else
-            {
-                // ✅ Generic dynamic sorting (ASC or DESC)
-                sortDef = sortOrder == 1
-                    ? sortBuilder.Ascending(sortField)
-                    : sortBuilder.Descending(sortField);
-            }
-
-            return await _tickets.Find(new BsonDocument())
-                                 .Sort(sortDef)
-                                 .ToListAsync();
+            sortDef = sortOrder == 1 ? sortBuilder.Ascending(sortField) : sortBuilder.Descending(sortField);
+            
+            return await _tickets.Find(new BsonDocument()).Sort(sortDef).ToListAsync();
         }
-        // ✅ END of TAREK's sorting method
     }
 }

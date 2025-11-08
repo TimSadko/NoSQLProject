@@ -9,7 +9,6 @@
 <h1>Tickets (Service Desk)</h1>
 <a href="/TicketsServiceDesk/Add" class="btn btn-primary mb-2">Add new Ticket</a>
 
-<!-- ✅ Sorting links for ticket fields -->
 <table class="table table-striped">
     <thead>
         <tr>
@@ -22,10 +21,12 @@
                 <a href="?sortField=Status&sortOrder=-1">↓</a>
             </th>
             <th>
-                <a href="?sortField=CreatedAt&sortOrder=-1">Created ↓</a>
+                <a href="?sortField=CreatedAt&sortOrder=1">Created ↑</a>|
+                <a href="?sortField=CreatedAt&sortOrder=-1">↓</a>
             </th>
             <th>
-                <a href="?sortField=UpdatedAt&sortOrder=-1">Updated ↓</a>
+                <a href="?sortField=UpdatedAt&sortOrder=1">Updated ↑</a>|
+                <a href="?sortField=UpdatedAt&sortOrder=-1">↓</a>
             </th>
             <th>Created By</th>
             <th>Logs</th>

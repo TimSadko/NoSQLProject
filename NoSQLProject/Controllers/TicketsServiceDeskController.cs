@@ -17,32 +17,29 @@ namespace NoSQLProject.Controllers
             _employees_rep = employees_rep;
         }
 
-        // ✅✅✅ Added by TAREK — Sorting functionality for Service Desk Tickets page (Assignment 2)
-        // Allows Service Desk employees to view and sort all tickets by any field.
-        // Default sorting: by CreatedAt descending (latest first).
         [HttpGet]
         public async Task<IActionResult> Index(string sortField = "CreatedAt", int sortOrder = -1)
         {
-            if (!Authenticate()) return RedirectToAction("Login", "Home"); // If user is not logged in or not the right type, redirect to login page
+            if (!Authenticate()) return RedirectToAction("Login", "Home"); 
 
             try
             {
-                var view_model = new SDETickestsListViewModel(); // Create new view model
+                var view_model = new SDETickestsListViewModel(); 
 
-                view_model.Tickets = await _rep.GetAllAsync(); // Get all ticket
+                view_model.Tickets = await _rep.GetAllSortedAsync(sortField, sortOrder); 
 
-                view_model.Employees = new List<Employee?>(); // Create new list of employees
+                view_model.Employees = new List<Employee?>();
 
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
+                List<Task<Employee?>> tasks = new List<Task<Employee?>>();
 
                 for (int i = 0; i < view_model.Tickets.Count; i++)
                 {
                     tasks.Add(_employees_rep.GetByIdAsync(view_model.Tickets[i].CreatedById));
                 }
 
-                await Task.WhenAll(tasks); // Wait for all of the employees to load
+                await Task.WhenAll(tasks);
 
-                for (int i = 0; i < tasks.Count; i++) // Add all of loaded the employees to the view model
+                for (int i = 0; i < tasks.Count; i++) 
                 {
                     view_model.Employees.Add(tasks[i].Result); 
                 }
@@ -55,7 +52,6 @@ namespace NoSQLProject.Controllers
                 return View(new SDETickestsListViewModel(new List<Ticket>(), new List<Employee?>()));
             }
         }
-        // ✅ END of TAREK’s sorting part
 
 
         [HttpGet]
@@ -78,8 +74,8 @@ namespace NoSQLProject.Controllers
                 t.CreatedById = emp.Id;
                 t.Status = Ticket_Status.Open;
                 t.Logs = new List<Log>();
-                t.CreatedAt = DateTime.Now;
-                t.UpdatedAt = DateTime.Now;
+                t.CreatedAt = DateTime.UtcNow;
+                t.UpdatedAt = DateTime.UtcNow;
 
                 await _rep.AddAsync(t);
                 return RedirectToAction("Index");
@@ -258,16 +254,16 @@ namespace NoSQLProject.Controllers
 
                 var view_model = new SDETicketEditViewModel(t, new List<Employee?>());
 
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
+                List<Task<Employee?>> tasks = new List<Task<Employee?>>();
 
                 for (int i = 0; i < view_model.Ticket.Logs.Count; i++)
                 {
                     tasks.Add(_employees_rep.GetByIdAsync(t.Logs[i].CreatedById));
                 }
 
-                await Task.WhenAll(tasks); // Wait for all of the employees to load
+                await Task.WhenAll(tasks);
 
-                for (int i = 0; i < tasks.Count; i++) // Add all of loaded the employees to the view model
+                for (int i = 0; i < tasks.Count; i++) 
                 {
                     view_model.LogEmployees.Add(tasks[i].Result);
                 }
