@@ -10,9 +10,9 @@
 
 <div>
     <lebel>Requests:</lebel>
-    <a href="TicketRequests/Received" class="selected-request-tab-link">Recieved</a> |
-    <a href="TicketRequests/Sent">Sent</a> |
-    <a href="TicketRequests/All">All</a>
+    <a href="/TicketRequests/Received" class="selected-request-tab-link">Recieved</a> |
+    <a href="/TicketRequests/Sent" class="not-selected-request-tab-link">Sent</a> |
+    <a href="/TicketRequests/All" class="not-selected-request-tab-link">All</a>
 </div>
 
 @{
@@ -22,7 +22,7 @@
     }
     else
     {
-        <table>
+        <table class="table">
             <thead>
                 <tr>
                     <th>Sender</th>
@@ -87,5 +87,9 @@
 <style>
     .selected-request-tab-link{
         text-decoration: underline;
+    }
+
+    .not-selected-request-tab-link {
+        text-decoration: none;
     }
 </style>

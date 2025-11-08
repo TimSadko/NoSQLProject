@@ -17,7 +17,7 @@ namespace NoSQLProject.Models
         private string _message;
         private DateTime _created_at;
         private DateTime _updated_at;
-        private TicketRequestStatus _status;
+        private TicketRequestStatus _status = TicketRequestStatus.Open;
         private bool _archived = false;
 
         private Employee? _sender = null;

@@ -27,5 +27,13 @@ namespace NoSQLProject.Repositories
 
             return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id)).Result.ToListAsync();
         }
+
+        public async Task AddAsync(TicketRequest request)
+        {
+            request.CreatedAt = DateTime.UtcNow;
+            request.UpdatedAt = DateTime.UtcNow;
+
+            await _requests.InsertOneAsync(request);
+        }
     }
 }
