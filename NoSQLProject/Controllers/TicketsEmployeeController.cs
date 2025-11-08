@@ -8,6 +8,15 @@ namespace NoSQLProject.Controllers
 {
     public class TicketsEmployeeController : Controller
     {
+        private readonly ITicketRepository _ticketRepository;
+        private readonly IEmployeeRepository _employeeRepository;
+
+        public TicketsEmployeeController(ITicketRepository ticketRepository, IEmployeeRepository employeeRepository)
+        {
+            _ticketRepository = ticketRepository;
+            _employeeRepository = employeeRepository;
+        }
+
         // ✅ Index: Displays tickets with optional sorting
         [HttpGet]
         public async Task<IActionResult> Index(string sortField = "CreatedAt", int sortOrder = -1)
@@ -50,7 +59,7 @@ namespace NoSQLProject.Controllers
                 ticket.Logs = new List<Log>();
                 ticket.CreatedAt = DateTime.UtcNow;
                 ticket.UpdatedAt = DateTime.UtcNow;
-                await ticketRepository.AddAsync(ticket);
+                await _ticketRepository.AddAsync(ticket);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
