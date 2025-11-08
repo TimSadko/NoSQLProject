@@ -1,4 +1,4 @@
-﻿@model NoSQLProject.Models.SDETickestsListViewModel
+﻿@model List<Ticket>
 
 @{
     ViewData["Title"] = "Tickets (Service Desk)";
@@ -6,57 +6,269 @@
 
 <partial name="_ErrorMessage" />
 
-<h1>Tickets (Service Desk)</h1>
-<a href="/TicketsServiceDesk/Add" class="btn btn-primary mb-2">Add new Ticket</a>
+<div class="fade-in">
+    <div class="tickets-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="tickets-title">Service Desk Tickets</h2>
+            <a href="/TicketsServiceDesk/Add" class="btn btn-add">Add New Ticket</a>
+        </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>
-                <a href="?sortField=Title&sortOrder=1">Title ↑</a> |
-                <a href="?sortField=Title&sortOrder=-1">↓</a>
-            </th>
-            <th>
-                <a href="?sortField=Status&sortOrder=1">Status ↑</a> |
-                <a href="?sortField=Status&sortOrder=-1">↓</a>
-            </th>
-            <th>
-                <a href="?sortField=CreatedAt&sortOrder=-1">Created ↓</a>
-            </th>
-            <th>
-                <a href="?sortField=UpdatedAt&sortOrder=-1">Updated ↓</a>
-            </th>
-            <th>Created By</th>
-            <th>Logs</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @for (int i = 0; i < (Model?.Tickets?.Count ?? 0); i++)
+        @if (Model == null)
         {
-            var t = Model.Tickets[i];
-            <tr>
-                <td>@t.Title</td>
-                <td>@t.Status</td>
-                <td>@t.CreatedAt.ToString("g")</td>
-                <td>@t.UpdatedAt.ToString("g")</td>
-                <td>
-                    @{
-                        var empName = "???";
-                        if (Model.Employees != null && i < Model.Employees.Count && Model.Employees[i] != null)
-                        {
-                            empName = Model.Employees[i]!.FullName;
-                        }
-                    }
-                    @empName
-                </td>
-                <td>@(t.Logs?.Count ?? 0)</td>
-                <td>
-                    <a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-sm btn-outline-info">View</a>
-                    <a class="text-danger ms-2" href="/TicketsServiceDesk/Delete/@t.Id">Delete</a>
-                </td>
-            </tr>
+            <div class="alert alert-info text-center fw-semibold mt-4">
+                No tickets found.
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center tickets-table">
+                    <thead class="table-gradient text-white">
+                        <tr>
+                            <th>
+                                <a href="?sortField=Title&sortOrder=1" class="sort-link">Title ↑</a> |
+                                <a href="?sortField=Title&sortOrder=-1" class="sort-link">↓</a>
+                            </th>
+                            <th>
+                                <a href="?sortField=Status&sortOrder=1" class="sort-link">Status ↑</a> |
+                                <a href="?sortField=Status&sortOrder=-1" class="sort-link">↓</a>
+                            </th>
+                            <th>
+                                <a href="?sortField=CreatedAt&sortOrder=1" class="sort-link">Created ↑</a> |
+                                <a href="?sortField=CreatedAt&sortOrder=-1" class="sort-link">↓</a>
+                            </th>
+                            <th>
+                                <a href="?sortField=UpdatedAt&sortOrder=1" class="sort-link">Updated ↑</a> |
+                                <a href="?sortField=UpdatedAt&sortOrder=-1" class="sort-link">↓</a>
+                            </th>
+                            <th>
+                                <a href="?sortField=CreatedBy&sortOrder=1" class="sort-link">Created By ↑</a> |
+                                <a href="?sortField=CreatedBy&sortOrder=-1" class="sort-link">↓</a>
+                            </th>
+                            <th>
+                                <a href="?sortField=LogsNumber&sortOrder=1" class="sort-link">Logs ↑</a> |
+                                <a href="?sortField=LogsNumber&sortOrder=-1" class="sort-link">↓</a>
+                            </th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(Ticket t in Model)
+                        {
+                            <tr>
+                                <td class="ticket-title-cell">@t.Title</td>
+                                <td>
+                                    <span class="status-badge status-@t.Status.ToString().ToLower()">
+                                        @t.Status
+                                    </span>
+                                </td>
+                                <td class="date-cell">@t.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                <td class="date-cell">@t.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                <td class="employee-cell">@(t.Creator == null ? "???" : t.Creator.FullName)</td>
+                                <td>
+                                    <span class="logs-badge">@t.Logs?.Count</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-view">View</a>
+                                        <a href="/TicketsServiceDesk/Delete/@t.Id" class="btn btn-delete">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .tickets-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 1200px;
+        margin: 40px auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .tickets-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4e54c8;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #2575fc, #6a11cb);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
+            color: white;
+        }
+
+    .tickets-table {
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    .tickets-table thead th {
+        padding: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .tickets-table tbody tr {
+        background: rgba(255, 255, 255, 0.85);
+        transition: all 0.25s ease;
+    }
+
+    .tickets-table tbody tr:hover {
+        background: rgba(78, 84, 200, 0.1);
+        transform: scale(1.01);
+    }
+
+    .tickets-table tbody td {
+        padding: 16px 12px;
+        vertical-align: middle;
+    }
+
+    .table-gradient {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    }
+
+    .ticket-title-cell {
+        font-weight: 600;
+        color: #333;
+        text-align: left;
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .date-cell {
+        font-size: 0.9rem;
+        color: #666;
+        white-space: nowrap;
+    }
+
+    .employee-cell {
+        font-weight: 500;
+        color: #555;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-open {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-closed {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-resolved {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .logs-badge {
+        display: inline-block;
+        background: #f3f4f6;
+        color: #4e54c8;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-view {
+        background: #00bcd4;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 8px 16px;
+        border: none;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .btn-view:hover {
+        background: #0097a7;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: #ef5350;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 8px 16px;
+        border: none;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .btn-delete:hover {
+        background: #d32f2f;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .sort-link {
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .sort-link:hover {
+        opacity: 0.8;
+        text-decoration: underline;
+    }
+
+    .fade-in {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease-in-out;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+</style>

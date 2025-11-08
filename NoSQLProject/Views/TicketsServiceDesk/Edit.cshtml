@@ -1,115 +1,359 @@
-﻿@model NoSQLProject.Models.SDETicketEditViewModel
+﻿@model NoSQLProject.Models.Ticket
 
 @{
     ViewData["Title"] = "Edit Ticket";
 
-    Console.WriteLine(Model.Ticket.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss"));
+    //Console.WriteLine(Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")); // Debug
 }
 
 <partial name="_ErrorMessage" />
 
-<h1>Ticket:</h1>
+<div class="fade-in">
+    <div class="ticket-edit-card">
+        <h2 class="ticket-title">Edit Ticket</h2>
 
-<div class="form-group py-2 text-start">
-    <label>Creator:</label>
-    <input type="text" class="form-control input-background" readonly value="@ViewData["creator"]" />
-</div>
+        <!-- Ticket Info Section -->
+        <div class="info-section mb-4">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="info-label">Creator</label>
+                    <input type="text" class="form-control info-input" readonly value="@ViewData["ticket_creator"]" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="info-label">Created At</label>
+                    <input type="text" class="form-control info-input" readonly value="@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="info-label">Last Update</label>
+                    <input type="text" class="form-control info-input" readonly value="@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
+                </div>
+            </div>
+        </div>
 
-<div class="form-group py-2 text-start">
-    <label>Created At:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
-</div>
+        <!-- Edit Form -->
+        <form action="/TicketsServiceDesk/Edit" method="post" class="ticket-form">
+            <input type="hidden" asp-for="Id" value="@Model.Id" />
 
-<div class="form-group py-2 text-start">
-    <label>Last Update:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
-</div>
+            <div class="form-group mb-3">
+                <label for="Title" class="form-label fw-semibold">Title</label>
+                <input type="text" class="form-control form-control-lg" asp-for="Title" required value="@Model?.Title" />
+            </div>
 
-<form action="/TicketsServiceDesk/Edit" method="post">
-    <input type="hidden" asp-for="Ticket.Id" value="@Model.Ticket.Id" />
+            <div class="form-group mb-3">
+                <label for="Description" class="form-label fw-semibold">Description</label>
+                <textarea class="form-control form-control-lg" asp-for="Description" rows="4" required>@Model?.Description</textarea>
+            </div>
 
-    <div class="form-group py-2 text-start">
-        <label for="Title">Title:</label>
-        <input type="text" class="form-control input-background" asp-for="Ticket.Title" required value="@Model?.Ticket.Title" />
-    </div>
+            <div class="form-group mb-4">
+                <label for="Status" class="form-label fw-semibold">Status</label>
+                <select class="form-select form-select-lg" asp-for="Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
+            </div>
 
-    <div class="form-group py-2 text-start">
-        <label for="Description">Description:</label>
-        <input type="text" class="form-control input-background" asp-for="Ticket.Description" required value="@Model?.Ticket.Description" />
-    </div>
+            <div class="d-flex justify-content-between mb-4">
+                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">Back</a>
+                <button type="submit" class="btn btn-save px-4 py-2">Save Changes</button>
+            </div>
+        </form>
 
-    <div class="form-group py-2 text-start">
-        <label for="Description">Status:</label>
-        <select class="form-control input-background" asp-for="Ticket.Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
-    </div>    
+        <a href="/TicketRequests/Add/@Model.Id">Add Ticket Request</a>
 
-    <button type="submit" class="primary-button">Edit</button>
-</form>
+        <!-- Logs Section -->
+        <div class="logs-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="logs-title">Activity Logs</h3>
+                <a href="/TicketsServiceDesk/AddLog/@Model.Id" class="btn btn-add-log">Add Log</a>
+            </div>
 
-
-<div class="form-group py-2 text-start">
-    <label>Logs:</label>
-    @{
-        if (Model?.Ticket.Logs.Count == 0)
-        {
-            <div>No logs yet</div>
-        }
-        else
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Created By</th>
-                        <th>Creation Time</th>
-                        <th>New Status</th>
-                        <th>Description</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        for (int i = 0; i < Model.Ticket.Logs.Count; i++)
-                        {                            
-                            var log = Model.Ticket.Logs[i];
-                            
+            @if (Model.Logs.Count == 0)
+            {
+                <div class="alert alert-info text-center">
+                    No logs yet. Add one to track changes!
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table logs-table">
+                        <thead>
                             <tr>
-                                <th>@(Model.LogEmployees[i] == null ? "???" : Model.LogEmployees[i].FullName)</th>
-                                <th>@log.CreatedAt</th>
-                                <th>@log.NewStatus</th>
-
-                                @if (string.IsNullOrEmpty(log.Description)) // If deescription is empty
-                                {
-                                    <th>-</th>
-                                }
-                                else
-                                {
-                                    if (log.Description.Length > 100) // If it is too long, cut it
-                                    {
-                                        <th>@(log.Description.Substring(0, 100))...</th>
-                                    }
-                                    else // If it is short enough, put it ass it is
-                                    {
-                                        <th>@(log.Description.Substring(0, log.Description.Length))</th>
-                                    }
-                                }
-
-                                <th>
-                                    <a href="/TicketsServiceDesk/EditLog/@(Model.Ticket.Id)/@(log.Id)">View</a>
-                                    <a class="text-danger" href="/TicketsServiceDesk/DeleteLog/@(Model.Ticket.Id)/@(log.Id)">Delete</a>
-                                </th>
+                                <th>Created By</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                                <th>Actions</th>
                             </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        }
-    }  
-    <a href="/TicketsServiceDesk/AddLog/@Model.Ticket.Id">Add New Log</a>
+                        </thead>
+                        <tbody>
+                            @foreach(Log log in Model.Logs)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@(log.Creator == null ? "???" : log.Creator.FullName)</td>
+                                    <td class="date-cell">@log.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                    <td>
+                                        <span class="status-badge status-@log.NewStatus.ToString().ToLower()">
+                                            @log.NewStatus
+                                        </span>
+                                    </td>
+                                    <td class="description-cell">
+                                        @if (string.IsNullOrEmpty(log.Description))
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                        else if (log.Description.Length > 100)
+                                        {
+                                            @(log.Description.Substring(0, 100))
+                                            
+                                        }
+                                        else
+                                        {
+                                            @log.Description
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="/TicketsServiceDesk/EditLog/@(Model.Id)/@(log.Id)" class="btn-action btn-edit-sm">Edit</a>
+                                            <a href="/TicketsServiceDesk/DeleteLog/@(Model.Id)/@(log.Id)" class="btn-action btn-delete-sm">Delete</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
-<a href="/TicketsServiceDesk/Index">Back to Ticket List</a>
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
 
-@* <input type="hidden" id="CreatedById" name="CreatedById" value="@Model?.CreatedById" />
-    <input type="hidden" id="UpdatedAt" name="UpdatedAt" value="@Model?.UpdatedAt" />
-    <input type="hidden" id="CreatedAt" name="CreatedAt" value="@Model?.CreatedAt" />
-    <input type="hidden" id="Logs" name="Logs" value="@Model?.Logs" /> *@
+    .ticket-edit-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 1000px;
+        margin: 40px auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .ticket-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4e54c8;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .info-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+
+    .info-input {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        color: #333;
+    }
+
+    .ticket-form .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .ticket-form .form-control,
+    .ticket-form .form-select {
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+    }
+
+        .ticket-form .form-control:focus,
+        .ticket-form .form-select:focus {
+            border-color: #4e54c8;
+            box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.15);
+            outline: none;
+        }
+
+    .btn-save {
+        background: linear-gradient(135deg, #2575fc, #6a11cb);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.4);
+            color: white;
+        }
+
+    .btn-back {
+        background: #f3f4f6;
+        color: #333;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-back:hover {
+            background: #e0e7ff;
+            color: #4e54c8;
+        }
+
+    .logs-section {
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #e0e0e0;
+    }
+
+    .logs-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4e54c8;
+    }
+
+    .btn-add-log {
+        background: linear-gradient(135deg, #00bcd4, #0097a7);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-add-log:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
+        color: white;
+    }
+
+    .logs-table {
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+
+    .logs-table thead th {
+        background: #f8f9fa;
+        padding: 12px;
+        font-weight: 600;
+        color: #555;
+        border: none;
+    }
+
+    .logs-table tbody tr {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+
+    .logs-table tbody tr:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .logs-table tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border: none;
+    }
+
+    .date-cell {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .description-cell {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-open {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-closed {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-resolved {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-edit-sm {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+        .btn-edit-sm:hover {
+            background: #1976d2;
+            color: white;
+        }
+
+    .btn-delete-sm {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+
+        .btn-delete-sm:hover {
+            background: #d32f2f;
+            color: white;
+        }
+
+    .fade-in {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease-in-out;
+    }
+</style>

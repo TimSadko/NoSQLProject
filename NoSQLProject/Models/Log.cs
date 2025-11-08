@@ -11,6 +11,8 @@ namespace NoSQLProject.Models
 		private string _description;
 		private Ticket_Status _new_status;
 
+        private Employee? _creator = null;
+
 		public Log() { }
 
 		public Log(string id, string created_by_id, DateTime created_at, string description, Ticket_Status new_status)
@@ -41,6 +43,10 @@ namespace NoSQLProject.Models
         [BsonElement("new_status")]
         [JsonPropertyName("new_status")]
         public Ticket_Status NewStatus { get => _new_status; set => _new_status = value; }
+
+        [BsonIgnore]
+        [JsonIgnore]
+        public Employee? Creator { get => _creator; set => _creator = value; }
 
         public override string? ToString()
         {

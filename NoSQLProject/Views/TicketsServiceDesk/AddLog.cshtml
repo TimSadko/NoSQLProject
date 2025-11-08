@@ -6,23 +6,89 @@
 
 <partial name="_ErrorMessage" />
 
-<h1>New Log:</h1>
+<div class="fade-in">
+	<div class="log-card shadow-lg">
+		<h2 class="log-title">Add New Log</h2>
 
-<form action="/TicketsServiceDesk/AddLog" method="post">
-    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id"/>
-    <input type="hidden" asp-for="@Model.Ticket.Status" value="@Model.Ticket.Status" />
+		<form action="/TicketsServiceDesk/AddLog" method="post" class="log-form">
+			<input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
+			<input type="hidden" asp-for="@Model.Ticket.Status" value="@Model.Ticket.Status" />
 
-    <div class="form-group py-2 text-start">
-        <label for="Description">Description:</label>
-        <input type="text" class="form-control input-background new-log-description-input" asp-for="@Model.Log.Description" required value="@Model.Log.Description" />
-    </div>
+			<div class="form-group mb-3">
+				<label for="Description" class="form-label fw-semibold">Description</label>
+				<textarea id="Description" class="form-control form-control-lg" asp-for="@Model.Log.Description"
+					rows="4" placeholder="Describe what was done..." required>@Model.Log.Description</textarea>
+			</div>
 
-    <div class="form-group py-2 text-start">
-        <label for="NewStatus">Status Change:</label>
-        <select id="NewStatus" asp-for="@Model.Log.NewStatus" asp-items="@Html.GetEnumSelectList<Ticket_Status>()" required></select>
-    </div>
+			<div class="form-group mb-4">
+				<label for="NewStatus" class="form-label fw-semibold">Status Change</label>
+				<select id="NewStatus" asp-for="@Model.Log.NewStatus"
+						class="form-select form-select-lg"
+						asp-items="@Html.GetEnumSelectList<Ticket_Status>()" required></select>
+			</div>
 
-    <button type="submit" class="primary-button">Add</button>
-</form>
+			<div class="d-flex justify-content-between">
+				<a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id" class="btn btn-secondary px-4 py-2">← Back</a>
+				<button type="submit" class="btn btn-add px-4 py-2">Add Log</button>
+			</div>
+		</form>
+	</div>
+</div>
 
-<a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Go Back To The Ticket</a>
+<style>
+	body {
+		background: linear-gradient(135deg, #4e54c8, #8f94fb);
+		font-family: 'Inter', sans-serif;
+	}
+
+	.log-card {
+		background: rgba(255, 255, 255, 0.92);
+		backdrop-filter: blur(12px);
+		border-radius: 20px;
+		padding: 40px 50px;
+		max-width: 600px;
+		margin: 0 auto;
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+		animation: fadeIn 0.8s ease-in-out forwards;
+	}
+
+	.log-title {
+		font-size: 2rem;
+		font-weight: 700;
+		color: #4e54c8;
+		text-align: center;
+		margin-bottom: 2rem;
+	}
+
+	.log-form .form-control,
+	.log-form .form-select {
+		border-radius: 10px;
+		border: 1px solid #ccc;
+		transition: all 0.3s ease;
+	}
+
+	.log-form .form-control:focus,
+	.log-form .form-select:focus {
+		border-color: #4e54c8;
+		box-shadow: 0 0 8px rgba(78, 84, 200, 0.4);
+	}
+
+	.btn-add {
+		background: linear-gradient(135deg, #2575fc, #6a11cb);
+		color: white;
+		font-weight: 600;
+		border: none;
+		border-radius: 10px;
+		transition: all 0.3s ease;
+	}
+
+	.btn-add:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
+	}
+
+	@@keyframes fadeIn {
+		from { opacity: 0; transform: translateY(25px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+</style>

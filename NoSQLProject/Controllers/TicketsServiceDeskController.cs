@@ -1,114 +1,4 @@
-﻿// using Microsoft.AspNetCore.Mvc;
-// using NoSQLProject.Models;
-// using NoSQLProject.Other;
-// using NoSQLProject.Repositories;
-
-// namespace NoSQLProject.Controllers
-// {
-//     public class TicketsServiceDeskController : Controller
-//     {
-//         private readonly ITicketRepository _rep;
-
-//         public TicketsServiceDeskController(ITicketRepository rep)
-//         {
-//             _rep = rep;
-//         }
-
-//         [HttpGet]
-//         public async Task<IActionResult> Index()
-//         {
-//             if (!Authenticate()) RedirectToAction("Login", "Home"); // If user is not logged in or not the right type, redirect to login page
-
-//             return View(await _rep.GetAllAsync());
-//         }
-
-//         [HttpGet]
-//         public async Task<IActionResult> Add()
-//         {
-//             if (!Authenticate()) RedirectToAction("Login", "Home");
-
-//             return View(new Ticket());
-//         }
-
-//         [HttpPost]
-//         public async Task<IActionResult> Add(Ticket t)
-//         {
-//             if (!Authenticate()) RedirectToAction("Login", "Home");
-
-//             try
-//             {
-//                 var emp = Authorization.GetLoggedInEmployee(HttpContext);
-                
-//                 t.CreatedById = emp.Id;
-
-//                 t.Status = Ticket_Status.Open;
-
-//                 t.Logs = new List<Log>();
-
-//                 t.CreatedAt = DateTime.Now;
-//                 t.UpdatedAt = DateTime.Now;
-
-//                 await _rep.AddAsync(t);
-
-//                 return RedirectToAction("Index");
-//             }
-//             catch (Exception ex)
-//             {
-//                 ViewData["Exception"] = ex.Message;
-//                 return View(t);
-//             }
-//         }
-
-//         [HttpGet("TicketsServiceDesk/Edit/{id}")]
-//         public async Task<IActionResult> Edit(string? id)
-//         {
-//             if (!Authenticate()) RedirectToAction("Login", "Home");
-
-//             try
-//             {
-//                 if(id == null) throw new ArgumentNullException("Id is null");
-
-//                 Ticket t = await _rep.GetByIdAsync((string)id);
-
-//                 return View(t);
-//             }
-//             catch (Exception ex)
-//             {
-//                 TempData["Exception"] = ex.Message;
-//                 return RedirectToAction("Index");
-//             }           
-//         }
-
-//         [HttpPost]
-//         public async Task<IActionResult> Edit(Ticket t)
-//         {
-//             if (!Authenticate()) RedirectToAction("Login", "Home");
-
-//             try
-//             {
-//                 await _rep.CheckUpdateAsync(t);
-
-//                 return View(t);
-//             }
-//             catch (Exception ex)
-//             {
-//                 TempData["Exception"] = ex.Message;
-//                 return RedirectToAction("Index");
-//             }
-//         }
-
-//         public bool Authenticate()
-//         {
-//             Employee? emp = Authorization.GetLoggedInEmployee(this.HttpContext);
-
-//             if (emp == null || emp is not ServiceDeskEmployee) return false;
-
-//             return true;
-//         }
-//     }
-// }
-
-
+﻿
 using Microsoft.AspNetCore.Mvc;
 using NoSQLProject.Models;
 using NoSQLProject.Other;
@@ -127,34 +17,59 @@ namespace NoSQLProject.Controllers
             _employees_rep = employees_rep;
         }
 
-        // ✅✅✅ Added by TAREK — Sorting functionality for Service Desk Tickets page (Assignment 2)
-        // Allows Service Desk employees to view and sort all tickets by any field.
-        // Default sorting: by CreatedAt descending (latest first).
         [HttpGet]
         public async Task<IActionResult> Index(string sortField = "CreatedAt", int sortOrder = -1)
         {
-            if (!Authenticate()) return RedirectToAction("Login", "Home"); // If user is not logged in or not the right type, redirect to login page
+            if (!Authenticate()) return RedirectToAction("Login", "Home"); 
 
             try
             {
-                var view_model = new SDETickestsListViewModel(); // Create new view model
+                List<Ticket> view_model;
 
-                view_model.Tickets = await _rep.GetAllAsync(); // Get all ticket
-
-                view_model.Employees = new List<Employee?>(); // Create new list of employees
-
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
-
-                for (int i = 0; i < view_model.Tickets.Count; i++)
+                if(sortField == "CreatedBy")
                 {
-                    tasks.Add(_employees_rep.GetByIdAsync(view_model.Tickets[i].CreatedById));
+                    view_model = await _rep.GetAllAsync();
+                }
+                else if(sortField == "LogsNumber")
+                {
+                    view_model = await _rep.GetAllAsync();
+
+                    view_model.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count) * sortOrder; });        
+                }
+                else
+                {
+                    view_model = await _rep.GetAllSortedAsync(sortField, sortOrder);
+                }              
+
+                List<Task<Employee?>> tasks = new List<Task<Employee?>>();
+
+                for (int i = 0; i < view_model.Count; i++)
+                {
+                    tasks.Add(_employees_rep.GetByIdAsync(view_model[i].CreatedById));
                 }
 
-                await Task.WhenAll(tasks); // Wait for all of the employees to load
+                await Task.WhenAll(tasks);
 
-                for (int i = 0; i < tasks.Count; i++) // Add all of loaded the employees to the view model
+                for (int i = 0; i < tasks.Count; i++) 
                 {
-                    view_model.Employees.Add(tasks[i].Result); 
+                    view_model[i].Creator = tasks[i].Result; 
+                }
+
+                if (sortField == "CreatedBy")
+                {
+                    view_model.Sort((Ticket t, Ticket t2) =>
+                    {
+                        if (t.Creator == null)
+                        {
+                            if (t2.Creator == null) return 0;
+                            else return sortOrder;
+                        }
+                        else
+                        {
+                            if(t2.Creator == null) return -sortOrder;
+                            else return t.Creator.FullName.CompareTo(t2.Creator.FullName) * sortOrder;
+                        }
+                    });
                 }
 
                 return View(view_model);
@@ -162,13 +77,11 @@ namespace NoSQLProject.Controllers
             catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
-                return View(new SDETickestsListViewModel(new List<Ticket>(), new List<Employee?>()));
+                return View(new List<Ticket>());
             }
         }
-        // ✅ END of TAREK’s sorting part
 
 
-        // Standard Add Ticket page
         [HttpGet]
         public IActionResult Add()
         {
@@ -189,8 +102,8 @@ namespace NoSQLProject.Controllers
                 t.CreatedById = emp.Id;
                 t.Status = Ticket_Status.Open;
                 t.Logs = new List<Log>();
-                t.CreatedAt = DateTime.Now;
-                t.UpdatedAt = DateTime.Now;
+                t.CreatedAt = DateTime.UtcNow;
+                t.UpdatedAt = DateTime.UtcNow;
 
                 await _rep.AddAsync(t);
                 return RedirectToAction("Index");
@@ -202,7 +115,6 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // Edit Ticket page
         [HttpGet("TicketsServiceDesk/Edit/{id}")]
         public async Task<IActionResult> Edit(string? id)
         {
@@ -212,31 +124,29 @@ namespace NoSQLProject.Controllers
             {
                 if(id == null) throw new ArgumentNullException("Id is null");
 
-                Ticket? t = await _rep.GetByIdAsync((string)id);
+                Ticket? ticket = await _rep.GetByIdAsync((string)id);
 
-                if (t == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
+                if (ticket == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
 
-                var view_model = new SDETicketEditViewModel(t, new List<Employee?>());
+                List<Task<Employee?>> log_creator_tasks = new List<Task<Employee?>>(); 
 
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
-
-                for (int i = 0; i < view_model.Ticket.Logs.Count; i++)
+                for (int i = 0; i < ticket.Logs.Count; i++)
                 {
-                    tasks.Add(_employees_rep.GetByIdAsync(t.Logs[i].CreatedById)); 
+                    log_creator_tasks.Add(_employees_rep.GetByIdAsync(ticket.Logs[i].CreatedById)); 
                 }
 
-                await Task.WhenAll(tasks); // Wait for all of the employees to load
+                await Task.WhenAll(log_creator_tasks); 
 
-                for (int i = 0; i < tasks.Count; i++) // Add all of loaded the employees to the view model
+                for (int i = 0; i < log_creator_tasks.Count; i++) 
                 {
-                    view_model.LogEmployees.Add(tasks[i].Result);
+                    ticket.Logs[i].Creator = log_creator_tasks[i].Result;
                 }
 
-                Employee? creator = await _employees_rep.GetByIdAsync(t.CreatedById);
+                Employee? ticket_creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
 
-                ViewData["creator"] = creator == null ? "???" : creator.FullName; 
+                ViewData["ticket_creator"] = ticket_creator == null ? "???" : ticket_creator.FullName; 
 
-                return View(view_model);
+                return View(ticket);
             }
             catch (Exception ex)
             {
@@ -246,15 +156,15 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(SDETicketEditViewModel view_model)
+        public async Task<IActionResult> Edit(Ticket ticket)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
-                await _rep.CheckUpdateAsync(view_model.Ticket);
+                await _rep.CheckUpdateAsync(ticket);
 
-                return RedirectToAction("Edit", new {id = view_model.Ticket.Id});
+                return RedirectToAction("Edit", new {id = ticket.Id});
             }
             catch (Exception ex)
             {
@@ -364,31 +274,29 @@ namespace NoSQLProject.Controllers
             {
                 if (id == null) throw new ArgumentNullException("Id is null");
 
-                Ticket? t = await _rep.GetByIdAsync((string)id);
+                Ticket? ticket = await _rep.GetByIdAsync((string)id);
 
-                if (t == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
+                if (ticket == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
 
-                var view_model = new SDETicketEditViewModel(t, new List<Employee?>());
+                List<Task<Employee?>> log_creator_tasks = new List<Task<Employee?>>();
 
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
-
-                for (int i = 0; i < view_model.Ticket.Logs.Count; i++)
+                for (int i = 0; i < ticket.Logs.Count; i++)
                 {
-                    tasks.Add(_employees_rep.GetByIdAsync(t.Logs[i].CreatedById));
+                    log_creator_tasks.Add(_employees_rep.GetByIdAsync(ticket.Logs[i].CreatedById));
                 }
 
-                await Task.WhenAll(tasks); // Wait for all of the employees to load
+                await Task.WhenAll(log_creator_tasks);
 
-                for (int i = 0; i < tasks.Count; i++) // Add all of loaded the employees to the view model
+                for (int i = 0; i < log_creator_tasks.Count; i++) 
                 {
-                    view_model.LogEmployees.Add(tasks[i].Result);
+                    ticket.Logs[i].Creator = log_creator_tasks[i].Result;
                 }
 
-                Employee? creator = await _employees_rep.GetByIdAsync(t.CreatedById);
+                Employee? creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
 
-                ViewData["creator"] = creator == null ? "???" : creator.FullName;
+                ViewData["ticket_creator"] = creator == null ? "???" : creator.FullName;
 
-                return View(view_model);
+                return View(ticket);
             }
             catch (Exception ex)
             {
@@ -398,14 +306,13 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(SDETicketEditViewModel view_model)
+        public async Task<IActionResult> Delete(Ticket ticket)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
-                Console.WriteLine(view_model.Ticket.Id);
-                await _rep.DeleteAsync(view_model.Ticket.Id);
+                await _rep.DeleteAsync(ticket.Id);
 
                 return RedirectToAction("Index");
             }
@@ -462,7 +369,6 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // ✅ Helper to validate logged-in Service Desk employee
         private bool Authenticate()
         {
             var emp = Authorization.GetLoggedInEmployee(HttpContext);

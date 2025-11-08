@@ -2,6 +2,88 @@
     ViewData["Title"] = "Privacy";
 }
 
-<h1>Privacy Policy</h1>
+<div class="fade-in">
+    <div class="privacy-card shadow-lg">
+        <h1 class="privacy-title">Privacy Policy</h1>
+        <p class="privacy-text">
+            Welcome to <strong>My Ticket Tracker</strong>.  
+            We value your privacy and are committed to protecting your personal information.
+        </p>
 
-<p>Use this page to detail your site's privacy policy.</p>
+        <p class="privacy-text">
+            Any data you provide through this platform, such as login credentials, support tickets, or
+            employee information, is securely stored and used only for operational purposes within
+            our ticket management system.
+        </p>
+
+        <p class="privacy-text">
+            We do not share your data with third parties without consent, and all communications are encrypted to ensure safety and confidentiality.
+        </p>
+
+        <p class="privacy-text">
+            For any concerns or data removal requests, please contact our support team at
+            <a href="mailto:support@mytickettracker.com">support@mytickettracker.com</a>.
+        </p>
+    </div>
+</div>
+
+<style>
+   
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
+
+
+    .privacy-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 750px;
+        text-align: left;
+        animation: fadeIn 0.8s ease-in-out forwards;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ✨ Typography */
+    .privacy-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #4e54c8;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .privacy-text {
+        font-size: 1rem;
+        color: #333;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .privacy-text a {
+        color: #4e54c8;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s ease;
+    }
+
+    .privacy-text a:hover {
+        color: #2575fc;
+    }
+
+    /* 🪶 Animation */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+</style>

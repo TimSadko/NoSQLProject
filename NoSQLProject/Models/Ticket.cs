@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NoSQLProject.Models
 {
-    public enum Ticket_Status // Do not know what to put here, if you work with tickets fill this in!
+    public enum Ticket_Status 
     {
         Open = 0, Closed = 1, Resolved = 2
     }
@@ -19,6 +19,8 @@ namespace NoSQLProject.Models
         private Ticket_Status _status = 0;
         private DateTime _created_at;
         private DateTime _updated_at;
+
+        private Employee? _creator = null;
 
         public Ticket() { }
 
@@ -65,6 +67,10 @@ namespace NoSQLProject.Models
         [BsonElement("updated_at")]
         [JsonPropertyName("updated_at")]
         public DateTime UpdatedAt { get => _updated_at; set => _updated_at = value; }
+
+        [BsonIgnore]
+        [JsonIgnore]
+        public Employee? Creator { get => _creator; set => _creator = value; }
 
         public override string? ToString()
         {

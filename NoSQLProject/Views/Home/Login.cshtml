@@ -1,24 +1,155 @@
 ﻿@model LoginModel
 
 @{
+    
     ViewData["Title"] = "Login";
 }
 
-<partial name="_ErrorMessage"/>
+<div class="login-container">
+    <h1>Welcome Back</h1>
 
-<h1>Login</h1>
+    <partial name="_ErrorMessage" />
 
-<form action="/Home/Login" method="post" class="p-4 border rounded shadow-sm" style="width: 300px;">
-    <div class="form-group py-2">
-        <label for="Email">Email:</label>
-        <input type="text" id="Email" name="Email" class="form-control form-control-sm" required value="@Model?.Email" />
-    </div>
+    <form action="/Home/Login" method="post">
+        <div class="form-group py-2 fade-field">
+            <label for="Email">Email</label>
+            <input type="email" id="Email" name="Email"
+                   class="form-control"
+                   placeholder="Enter your email"
+                   required
+                   value="@Model?.Email" />
+        </div>
 
+        <div class="form-group py-2 fade-field">
+            <label for="Password">Password</label>
+            <input type="password" id="Password" name="Password"
+                   class="form-control"
+                   placeholder="Enter your password"
+                   required
+                   value="@Model?.Password" />
+        </div>
     <div class="form-group py-2">
         <label for="Password">Password:</label>
         <input type="password" id="Password" name="Password" class="form-control form-control-sm" required value="@Model?.Password" />
         <a asp-action="ForgotPassword" asp-controller="Home" class="btn btn-link btn-sm ms-2">Forgot password?</a>
     </div>
 
-    <button type="submit" class="btn btn-login w-100 mt-3">Login</button>
-</form>
+        <div class="fade-field">
+            <button type="submit" class="btn btn-login w-100 mt-3">
+                Login 
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* General page styling */ body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    /* Animated fade-in container */
+    .login-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        padding: 40px 30px;
+        width: 340px;
+        animation: fadeInUp 0.9s ease both;
+        transform-origin: center bottom;
+    }
+
+    /* Card slide-up animation */
+    @@keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Title style */
+    .login-container h1 {
+        text-align: center;
+        color: #4e54c8;
+        font-weight: 700;
+        margin-bottom: 25px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Input styling with focus transition */
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 10px 12px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            border-color: #4e54c8;
+            box-shadow: 0 0 6px rgba(78, 84, 200, 0.4);
+            outline: none;
+        }
+
+    label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* Button animation */
+    .btn-login {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(78, 84, 200, 0.3);
+        }
+
+    /* Subtle appear animation for each input */
+    .fade-field {
+        animation: fadeSlide 0.8s ease forwards;
+        opacity: 0;
+    }
+
+    @@keyframes fadeSlide {
+        0% {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-field:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .fade-field:nth-child(2) {
+        animation-delay: 0.25s;
+    }
+
+    .fade-field:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+</style>

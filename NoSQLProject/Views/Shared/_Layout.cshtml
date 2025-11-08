@@ -3,86 +3,224 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData[""]MyTicketTracker</title>
+    <title>@ViewData["Title"] - NoSQLProject</title>
     <link rel="icon" type="image/png" href="~/favicon.png" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/NoSQLProject.styles.css" asp-append-version="true" />
 </head>
+
 <body>
-    <header>
+    <!-- Fixed Header -->
+    <header class="fixed-header">
         <nav class="custom-navbar">
             <div class="navbar-container">
-                <a class="logo-link" asp-area="" asp-controller="Home" asp-action="Index">My Ticket Tracker</a>
-                <div class="navbar-links" id="navbarLinks">
-                    <ul class="navbar-menu">
-                        <li>
-                            <a class="navbar-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        
-                        @{
-                            var emp = NoSQLProject.Other.Authorization.GetLoggedInEmployee(this.Context);
-
-                            if ((string?)ViewData["Title"] == "Privacy") // Change links in the navbar depending on the page name 
+                <a class="logo-link" asp-controller="Home" asp-action="Index">My Ticket Tracker</a>
+                <ul class="navbar-menu">
+                    <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                    @{
+                        var emp = NoSQLProject.Other.Authorization.GetLoggedInEmployee(this.Context);
+                        if (emp != null)
+                        {
+                            <li><a asp-controller="Home" asp-action="Logout">Logout</a></li>
+                            if (emp is NoSQLProject.Models.ServiceDeskEmployee)
                             {
-                                if(emp != null) // Check if user is logged in
-                                {
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
-                                    </li>
-                                }
+                                <li><a asp-controller="Employees" asp-action="Index">Employees</a></li>
+                                <li><a asp-controller="TicketsServiceDesk" asp-action="Index">Tickets</a></li>
+                                <li><a asp-controller="TicketRequests" asp-action="Received">Requests</a></li>
                             }
-                            else if ((string?)ViewData["Title"] != "Login")
+                            else
                             {
-                                <li class="navbar-log-container">
-                                    <a class="navbar-link" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
-                                </li>
+                                <li><a asp-controller="TicketsEmployee" asp-action="Index">Tickets</a></li>
                             }
-
-                            if(emp != null)
-                            {
-                                if (emp is ServiceDeskEmployee) // Change navbar links depending on employee type
-                                {
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="Employees" asp-action="Index">Employees</a>
-                                    </li>
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="TicketsServiceDesk" asp-action="Index">Tickets</a>
-                                    </li>
-                                }
-                                else
-                                {
-                                    <li class="navbar-log-container">
-                                        <a class="navbar-link" asp-area="" asp-controller="TicketsEmployee" asp-action="Index">Tickets</a>
-                                    </li>
-                                }
-                            }                      
                         }
-                    </ul>
-                </div>
+                        else
+                        {
+                            <li><a asp-controller="Home" asp-action="Login">Login</a></li>
+                        }
+                    }
+                </ul>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Main Content with proper spacing -->
+    <main class="main-content">
         <div class="container">
-            &copy; 2025 - NoSQLProject - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @RenderBody()
         </div>
+    </main>
+
+    <!-- Fixed Footer -->
+    <footer class="fixed-footer text-muted text-center">
+        © 2025 - NoSQLProject - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<style>
+    /* ═══════════════════════════════════════════════════════════
+       FIXED HEADER & FOOTER LAYOUT
+       ═══════════════════════════════════════════════════════════ */
+
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       FIXED HEADER
+       ═══════════════════════════════════════════════════════════ */
+
+    .fixed-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-navbar {
+        padding: 1rem 2rem;
+        margin: 0;
+        border: none;
+    }
+
+    .navbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .logo-link {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4e54c8;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .logo-link:hover {
+            color: #2575fc;
+        }
+
+    .navbar-menu {
+        list-style: none;
+        display: flex;
+        gap: 2rem;
+        margin: 0;
+        padding: 0;
+        align-items: center;
+    }
+
+        .navbar-menu li {
+            margin: 0;
+        }
+
+        .navbar-menu a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+            .navbar-menu a:hover {
+                color: #4e54c8;
+            }
+
+    /* ═══════════════════════════════════════════════════════════
+       MAIN CONTENT AREA
+       ═══════════════════════════════════════════════════════════ */
+
+    .main-content {
+        flex: 1;
+        margin-top: 80px; /* Space for fixed header */
+        margin-bottom: 60px; /* Space for fixed footer */
+        padding: 2rem 0;
+        overflow-y: auto;
+    }
+
+        .main-content .container {
+            max-width: 1200px;
+        }
+
+    /* ═══════════════════════════════════════════════════════════
+       FIXED FOOTER
+       ═══════════════════════════════════════════════════════════ */
+
+    .fixed-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+        .fixed-footer a {
+            color: #4e54c8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+            .fixed-footer a:hover {
+                color: #2575fc;
+            }
+
+    /* ═══════════════════════════════════════════════════════════
+       LAYOUT ADJUSTMENTS
+       ═══════════════════════════════════════════════════════════ */
+
+    .navbar-container {
+        flex-wrap: wrap;
+    }
+
+    .navbar-menu {
+        flex-wrap: wrap;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       SCROLLBAR STYLING (Optional)
+       ═══════════════════════════════════════════════════════════ */
+
+    .main-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .main-content::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .main-content::-webkit-scrollbar-thumb {
+        background: rgba(78, 84, 200, 0.3);
+        border-radius: 4px;
+    }
+
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(78, 84, 200, 0.5);
+        }
+</style>

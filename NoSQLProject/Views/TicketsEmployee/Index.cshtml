@@ -1,49 +1,4 @@
-﻿@* @model NoSQLProject.ViewModels.EmployeeTickets
-
-@{
-	ViewData["Title"] = "Tickets";
-}
-
-<partial name="_ErrorMessage"/>
-
-<h1>Tickets:</h1>
-<a href="/TicketsEmployee/Add">Add new Ticket</a>
-
-<table class="table">
-	<thead>
-	<tr>
-		<th>Title</th>
-		<th>Status</th>
-		<th>Created At</th>
-		<th>Last Update</th>
-		<th>Created By</th>
-		<th>Log numbers</th>
-		<th>Actions</th>
-	</tr>
-	</thead>
-	<tbody>
-	@{
-		foreach (var ticket in Model.Tickets)
-		{
-			<tr>
-				<th>@ticket.Title</th>
-				<th>@ticket.Status</th>
-				<th>@ticket.CreatedAt</th>
-				<th>@ticket.UpdatedAt</th>
-				<th>@Model.Employee.FirstName @Model.Employee.LastName</th>
-				<th>@ticket.Logs.Count - <a href="/TicketsEmployee/Logs/@ticket.Id">View</a></th>
-				<th>
-					<a href="/TicketsEmployee/Edit/@ticket.Id">Edit</a>
-					<a href="/TicketsEmployee/Delete/@ticket.Id">Delete</a>
-				</th>
-			</tr>
-		}
-	}
-	</tbody>
-</table> *@
-
-
-@model NoSQLProject.ViewModels.EmployeeTickets
+﻿@model NoSQLProject.ViewModels.EmployeeTickets
 
 @{
     ViewData["Title"] = "Tickets";
@@ -51,48 +6,147 @@
     int currentOrder = int.TryParse(Context.Request.Query["sortOrder"], out int order) ? order : -1;
 }
 
-<h1>Tickets:</h1>
-<a href="/TicketsEmployee/Add">Add new Ticket</a>
+<div class="fade-in">
+    <div class="tickets-card shadow-lg">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="tickets-title">My Tickets</h2>
+            <a href="/TicketsEmployee/Add" class="btn btn-add px-4 py-2">+ Add New Ticket</a>
+        </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                <a href="?sortField=Title&sortOrder=1">↑</a>
-                <a href="?sortField=Title&sortOrder=-1">↓</a>
-                Title
-            </th>
-            <th>
-                <a href="?sortField=Status&sortOrder=1">↑</a>
-                <a href="?sortField=Status&sortOrder=-1">↓</a>
-                Status
-            </th>
-            <th>
-                <a href="?sortField=CreatedAt&sortOrder=1">↑</a>
-                <a href="?sortField=CreatedAt&sortOrder=-1">↓</a>
-                Created At
-            </th>
-            <th>
-                <a href="?sortField=UpdatedAt&sortOrder=1">↑</a>
-                <a href="?sortField=UpdatedAt&sortOrder=-1">↓</a>
-                Last Update
-            </th>
-            <th>Created By</th>
-            <th>Logs Count</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var ticket in Model.Tickets)
+        @if (Model.Tickets == null || !Model.Tickets.Any())
         {
-            <tr>
-                <td>@ticket.Title</td>
-                <td>@ticket.Status</td>
-                <td>@ticket.CreatedAt.ToString("g")</td>
-                <td>@ticket.UpdatedAt.ToString("g")</td>
-                <td>@Model.Employee.FirstName @Model.Employee.LastName</td>
-                <td>@ticket.Logs.Count</td>
-            </tr>
+            <div class="alert alert-info text-center fw-semibold mt-4">
+                You don't have any tickets yet.
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <table class="table table-hover align-middle text-center tickets-table">
+                <thead class="table-gradient text-white">
+                    <tr>
+                        <th>
+                            <a href="?sortField=Title&sortOrder=1">↑</a>
+                            <a href="?sortField=Title&sortOrder=-1">↓</a>
+                            Title
+                        </th>
+                        <th>
+                            <a href="?sortField=Status&sortOrder=1">↑</a>
+                            <a href="?sortField=Status&sortOrder=-1">↓</a>
+                            Status
+                        </th>
+                        <th>
+                            <a href="?sortField=CreatedAt&sortOrder=1">↑</a>
+                            <a href="?sortField=CreatedAt&sortOrder=-1">↓</a>
+                            Created At
+                        </th>
+                        <th>
+                            <a href="?sortField=UpdatedAt&sortOrder=1">↑</a>
+                            <a href="?sortField=UpdatedAt&sortOrder=-1">↓</a>
+                            Last Update
+                        </th>
+                        <th>Created By</th>
+                        <th>Logs Count</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var ticket in Model.Tickets)
+                    {
+                        <tr>
+                            <td>@ticket.Title</td>
+                            <td>@ticket.Status</td>
+                            <td>@ticket.CreatedAt.ToString("g")</td>
+                            <td>@ticket.UpdatedAt.ToString("g")</td>
+                            <td>@Model.Employee.FirstName @Model.Employee.LastName</td>
+                            <td>@ticket.Logs.Count</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .tickets-card {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 1000px;
+        margin: 0 auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.8s ease-in-out forwards;
+    }
+
+    .tickets-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4e54c8;
+        text-align: left;
+        margin-bottom: 1rem;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #2575fc, #6a11cb);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
+    }
+
+    .tickets-table {
+        border-collapse: separate;
+        border-spacing: 0 6px;
+    }
+
+    .tickets-table thead th {
+        font-weight: 600;
+        padding: 14px;
+    }
+
+    .tickets-table tbody tr {
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 10px;
+        transition: all 0.25s ease;
+    }
+
+    .tickets-table tbody tr:hover {
+        background: rgba(78, 84, 200, 0.1);
+        transform: scale(1.01);
+    }
+
+    .table-gradient {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    }
+
+    .tickets-table thead th a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        margin: 0 2px;
+        transition: color 0.2s ease;
+    }
+
+    .tickets-table thead th a:hover {
+        text-decoration: underline;
+        color: #f3f3f3;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>

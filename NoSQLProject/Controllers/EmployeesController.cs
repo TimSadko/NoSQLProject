@@ -18,28 +18,27 @@ namespace NoSQLProject.Controllers
             _employeeService = employeeService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index(string status = "All", string sortField = "Status", int sortOrder = 1)
+    [HttpGet]
+    public async Task<IActionResult> Index(string sortField = "Status", int sortOrder = 1, string status = "All")
+    {
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+        try
         {
-            if (!Authenticate()) return RedirectToAction("Login", "Home");
+            List<Employee> employees;
 
-            try
-            {
-                List<Employee> employees;
-                if (string.IsNullOrEmpty(status) || status == "All")
-                {
-                    // Use the sorted method when requesting all employees
-                    var sorted = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder);
-                    employees = sorted?.ToList() ?? new List<Employee>();
-                }
-                else
-                {
-                    employees = await _employeeService.GetEmployeesByStatusAsync(status);
-                }
+            if (string.IsNullOrEmpty(status) || status == "All")
+            {     
+                employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder); // Default: show all employees sorted
+            }
+            else
+            {           
+                employees = await _employeeService.GetEmployeesByStatusAsync(status); // Filter by status if provided
+            }
 
-                ViewBag.Status = status;
-                ViewBag.SortField = sortField;
-                ViewBag.SortOrder = sortOrder;
+            ViewBag.SortField = sortField;
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.Status = status;
 
                 return View(employees);
             }
@@ -50,18 +49,17 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult Add()
-        {
-            if (!Authenticate()) return RedirectToAction("Login", "Home");
-
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Add(Employee employee, string Role)
-        {
-            if (!Authenticate()) return RedirectToAction("Login", "Home");
+    [HttpGet]
+    public IActionResult Add()
+    {
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
+        return View();
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> Add(Employee employee, string Role)
+    {
+        if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
@@ -69,22 +67,21 @@ namespace NoSQLProject.Controllers
 
                 Employee toAdd;
 
-                if (Role == "ServiceDeskEmployee")
+            if (Role == "ServiceDeskEmployee")
+            {
+                toAdd = new ServiceDeskEmployee
                 {
-                    toAdd = new ServiceDeskEmployee
-                    {
-                        FirstName = employee.FirstName,
-                        LastName = employee.LastName,
-                        Email = employee.Email,
-                        Password = employee.Password,
-                        Status = employee.Status,
-                        ManagedEmployees = new List<string>()
-                    };
-                }
-                else
-                {
-                    toAdd = employee;
-                }
+                    FirstName = employee.FirstName,
+                    LastName = employee.LastName,
+                    Email = employee.Email,
+                    Password = employee.Password,
+                    Status = employee.Status
+                };
+            }
+            else
+            {
+                toAdd = employee;
+            }
 
                 await _employeeService.AddEmployeeAsync(toAdd);
                 return RedirectToAction("Index");
@@ -101,19 +98,18 @@ namespace NoSQLProject.Controllers
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
-            try
-            {
-                var employee = await _employeeService.GetEmployeeByIdAsync(id);
-                if (employee == null) throw new Exception("Employee not found");
-
-                return View(employee);
-            }
-            catch (Exception ex)
-            {
-                TempData["Exception"] = ex.Message;
-                return RedirectToAction("Index");
-            }
+        try
+        {
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
+            if (employee == null) throw new Exception("Employee not found");
+            return View(employee);
         }
+        catch (Exception ex)
+        {
+            TempData["Exception"] = ex.Message;
+            return RedirectToAction("Index");
+        }
+    }
 
         [HttpPost]
         public async Task<IActionResult> Edit(Employee employee, string Role)
@@ -148,54 +144,48 @@ namespace NoSQLProject.Controllers
                     toUpdate = employee;
                 }
 
-                await _employeeService.UpdateEmployeeAsync(toUpdate);
-
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                TempData["Exception"] = ex.Message;
-                return View(employee);
-            }
+            await _employeeService.UpdateEmployeeAsync(toUpdate);
+            return RedirectToAction("Index");
         }
+        catch (Exception ex)
+        {
+            TempData["Exception"] = ex.Message;
+            return View(employee);
+        }
+    }
 
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
-            try
-            {
-                var employee = await _employeeService.GetEmployeeByIdAsync(id);
-
-                if (employee == null) throw new Exception("Employee not found");
-
-                return View(employee);
-            }
-            catch (Exception ex)
-            {
-                TempData["Exception"] = ex.Message;
-                return RedirectToAction("Index");
-            }
+        try
+        {
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
+            if (employee == null) throw new Exception("Employee not found");
+            return View(employee);
         }
+        catch (Exception ex)
+        {
+            TempData["Exception"] = ex.Message;
+            return RedirectToAction("Index");
+        }
+    }
 
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
-            try
-            {
-                var currentUserId = HttpContext.Session.GetString("UserId");
+        try
+        {
+            var currentUserId = HttpContext.Session.GetString("UserId");
+            if (currentUserId == id)
+                throw new Exception("You cannot delete your own account while logged in.");
 
-                if (currentUserId == id)
-                {
-                    throw new Exception("You cannot delete your own account while logged in.");
-                }
-
-                var employee = await _employeeService.GetEmployeeByIdAsync(id);
-                if (employee != null)
-                    await _employeeService.DeleteEmployeeAsync(employee);
+            var employee = await _employeeService.GetEmployeeByIdAsync(id);
+            if (employee != null)
+                await _employeeService.DeleteEmployeeAsync(employee);
 
                 return RedirectToAction("Index");
             }
@@ -223,13 +213,9 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        public bool Authenticate()
-        {
-            Employee? emp = Authorization.GetLoggedInEmployee(this.HttpContext);
-
-            if (emp == null || emp is not ServiceDeskEmployee) return false;
-
-            return true;
-        }
+    public bool Authenticate()
+    {
+        Employee? emp = Authorization.GetLoggedInEmployee(this.HttpContext);
+        return emp is ServiceDeskEmployee;
     }
 }
