@@ -1,63 +1,188 @@
-﻿@model List<Employee>
+﻿@model List<NoSQLProject.Models.Employee>
 
 @{
-	ViewData["Title"] = "Emploees List";
+    ViewData["Title"] = "Employees";
+    int nextOrder = ViewBag.SortOrder == 1 ? -1 : 1;
 }
 
-<h1>Employees:</h1>
+<div class="fade-in">
+    <div class="employees-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="employees-title">👥 Employees</h2>
+            <a asp-action="Add" class="btn btn-add">+ Add Employee</a>
+        </div>
 
-<table class="table">
-	<thead>
-		<tr>
-			<th>First Name</th>
-			<th>Last Name</th>
-			<th>Email</th>
-			<th>Role</th>
-			<th>Status</th>
-			<th>Manages</th>
-		</tr>
-	</thead>
-	<tbody>
-		@{
-			foreach(Employee employee in Model)
-			{
-				if(employee is ServiceDeskEmployee sde)
-				{
-					<tr>
-						<th>@sde.FirstName</th>
-						<th>@sde.LastName</th>
-						<th>@sde.Email</th>
-						<th>Service Desk Employee</th>
-						<th>@sde.Status</th>
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+        }
 
-						<th>
-							<div>
-								@{
-									if (sde.ManagedEmployeesId != null)
-									{
-										foreach (string str in sde.ManagedEmployeesId)
-										{
-											<div>@str</div>
-										}
-									}
-								}
-							</div>
-						</th>
-					</tr>
-				}
-				else
-				{
-					<tr>
-						<th>@employee.FirstName</th>
-						<th>@employee.LastName</th>
-						<th>@employee.Email</th>
-						<th>Normal Employee</th>
-						<th>@employee.Status</th>
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-info text-center fw-semibold mt-4">
+                No employees found.
+            </div>
+        }
+        else
+        {
+            <table class="table table-hover align-middle text-center employees-table">
+                <thead class="table-gradient text-white">
+                    <tr>
+                        <th><a asp-action="Index" asp-route-sortField="FirstName" asp-route-sortOrder="@nextOrder" class="sort-link">First Name</a></th>
+                        <th><a asp-action="Index" asp-route-sortField="LastName" asp-route-sortOrder="@nextOrder" class="sort-link">Last Name</a></th>
+                        <th><a asp-action="Index" asp-route-sortField="Email" asp-route-sortOrder="@nextOrder" class="sort-link">Email</a></th>
+                        <th><a asp-action="Index" asp-route-sortField="Role" asp-route-sortOrder="@nextOrder" class="sort-link">Role</a></th>
+                        <th><a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">Status</a></th>
+                        <th>Management</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var employee in Model)
+                    {
+                        <tr>
+                            <td>@employee.FirstName</td>
+                            <td>@employee.LastName</td>
+                            <td>@employee.Email</td>
+                            <td>@(employee is NoSQLProject.Models.ServiceDeskEmployee ? "Service Desk" : "Employee")</td>
+                            <td>@employee.Status</td>
+                            <td>
+                                @if (employee is NoSQLProject.Models.ServiceDeskEmployee sde)
+                                {
+                                    <a asp-action="ManagedEmployees" asp-route-id="@sde.Id" class="btn btn-view">View Managed</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-action dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@employee.Id">Edit</a></li>
+                                        <li><a class="dropdown-item" asp-action="Delete" asp-route-id="@employee.Id">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
 
-						<th></th>
-					</tr>
-				}				
-			}
-		}
-	</tbody>
-</table>
+<style>
+    body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .employees-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 1100px;
+        margin: 40px auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 0.8s ease-in-out forwards;
+    }
+
+    .employees-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4e54c8;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #2575fc, #6a11cb);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
+    }
+
+    .employees-table {
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+
+    .employees-table thead th {
+        padding: 14px;
+        font-weight: 600;
+    }
+
+    .employees-table tbody tr {
+        background: rgba(255, 255, 255, 0.85);
+        transition: all 0.25s ease;
+    }
+
+    .employees-table tbody tr:hover {
+        background: rgba(78, 84, 200, 0.1);
+        transform: scale(1.01);
+    }
+
+    .table-gradient {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    }
+
+    .btn-view {
+        background: #00bcd4;
+        color: white;
+        border-radius: 20px;
+        font-weight: 600;
+        padding: 6px 16px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view:hover {
+        background: #0097a7;
+    }
+
+    .btn-action {
+        background: #f3f4f6;
+        color: #333;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+        background: #e0e7ff;
+        color: #4e54c8;
+    }
+
+    .sort-link {
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .sort-link:hover {
+        opacity: 0.8;
+        text-decoration: underline;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>

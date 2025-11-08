@@ -1,0 +1,23 @@
+﻿@model NoSQLProject.Models.Ticket
+
+@{
+	ViewData["Title"] = "Add New Ticket";
+}
+
+<partial name="_ErrorMessage" />
+
+<form action="/TicketsEmployee/Add" method="post">
+    <div class="form-group py-2 text-start">
+        <label for="Title">Title:</label>
+        <input type="text" id="Title" name="Title" class="form-control input-background" required value="@Model?.Title"/>
+    </div>
+
+    <div class="form-group py-2 text-start">
+        <label for="Description">Description:</label>
+        <input type="text" id="Description" name="Description" class="form-control input-background" required value="@Model?.Description"/>
+    </div>
+
+    <button type="submit" class="primary-button">Add</button>
+</form>
+
+<a href="/TicketsEmployee/Index">Back to Ticket List</a>

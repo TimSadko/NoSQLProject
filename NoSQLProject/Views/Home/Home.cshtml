@@ -1,0 +1,111 @@
+﻿@model NoSQLProject.Models.Employee
+
+@{
+    ViewData["Title"] = "Home";
+    var employee = Model;
+}
+
+<style>
+    /* 🌈 Background setup */
+    body {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* 🧊 Animated card container */
+    .welcome-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        padding: 40px 60px;
+        text-align: center;
+        max-width: 450px;
+        width: 100%;
+        animation: fadeSlide 1s ease both;
+    }
+
+    /* ✨ Entry animation */
+    @@keyframes fadeSlide {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* 👋 Welcome text */
+    .welcome-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #6a11cb;
+        margin-bottom: 10px;
+    }
+
+    .welcome-sub {
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 30px;
+    }
+
+    /* 💡 Buttons with gradient hover */
+    .btn-modern {
+        display: inline-block;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 15px rgba(37, 117, 252, 0.3);
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(106, 17, 203, 0.4);
+    }
+
+
+    .role-badge {
+        background: #f3f4ff;
+        color: #6a11cb;
+        font-weight: 600;
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        animation: fadeIn 1.2s ease forwards;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
+
+<div class="welcome-card">
+    <h1 class="welcome-title">Welcome, @employee.FirstName 👋</h1>
+
+    @if (employee is ServiceDeskEmployee)
+    {
+        <div class="role-badge">Service Desk Employee</div>
+        <p class="welcome-sub">You can manage employees and oversee ticket operations.</p>
+        <a asp-action="Index" asp-controller="Employees" class="btn-modern">Manage Employees →</a>
+    }
+    else
+    {
+        <div class="role-badge">Regular Employee</div>
+        <p class="welcome-sub">Access and manage your support tickets easily below.</p>
+        <a asp-action="Index" asp-controller="TicketsEmployee" class="btn-modern">View My Tickets →</a>
+    }
+</div>

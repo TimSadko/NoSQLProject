@@ -14,11 +14,15 @@ namespace NoSQLProject.Controllers
         {
             _rep = rep;
         }
-
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return RedirectToAction("Login"); ;
+            var loggedin = Authorization.GetLoggedInEmployee(HttpContext);
+            if (loggedin == null)
+                return RedirectToAction("Login");
+
+            // Pass the employee as the model
+            return View("Home", loggedin);
         }
 
         [HttpGet]
@@ -51,9 +55,10 @@ namespace NoSQLProject.Controllers
             {              
                 Employee? emp = await _rep.GetByCredentialsAsync(model.Email, Hasher.GetHashedString(model.Password)); // Get employee from db by credentials
 
-                if (emp == null) throw new Exception("Incorrect Email or Password"); // If no employee found throw exception
+                if (emp == null || emp.Status != Employee_Status.Active) throw new Exception("Incorrect Email or Password"); // If no employee found throw exception
 
                 Authorization.SetLoggedInEmployee(HttpContext, emp); // Save current logged in employee in session
+                HttpContext.Session.SetString("UserId", emp.Id); // Set the user ID in the session
 
                 return RedirectEmployee(emp);
             }
@@ -63,17 +68,10 @@ namespace NoSQLProject.Controllers
                 return View();
             }
         }
-
         private RedirectToActionResult RedirectEmployee(Employee emp)
         {
-            if (emp is ServiceDeskEmployee sde) // Depending on type of employee redirect to a different pages
-            {
-                return RedirectToAction("Index", "Employees");
-            }
-            else
-            {
-                return RedirectToAction("Index", "TicketsNormal");
-            }
+            // Redirect all employees to the shared welcome page
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
