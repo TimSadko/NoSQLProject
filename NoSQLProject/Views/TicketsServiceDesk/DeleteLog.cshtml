@@ -6,34 +6,186 @@
 
 <partial name="_ErrorMessage" />
 
-<h1>Log:</h1>
+<div class="fade-in">
+    <div class="delete-log-card">
+        <h2 class="delete-title">🗑️ Delete Log</h2>
 
-<div class="form-group py-2 text-start">
-    <label>Created By:</label>
-    <input type="text" class="form-control input-background" readonly value="@ViewData["creator"]" />
+        <div class="alert alert-danger text-center fw-semibold mb-4">
+            ⚠️ Are you sure you want to permanently delete this log entry?
+        </div>
+
+        <!-- Log Details -->
+        <div class="log-details">
+            <div class="detail-row">
+                <span class="detail-label">Created By:</span>
+                <span class="detail-value">@ViewData["creator"]</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Created At:</span>
+                <span class="detail-value">@Model.Log.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Status Change:</span>
+                <span class="detail-value">
+                    <span class="status-badge status-@Model.Log.NewStatus.ToString().ToLower()">
+                        @Model.Log.NewStatus
+                    </span>
+                </span>
+            </div>
+            <div class="detail-row description-row">
+                <span class="detail-label">Description:</span>
+                <span class="detail-value description-content">
+                    @if (string.IsNullOrEmpty(Model.Log.Description))
+                    {
+                        <span class="text-muted">No description provided</span>
+                    }
+                    else
+                    {
+                        @Model.Log.Description
+                    }
+                </span>
+            </div>
+        </div>
+
+        <!-- Delete Form -->
+        <form action="/TicketsServiceDesk/DeleteLog" method="post">
+            <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
+            <input type="hidden" asp-for="@Model.Log.Id" value="@Model.Log.Id" />
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id" class="btn btn-cancel px-4 py-2">Cancel</a>
+                <button type="submit" class="btn btn-delete px-4 py-2">🗑️ Delete Log</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<div class="form-group py-2 text-start">
-    <label>Created At:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Log.CreatedAt" />
-</div>
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
 
-<div class="form-group py-2 text-start">
-    <label for="Description">Description:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Log.Description" />
-</div>
+    .delete-log-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 700px;
+        margin: 40px auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
 
-<div class="form-group py-2 text-start">
-    <label for="NewStatus">Status Change:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Log.NewStatus" />
-</div>
+    .delete-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #d32f2f;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
 
-<form action="/TicketsServiceDesk/DeleteLog" method="post">
-    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
-    <input type="hidden" asp-for="@Model.Log.Id" value="@Model.Log.Id" />
+    .log-details {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
 
-    <label>Are you sure you wnat to <b>delete</b> this log?</label>
+    .detail-row {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
 
-    <a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Cancel</a>
-    <button type="submit" class="btn-danger">Delete</button>
-</form>
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .description-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #666;
+        min-width: 140px;
+    }
+
+    .detail-value {
+        color: #333;
+        flex: 1;
+    }
+
+    .description-content {
+        margin-top: 8px;
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        width: 100%;
+        display: block;
+        line-height: 1.6;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-open {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-closed {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-resolved {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #333;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+        .btn-cancel:hover {
+            background: #e0e7ff;
+            color: #4e54c8;
+            transform: translateY(-2px);
+        }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #ef5350, #d32f2f);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+            color: white;
+        }
+
+    .fade-in {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease-in-out;
+    }
+</style>
