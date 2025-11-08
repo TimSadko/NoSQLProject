@@ -58,7 +58,6 @@ namespace NoSQLProject.Controllers
         // ✅ END of TAREK’s sorting part
 
 
-        // Standard Add Ticket page
         [HttpGet]
         public IActionResult Add()
         {
@@ -92,7 +91,6 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // Edit Ticket page
         [HttpGet("TicketsServiceDesk/Edit/{id}")]
         public async Task<IActionResult> Edit(string? id)
         {
@@ -108,16 +106,16 @@ namespace NoSQLProject.Controllers
 
                 var view_model = new SDETicketEditViewModel(t, new List<Employee?>());
 
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); // Create new list of tasks, in order to read all of the employees in parallel
+                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); 
 
                 for (int i = 0; i < view_model.Ticket.Logs.Count; i++)
                 {
                     tasks.Add(_employees_rep.GetByIdAsync(t.Logs[i].CreatedById)); 
                 }
 
-                await Task.WhenAll(tasks); // Wait for all of the employees to load
+                await Task.WhenAll(tasks); 
 
-                for (int i = 0; i < tasks.Count; i++) // Add all of loaded the employees to the view model
+                for (int i = 0; i < tasks.Count; i++) 
                 {
                     view_model.LogEmployees.Add(tasks[i].Result);
                 }
@@ -352,7 +350,6 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // ✅ Helper to validate logged-in Service Desk employee
         private bool Authenticate()
         {
             var emp = Authorization.GetLoggedInEmployee(HttpContext);
