@@ -8,7 +8,7 @@
 
 <div class="fade-in">
     <div class="delete-card">
-        <h2 class="delete-title">🗑️ Delete Ticket</h2>
+        <h2 class="delete-title">Delete Ticket</h2>
 
         <div class="alert alert-danger text-center fw-semibold mb-4">
             ⚠️ Are you sure you want to permanently delete this ticket?
@@ -42,7 +42,7 @@
         @if (Model?.Ticket.Logs.Count > 0)
         {
             <div class="logs-preview">
-                <h4 class="logs-preview-title">📋 Associated Logs (@Model.Ticket.Logs.Count)</h4>
+                <h4 class="logs-preview-title">Associated Logs (@Model.Ticket.Logs.Count)</h4>
                 <div class="alert alert-warning">
                     This ticket has <strong>@Model.Ticket.Logs.Count log(s)</strong> that will also be deleted.
                 </div>
@@ -98,7 +98,7 @@
 
             <div class="d-flex justify-content-between align-items-center mt-4">
                 <a href="/TicketsServiceDesk/Index" class="btn btn-cancel px-4 py-2">Cancel</a>
-                <button type="submit" class="btn btn-delete px-4 py-2">🗑️ Delete Ticket</button>
+                <button type="submit" class="btn btn-delete px-4 py-2">Delete Ticket</button>
             </div>
         </form>
     </div>
