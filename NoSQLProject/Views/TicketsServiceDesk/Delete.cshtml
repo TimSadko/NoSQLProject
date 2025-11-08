@@ -6,90 +6,268 @@
 
 <partial name="_ErrorMessage" />
 
-<h1>Ticket:</h1>
+<div class="fade-in">
+    <div class="delete-card">
+        <h2 class="delete-title">🗑️ Delete Ticket</h2>
 
-<div class="form-group py-2 text-start">
-    <label>Creator:</label>
-    <input type="text" class="form-control input-background" readonly value="@ViewData["creator"]" />
-</div>
+        <div class="alert alert-danger text-center fw-semibold mb-4">
+            ⚠️ Are you sure you want to permanently delete this ticket?
+        </div>
 
-<div class="form-group py-2 text-start">
-    <label>Created At:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
-</div>
+        <!-- Ticket Details -->
+        <div class="ticket-details">
+            <div class="detail-row">
+                <span class="detail-label">Creator:</span>
+                <span class="detail-value">@ViewData["creator"]</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Created At:</span>
+                <span class="detail-value">@Model.Ticket.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Last Update:</span>
+                <span class="detail-value">@Model.Ticket.UpdatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Title:</span>
+                <span class="detail-value fw-bold">@Model?.Ticket.Title</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Description:</span>
+                <span class="detail-value">@Model?.Ticket.Description</span>
+            </div>
+        </div>
 
-<div class="form-group py-2 text-start">
-    <label>Last Update:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
-</div>
-
-<div class="form-group py-2 text-start">
-    <label for="Title">Title:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model?.Ticket.Title" />
-</div>
-
-<div class="form-group py-2 text-start">
-    <label for="Description">Description:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model?.Ticket.Description" />
-</div>
-
-<div class="form-group py-2 text-start">
-    <label>Logs:</label>
-    @{
-        if (Model?.Ticket.Logs.Count == 0)
+        <!-- Logs Section -->
+        @if (Model?.Ticket.Logs.Count > 0)
         {
-            <div>No logs</div>
-        }
-        else
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Created By</th>
-                        <th>Creation Time</th>
-                        <th>New Status</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        for (int i = 0; i < Model.Ticket.Logs.Count; i++)
-                        {
-                            var log = Model.Ticket.Logs[i];
+            <div class="logs-preview">
+                <h4 class="logs-preview-title">📋 Associated Logs (@Model.Ticket.Logs.Count)</h4>
+                <div class="alert alert-warning">
+                    This ticket has <strong>@Model.Ticket.Logs.Count log(s)</strong> that will also be deleted.
+                </div>
 
+                <div class="table-responsive">
+                    <table class="table logs-table">
+                        <thead>
                             <tr>
-                                <th>@(Model.LogEmployees[i] == null ? "???" : Model.LogEmployees[i].FullName)</th>
-                                <th>@log.CreatedAt</th>
-                                <th>@log.NewStatus</th>
-
-                                @if (string.IsNullOrEmpty(log.Description)) // If deescription is empty
-                                {
-                                    <th>-</th>
-                                }
-                                else
-                                {
-                                    if (log.Description.Length > 100) // If it is too long, cut it
-                                    {
-                                        <th>@(log.Description.Substring(0, 100))...</th>
-                                    }
-                                    else // If it is short enough, put it ass it is
-                                    {
-                                        <th>@(log.Description.Substring(0, log.Description.Length))</th>
-                                    }
-                                }
+                                <th>Created By</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Description</th>
                             </tr>
-                        }
-                    }
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Ticket.Logs.Count; i++)
+                            {
+                                var log = Model.Ticket.Logs[i];
+                                <tr>
+                                    <td>@(Model.LogEmployees[i] == null ? "???" : Model.LogEmployees[i].FullName)</td>
+                                    <td class="date-cell">@log.CreatedAt.ToString("MMM dd, HH:mm")</td>
+                                    <td>
+                                        <span class="status-badge status-@log.NewStatus.ToString().ToLower()">
+                                            @log.NewStatus
+                                        </span>
+                                    </td>
+                                    <td class="description-cell">
+                                        @if (string.IsNullOrEmpty(log.Description))
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                        else if (log.Description.Length > 100)
+                                        {
+                                            @(log.Description.Substring(0, 100))
+                                            
+                                                                }
+                                        else
+                                        {
+                                            @log.Description
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         }
-    }
+
+        <!-- Delete Form -->
+        <form action="/TicketsServiceDesk/Delete" method="post">
+            <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="/TicketsServiceDesk/Index" class="btn btn-cancel px-4 py-2">Cancel</a>
+                <button type="submit" class="btn btn-delete px-4 py-2">🗑️ Delete Ticket</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<form action="/TicketsServiceDesk/Delete" method="post">
-    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
 
-    <label>Are you sure you want to <b>delete</b> this ticket?</label>
-    <a href="/TicketsServiceDesk/Index">Cancel</a>
-    <button type="submit" class="btn-danger">Delete</button>
-</form>
+    .delete-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 900px;
+        margin: 40px auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .delete-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #d32f2f;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .ticket-details {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .detail-label {
+        font-weight: 600;
+        color: #666;
+        min-width: 120px;
+    }
+
+    .detail-value {
+        color: #333;
+        flex: 1;
+        text-align: right;
+    }
+
+    .logs-preview {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #e0e0e0;
+    }
+
+    .logs-preview-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #4e54c8;
+        margin-bottom: 16px;
+    }
+
+    .logs-table {
+        border-collapse: separate;
+        border-spacing: 0 6px;
+        font-size: 0.9rem;
+    }
+
+        .logs-table thead th {
+            background: #f8f9fa;
+            padding: 10px;
+            font-weight: 600;
+            color: #555;
+            border: none;
+            font-size: 0.85rem;
+        }
+
+        .logs-table tbody tr {
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .logs-table tbody td {
+            padding: 10px;
+            vertical-align: middle;
+            border: none;
+        }
+
+    .date-cell {
+        font-size: 0.85rem;
+        color: #666;
+        white-space: nowrap;
+    }
+
+    .description-cell {
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.9rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-open {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-closed {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-resolved {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #333;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+        .btn-cancel:hover {
+            background: #e0e7ff;
+            color: #4e54c8;
+            transform: translateY(-2px);
+        }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #ef5350, #d32f2f);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+            color: white;
+        }
+
+    .fade-in {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease-in-out;
+    }
+</style>
