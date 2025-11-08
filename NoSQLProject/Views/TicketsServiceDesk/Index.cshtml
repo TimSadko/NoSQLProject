@@ -9,11 +9,11 @@
 <div class="fade-in">
     <div class="tickets-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="tickets-title">🎟️ Service Desk Tickets</h2>
+            <h2 class="tickets-title">Service Desk Tickets</h2>
             <a href="/TicketsServiceDesk/Add" class="btn btn-add">+ Add New Ticket</a>
         </div>
 
-        @if (Model.Tickets == null || !Model.Tickets.Any())
+        @if (Model == null)
         {
             <div class="alert alert-info text-center fw-semibold mt-4">
                 No tickets found.
@@ -34,20 +34,27 @@
                                 <a href="?sortField=Status&sortOrder=-1" class="sort-link">↓</a>
                             </th>
                             <th>
-                                <a href="?sortField=CreatedAt&sortOrder=-1" class="sort-link">Created ↓</a>
+                                <a href="?sortField=CreatedAt&sortOrder=1" class="sort-link">Created ↑</a>|
+                                <a href="?sortField=CreatedAt&sortOrder=-1" class="sort-link">↓</a>
                             </th>
                             <th>
-                                <a href="?sortField=UpdatedAt&sortOrder=-1" class="sort-link">Updated ↓</a>
+                                <a href="?sortField=UpdatedAt&sortOrder=1" class="sort-link">Updated ↑</a>|
+                                <a href="?sortField=UpdatedAt&sortOrder=-1" class="sort-link">↓</a>
                             </th>
-                            <th>Created By</th>
-                            <th>Logs</th>
+                            <th>
+                                <a href="?sortField=CreatedBy&sortOrder=1" class="sort-link">Created By ↑</a>|
+                                <a href="?sortField=CreatedBy&sortOrder=-1" class="sort-link">↓</a>
+                            </th>
+                            <th>
+                                <a href="?sortField=LogsNumber&sortOrder=1" class="sort-link">Logs ↑</a>|
+                                <a href="?sortField=LogsNumber&sortOrder=-1" class="sort-link">↓</a>
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.Tickets.Count; i++)
+                        @foreach(Ticket t in Model)
                         {
-                            var t = Model.Tickets[i];
                             <tr>
                                 <td class="ticket-title-cell">@t.Title</td>
                                 <td>
@@ -55,9 +62,9 @@
                                         @t.Status
                                     </span>
                                 </td>
-                                <td class="date-cell">@t.CreatedAt.ToString("g")</td>
-                                <td class="date-cell">@t.UpdatedAt.ToString("g")</td>
-                                <td class="employee-cell">@(Model.Employees[i] == null ? "???" : Model.Employees[i].FullName)</td>
+                                <td class="date-cell">@t.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td class="date-cell">@t.UpdatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td class="employee-cell">@(t.Creator == null ? "???" : t.Creator.FullName)</td>
                                 <td>
                                     <span class="logs-badge">@t.Logs?.Count</span>
                                 </td>
