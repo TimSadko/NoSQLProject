@@ -8,7 +8,7 @@
 
 <div class="fade-in">
 	<div class="log-card shadow-lg">
-		<h2 class="log-title">📝 Add New Log</h2>
+		<h2 class="log-title">Add New Log</h2>
 
 		<form action="/TicketsServiceDesk/AddLog" method="post" class="log-form">
 			<input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
@@ -29,7 +29,7 @@
 
 			<div class="d-flex justify-content-between">
 				<a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id" class="btn btn-secondary px-4 py-2">← Back</a>
-				<button type="submit" class="btn btn-add px-4 py-2">✅ Add Log</button>
+				<button type="submit" class="btn btn-add px-4 py-2">Add Log</button>
 			</div>
 		</form>
 	</div>

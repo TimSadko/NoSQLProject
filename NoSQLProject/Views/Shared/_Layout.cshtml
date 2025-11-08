@@ -11,7 +11,8 @@
 </head>
 
 <body>
-    <header>
+    <!-- Fixed Header -->
+    <header class="fixed-header">
         <nav class="custom-navbar">
             <div class="navbar-container">
                 <a class="logo-link" asp-controller="Home" asp-action="Index">My Ticket Tracker</a>
@@ -42,13 +43,15 @@
         </nav>
     </header>
 
-    <main class="flex-grow-1 py-4">
+    <!-- Main Content with proper spacing -->
+    <main class="main-content">
         <div class="container">
             @RenderBody()
         </div>
     </main>
 
-    <footer class="footer text-muted text-center">
+    <!-- Fixed Footer -->
+    <footer class="fixed-footer text-muted text-center">
         © 2025 - NoSQLProject - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
     </footer>
 
@@ -60,47 +63,163 @@
 </html>
 
 <style>
-/* Make full-page layout stable */
-html, body {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-}
+    /* ═══════════════════════════════════════════════════════════
+       FIXED HEADER & FOOTER LAYOUT
+       ═══════════════════════════════════════════════════════════ */
 
-/* Ensure main content expands and footer stays at bottom */
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
 
-/* Fix footer position */
-footer.footer {
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  text-align: center;
-  padding: 14px 0;
-  width: 100%;
-  margin-top: auto;
-  position: relative;
-  z-index: 2;
-}
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
 
-/* Remove excess gap between content and footer */
-.container:last-child,
-main .container {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
+    /* ═══════════════════════════════════════════════════════════
+       FIXED HEADER
+       ═══════════════════════════════════════════════════════════ */
 
-/* Adjust cards (like Employees) so they don't create a false gap */
-.employees-card {
-  margin-bottom: 20px !important; /* smaller spacing to footer */
-}
+    .fixed-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
 
+    .custom-navbar {
+        padding: 1rem 2rem;
+        margin: 0;
+        border: none;
+    }
 
+    .navbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
+    .logo-link {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4e54c8;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .logo-link:hover {
+            color: #2575fc;
+        }
+
+    .navbar-menu {
+        list-style: none;
+        display: flex;
+        gap: 2rem;
+        margin: 0;
+        padding: 0;
+        align-items: center;
+    }
+
+        .navbar-menu li {
+            margin: 0;
+        }
+
+        .navbar-menu a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+            .navbar-menu a:hover {
+                color: #4e54c8;
+            }
+
+    /* ═══════════════════════════════════════════════════════════
+       MAIN CONTENT AREA
+       ═══════════════════════════════════════════════════════════ */
+
+    .main-content {
+        flex: 1;
+        margin-top: 80px; /* Space for fixed header */
+        margin-bottom: 60px; /* Space for fixed footer */
+        padding: 2rem 0;
+        overflow-y: auto;
+    }
+
+        .main-content .container {
+            max-width: 1200px;
+        }
+
+    /* ═══════════════════════════════════════════════════════════
+       FIXED FOOTER
+       ═══════════════════════════════════════════════════════════ */
+
+    .fixed-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+        .fixed-footer a {
+            color: #4e54c8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+            .fixed-footer a:hover {
+                color: #2575fc;
+            }
+
+    /* ═══════════════════════════════════════════════════════════
+       LAYOUT ADJUSTMENTS
+       ═══════════════════════════════════════════════════════════ */
+
+    .navbar-container {
+        flex-wrap: wrap;
+    }
+
+    .navbar-menu {
+        flex-wrap: wrap;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       SCROLLBAR STYLING (Optional)
+       ═══════════════════════════════════════════════════════════ */
+
+    .main-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .main-content::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .main-content::-webkit-scrollbar-thumb {
+        background: rgba(78, 84, 200, 0.3);
+        border-radius: 4px;
+    }
+
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(78, 84, 200, 0.5);
+        }
 </style>
