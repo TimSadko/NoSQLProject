@@ -1,4 +1,4 @@
-﻿@model SDETickestsListViewModel
+﻿@model List<Ticket>
 
 @{
     ViewData["Title"] = "Tickets (Service Desk)";
@@ -28,23 +28,27 @@
                 <a href="?sortField=UpdatedAt&sortOrder=1">Updated ↑</a>|
                 <a href="?sortField=UpdatedAt&sortOrder=-1">↓</a>
             </th>
-            <th>Created By</th>
-            <th>Logs</th>
+            <th>
+                <a href="?sortField=CreatedBy&sortOrder=1">Created By ↑</a>|
+                <a href="?sortField=CreatedBy&sortOrder=-1">↓</a>
+            </th>
+            <th>
+                <a href="?sortField=LogsNumber&sortOrder=1">Logs ↑</a>|
+                <a href="?sortField=LogsNumber&sortOrder=-1">↓</a>
+            </th>
             <th>Actions</th>
         </tr>
     </thead>
 
     <tbody>
-        @for(int i = 0; i < Model.Tickets.Count; i++)
+        @foreach(Ticket t in Model)
         {
-            var t = Model.Tickets[i];
-
             <tr>
                 <td>@t.Title</td>
                 <td>@t.Status</td>
                 <td>@t.CreatedAt.ToString("g")</td>
                 <td>@t.UpdatedAt.ToString("g")</td>
-                <td>@(Model.Employees[i] == null ? "???" : Model.Employees[i].FullName)</td>
+                <td>@(t.Creator == null ? "???" : t.Creator.FullName)</td>
                 <td>@t.Logs?.Count</td>
                 <td>
                     <a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-sm btn-outline-info">View</a>

@@ -1,9 +1,9 @@
-﻿@model NoSQLProject.Models.SDETicketEditViewModel
+﻿@model NoSQLProject.Models.Ticket
 
 @{
     ViewData["Title"] = "Edit Ticket";
 
-    Console.WriteLine(Model.Ticket.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss"));
+    //Console.WriteLine(Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")); // Debug
 }
 
 <partial name="_ErrorMessage" />
@@ -12,35 +12,35 @@
 
 <div class="form-group py-2 text-start">
     <label>Creator:</label>
-    <input type="text" class="form-control input-background" readonly value="@ViewData["creator"]" />
+    <input type="text" class="form-control input-background" readonly value="@ViewData["ticket_creator"]" />
 </div>
 
 <div class="form-group py-2 text-start">
     <label>Created At:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
+    <input type="text" class="form-control input-background" readonly value="@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
 </div>
 
 <div class="form-group py-2 text-start">
     <label>Last Update:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
+    <input type="text" class="form-control input-background" readonly value="@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
 </div>
 
 <form action="/TicketsServiceDesk/Edit" method="post">
-    <input type="hidden" asp-for="Ticket.Id" value="@Model.Ticket.Id" />
+    <input type="hidden" asp-for="Id" value="@Model.Id" />
 
     <div class="form-group py-2 text-start">
         <label for="Title">Title:</label>
-        <input type="text" class="form-control input-background" asp-for="Ticket.Title" required value="@Model?.Ticket.Title" />
+        <input type="text" class="form-control input-background" asp-for="Title" required value="@Model?.Title" />
     </div>
 
     <div class="form-group py-2 text-start">
         <label for="Description">Description:</label>
-        <input type="text" class="form-control input-background" asp-for="Ticket.Description" required value="@Model?.Ticket.Description" />
+        <input type="text" class="form-control input-background" asp-for="Description" required value="@Model?.Description" />
     </div>
 
     <div class="form-group py-2 text-start">
         <label for="Description">Status:</label>
-        <select class="form-control input-background" asp-for="Ticket.Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
+        <select class="form-control input-background" asp-for="Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
     </div>    
 
     <button type="submit" class="primary-button">Edit</button>
@@ -50,7 +50,7 @@
 <div class="form-group py-2 text-start">
     <label>Logs:</label>
     @{
-        if (Model?.Ticket.Logs.Count == 0)
+        if (Model?.Logs.Count == 0)
         {
             <div>No logs yet</div>
         }
@@ -68,12 +68,10 @@
                 </thead>
                 <tbody>
                     @{
-                        for (int i = 0; i < Model.Ticket.Logs.Count; i++)
-                        {                            
-                            var log = Model.Ticket.Logs[i];
-                            
+                        foreach(Log log in Model.Logs)
+                        {                                                      
                             <tr>
-                                <th>@(Model.LogEmployees[i] == null ? "???" : Model.LogEmployees[i].FullName)</th>
+                                <th>@(log.Creator == null ? "???" : log.Creator.FullName)</th>
                                 <th>@log.CreatedAt</th>
                                 <th>@log.NewStatus</th>
 
@@ -94,8 +92,8 @@
                                 }
 
                                 <th>
-                                    <a href="/TicketsServiceDesk/EditLog/@(Model.Ticket.Id)/@(log.Id)">View</a>
-                                    <a class="text-danger" href="/TicketsServiceDesk/DeleteLog/@(Model.Ticket.Id)/@(log.Id)">Delete</a>
+                                    <a href="/TicketsServiceDesk/EditLog/@(Model.Id)/@(log.Id)">View</a>
+                                    <a class="text-danger" href="/TicketsServiceDesk/DeleteLog/@(Model.Id)/@(log.Id)">Delete</a>
                                 </th>
                             </tr>
                         }
@@ -104,7 +102,7 @@
             </table>
         }
     }  
-    <a href="/TicketsServiceDesk/AddLog/@Model.Ticket.Id">Add New Log</a>
+    <a href="/TicketsServiceDesk/AddLog/@Model.Id">Add New Log</a>
 </div>
 
 <a href="/TicketsServiceDesk/Index">Back to Ticket List</a>

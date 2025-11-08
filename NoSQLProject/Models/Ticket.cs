@@ -20,6 +20,8 @@ namespace NoSQLProject.Models
         private DateTime _created_at;
         private DateTime _updated_at;
 
+        private Employee? _creator = null;
+
         public Ticket() { }
 
         public Ticket(string id, string created_by_id, List<Log> logs, string title, string description, Ticket_Status status, DateTime created_at, DateTime updated_at)
@@ -65,6 +67,10 @@ namespace NoSQLProject.Models
         [BsonElement("updated_at")]
         [JsonPropertyName("updated_at")]
         public DateTime UpdatedAt { get => _updated_at; set => _updated_at = value; }
+
+        [BsonIgnore]
+        [JsonIgnore]
+        public Employee? Creator { get => _creator; set => _creator = value; }
 
         public override string? ToString()
         {

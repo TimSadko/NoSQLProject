@@ -24,24 +24,54 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                var view_model = new SDETickestsListViewModel(); 
+                List<Ticket> view_model;
 
-                view_model.Tickets = await _rep.GetAllSortedAsync(sortField, sortOrder); 
+                if(sortField == "CreatedBy")
+                {
+                    view_model = await _rep.GetAllAsync();
+                }
+                else if(sortField == "LogsNumber")
+                {
+                    view_model = await _rep.GetAllAsync();
 
-                view_model.Employees = new List<Employee?>();
+                    if(sortOrder == 1) view_model.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count); });
+                    else view_model.Sort((Ticket t, Ticket t2) => { return t2.Logs.Count.CompareTo(t.Logs.Count); });
+                }
+                else
+                {
+                    view_model = await _rep.GetAllSortedAsync(sortField, sortOrder);
+                }              
+
 
                 List<Task<Employee?>> tasks = new List<Task<Employee?>>();
 
-                for (int i = 0; i < view_model.Tickets.Count; i++)
+                for (int i = 0; i < view_model.Count; i++)
                 {
-                    tasks.Add(_employees_rep.GetByIdAsync(view_model.Tickets[i].CreatedById));
+                    tasks.Add(_employees_rep.GetByIdAsync(view_model[i].CreatedById));
                 }
 
                 await Task.WhenAll(tasks);
 
                 for (int i = 0; i < tasks.Count; i++) 
                 {
-                    view_model.Employees.Add(tasks[i].Result); 
+                    view_model[i].Creator = tasks[i].Result; 
+                }
+
+                if (sortField == "CreatedBy")
+                {
+                    view_model.Sort((Ticket t, Ticket t2) =>
+                    {
+                        if (t.Creator == null)
+                        {
+                            if (t2.Creator == null) return 0;
+                            else return sortOrder;
+                        }
+                        else
+                        {
+                            if(t2.Creator == null) return -sortOrder;
+                            else return t.Creator.FullName.CompareTo(t2.Creator.FullName) * sortOrder;
+                        }
+                    });
                 }
 
                 return View(view_model);
@@ -49,7 +79,7 @@ namespace NoSQLProject.Controllers
             catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
-                return View(new SDETickestsListViewModel(new List<Ticket>(), new List<Employee?>()));
+                return View(new List<Ticket>());
             }
         }
 
@@ -96,31 +126,29 @@ namespace NoSQLProject.Controllers
             {
                 if(id == null) throw new ArgumentNullException("Id is null");
 
-                Ticket? t = await _rep.GetByIdAsync((string)id);
+                Ticket? ticket = await _rep.GetByIdAsync((string)id);
 
-                if (t == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
+                if (ticket == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
 
-                var view_model = new SDETicketEditViewModel(t, new List<Employee?>());
+                List<Task<Employee?>> log_creator_tasks = new List<Task<Employee?>>(); 
 
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>(); 
-
-                for (int i = 0; i < view_model.Ticket.Logs.Count; i++)
+                for (int i = 0; i < ticket.Logs.Count; i++)
                 {
-                    tasks.Add(_employees_rep.GetByIdAsync(t.Logs[i].CreatedById)); 
+                    log_creator_tasks.Add(_employees_rep.GetByIdAsync(ticket.Logs[i].CreatedById)); 
                 }
 
-                await Task.WhenAll(tasks); 
+                await Task.WhenAll(log_creator_tasks); 
 
-                for (int i = 0; i < tasks.Count; i++) 
+                for (int i = 0; i < log_creator_tasks.Count; i++) 
                 {
-                    view_model.LogEmployees.Add(tasks[i].Result);
+                    ticket.Logs[i].Creator = log_creator_tasks[i].Result;
                 }
 
-                Employee? creator = await _employees_rep.GetByIdAsync(t.CreatedById);
+                Employee? ticket_creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
 
-                ViewData["creator"] = creator == null ? "???" : creator.FullName; 
+                ViewData["ticket_creator"] = ticket_creator == null ? "???" : ticket_creator.FullName; 
 
-                return View(view_model);
+                return View(ticket);
             }
             catch (Exception ex)
             {
@@ -130,15 +158,15 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(SDETicketEditViewModel view_model)
+        public async Task<IActionResult> Edit(Ticket ticket)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
-                await _rep.CheckUpdateAsync(view_model.Ticket);
+                await _rep.CheckUpdateAsync(ticket);
 
-                return RedirectToAction("Edit", new {id = view_model.Ticket.Id});
+                return RedirectToAction("Edit", new {id = ticket.Id});
             }
             catch (Exception ex)
             {
@@ -248,31 +276,29 @@ namespace NoSQLProject.Controllers
             {
                 if (id == null) throw new ArgumentNullException("Id is null");
 
-                Ticket? t = await _rep.GetByIdAsync((string)id);
+                Ticket? ticket = await _rep.GetByIdAsync((string)id);
 
-                if (t == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
+                if (ticket == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
 
-                var view_model = new SDETicketEditViewModel(t, new List<Employee?>());
+                List<Task<Employee?>> log_creator_tasks = new List<Task<Employee?>>();
 
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>();
-
-                for (int i = 0; i < view_model.Ticket.Logs.Count; i++)
+                for (int i = 0; i < ticket.Logs.Count; i++)
                 {
-                    tasks.Add(_employees_rep.GetByIdAsync(t.Logs[i].CreatedById));
+                    log_creator_tasks.Add(_employees_rep.GetByIdAsync(ticket.Logs[i].CreatedById));
                 }
 
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(log_creator_tasks);
 
-                for (int i = 0; i < tasks.Count; i++) 
+                for (int i = 0; i < log_creator_tasks.Count; i++) 
                 {
-                    view_model.LogEmployees.Add(tasks[i].Result);
+                    ticket.Logs[i].Creator = log_creator_tasks[i].Result;
                 }
 
-                Employee? creator = await _employees_rep.GetByIdAsync(t.CreatedById);
+                Employee? creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
 
-                ViewData["creator"] = creator == null ? "???" : creator.FullName;
+                ViewData["ticket_creator"] = creator == null ? "???" : creator.FullName;
 
-                return View(view_model);
+                return View(ticket);
             }
             catch (Exception ex)
             {
@@ -282,14 +308,13 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(SDETicketEditViewModel view_model)
+        public async Task<IActionResult> Delete(Ticket ticket)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
-                Console.WriteLine(view_model.Ticket.Id);
-                await _rep.DeleteAsync(view_model.Ticket.Id);
+                await _rep.DeleteAsync(ticket.Id);
 
                 return RedirectToAction("Index");
             }

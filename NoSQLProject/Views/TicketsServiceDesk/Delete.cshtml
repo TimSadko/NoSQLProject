@@ -1,4 +1,4 @@
-﻿@model NoSQLProject.Models.SDETicketEditViewModel
+﻿@model NoSQLProject.Models.Ticket
 
 @{
     ViewData["Title"] = "Delete Ticket";
@@ -10,33 +10,33 @@
 
 <div class="form-group py-2 text-start">
     <label>Creator:</label>
-    <input type="text" class="form-control input-background" readonly value="@ViewData["creator"]" />
+    <input type="text" class="form-control input-background" readonly value="@ViewData["ticket_creator"]" />
 </div>
 
 <div class="form-group py-2 text-start">
     <label>Created At:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
+    <input type="text" class="form-control input-background" readonly value="@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
 </div>
 
 <div class="form-group py-2 text-start">
     <label>Last Update:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model.Ticket.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
+    <input type="text" class="form-control input-background" readonly value="@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
 </div>
 
 <div class="form-group py-2 text-start">
     <label for="Title">Title:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model?.Ticket.Title" />
+    <input type="text" class="form-control input-background" readonly value="@Model?.Title" />
 </div>
 
 <div class="form-group py-2 text-start">
     <label for="Description">Description:</label>
-    <input type="text" class="form-control input-background" readonly value="@Model?.Ticket.Description" />
+    <input type="text" class="form-control input-background" readonly value="@Model?.Description" />
 </div>
 
 <div class="form-group py-2 text-start">
     <label>Logs:</label>
     @{
-        if (Model?.Ticket.Logs.Count == 0)
+        if (Model?.Logs.Count == 0)
         {
             <div>No logs</div>
         }
@@ -53,12 +53,10 @@
                 </thead>
                 <tbody>
                     @{
-                        for (int i = 0; i < Model.Ticket.Logs.Count; i++)
+                        foreach(Log log in Model.Logs)
                         {
-                            var log = Model.Ticket.Logs[i];
-
                             <tr>
-                                <th>@(Model.LogEmployees[i] == null ? "???" : Model.LogEmployees[i].FullName)</th>
+                                <th>@(log.Creator == null ? "???" : log.Creator.FullName)</th>
                                 <th>@log.CreatedAt</th>
                                 <th>@log.NewStatus</th>
 
@@ -87,7 +85,7 @@
 </div>
 
 <form action="/TicketsServiceDesk/Delete" method="post">
-    <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
+    <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
 
     <label>Are you sure you want to <b>delete</b> this ticket?</label>
     <a href="/TicketsServiceDesk/Index">Cancel</a>
