@@ -38,7 +38,7 @@ namespace NoSQLProject.Repositories
 
         public async Task EditAsync(Ticket t)
         {
-            t.UpdatedAt = DateTime.Now;
+            t.UpdatedAt = DateTime.UtcNow;
 
             await _tickets.ReplaceOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)), t);
         }
@@ -80,7 +80,7 @@ namespace NoSQLProject.Repositories
             List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>();
 
             l.Id = ObjectId.GenerateNewId().ToString();
-            l.CreatedAt = DateTime.Now;
+            l.CreatedAt = DateTime.UtcNow;
             l.CreatedById = e.Id; 
 
             tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l))); 
@@ -137,7 +137,7 @@ namespace NoSQLProject.Repositories
         // Added by TAREK — Sorting for Tickets (Assignment 2)
         public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1)
         {
-            Console.WriteLine($"[TAREK] Sorting Tickets by {sortField} ({(sortOrder == 1 ? "ASC" : "DESC")})");
+            //Console.WriteLine($"[TAREK] Sorting Tickets by {sortField} ({(sortOrder == 1 ? "ASC" : "DESC")})"); Debug
 
             var sortBuilder = Builders<Ticket>.Sort;
             SortDefinition<Ticket> sortDef;

@@ -10,7 +10,7 @@
     <div class="tickets-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="tickets-title">Service Desk Tickets</h2>
-            <a href="/TicketsServiceDesk/Add" class="btn btn-add">+ Add New Ticket</a>
+            <a href="/TicketsServiceDesk/Add" class="btn btn-add">Add New Ticket</a>
         </div>
 
         @if (Model == null)
@@ -34,19 +34,19 @@
                                 <a href="?sortField=Status&sortOrder=-1" class="sort-link">↓</a>
                             </th>
                             <th>
-                                <a href="?sortField=CreatedAt&sortOrder=1" class="sort-link">Created ↑</a>|
+                                <a href="?sortField=CreatedAt&sortOrder=1" class="sort-link">Created ↑</a> |
                                 <a href="?sortField=CreatedAt&sortOrder=-1" class="sort-link">↓</a>
                             </th>
                             <th>
-                                <a href="?sortField=UpdatedAt&sortOrder=1" class="sort-link">Updated ↑</a>|
+                                <a href="?sortField=UpdatedAt&sortOrder=1" class="sort-link">Updated ↑</a> |
                                 <a href="?sortField=UpdatedAt&sortOrder=-1" class="sort-link">↓</a>
                             </th>
                             <th>
-                                <a href="?sortField=CreatedBy&sortOrder=1" class="sort-link">Created By ↑</a>|
+                                <a href="?sortField=CreatedBy&sortOrder=1" class="sort-link">Created By ↑</a> |
                                 <a href="?sortField=CreatedBy&sortOrder=-1" class="sort-link">↓</a>
                             </th>
                             <th>
-                                <a href="?sortField=LogsNumber&sortOrder=1" class="sort-link">Logs ↑</a>|
+                                <a href="?sortField=LogsNumber&sortOrder=1" class="sort-link">Logs ↑</a> |
                                 <a href="?sortField=LogsNumber&sortOrder=-1" class="sort-link">↓</a>
                             </th>
                             <th>Actions</th>
@@ -62,8 +62,8 @@
                                         @t.Status
                                     </span>
                                 </td>
-                                <td class="date-cell">@t.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
-                                <td class="date-cell">@t.UpdatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td class="date-cell">@t.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                <td class="date-cell">@t.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
                                 <td class="employee-cell">@(t.Creator == null ? "???" : t.Creator.FullName)</td>
                                 <td>
                                     <span class="logs-badge">@t.Logs?.Count</span>
@@ -127,26 +127,26 @@
         border-spacing: 0 12px;
     }
 
-        .tickets-table thead th {
-            padding: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
+    .tickets-table thead th {
+        padding: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
 
-        .tickets-table tbody tr {
-            background: rgba(255, 255, 255, 0.85);
-            transition: all 0.25s ease;
-        }
+    .tickets-table tbody tr {
+        background: rgba(255, 255, 255, 0.85);
+        transition: all 0.25s ease;
+    }
 
-            .tickets-table tbody tr:hover {
-                background: rgba(78, 84, 200, 0.1);
-                transform: scale(1.01);
-            }
+    .tickets-table tbody tr:hover {
+        background: rgba(78, 84, 200, 0.1);
+        transform: scale(1.01);
+    }
 
-        .tickets-table tbody td {
-            padding: 16px 12px;
-            vertical-align: middle;
-        }
+    .tickets-table tbody td {
+        padding: 16px 12px;
+        vertical-align: middle;
+    }
 
     .table-gradient {
         background: linear-gradient(135deg, #4e54c8, #8f94fb);
@@ -226,11 +226,11 @@
         font-size: 0.9rem;
     }
 
-        .btn-view:hover {
-            background: #0097a7;
-            color: white;
-            transform: translateY(-2px);
-        }
+    .btn-view:hover {
+        background: #0097a7;
+        color: white;
+        transform: translateY(-2px);
+    }
 
     .btn-delete {
         background: #ef5350;
@@ -244,11 +244,11 @@
         font-size: 0.9rem;
     }
 
-        .btn-delete:hover {
-            background: #d32f2f;
-            color: white;
-            transform: translateY(-2px);
-        }
+    .btn-delete:hover {
+        background: #d32f2f;
+        color: white;
+        transform: translateY(-2px);
+    }
 
     .sort-link {
         color: white;
@@ -257,10 +257,10 @@
         transition: opacity 0.2s ease;
     }
 
-        .sort-link:hover {
-            opacity: 0.8;
-            text-decoration: underline;
-        }
+    .sort-link:hover {
+        opacity: 0.8;
+        text-decoration: underline;
+    }
 
     .fade-in {
         opacity: 1;

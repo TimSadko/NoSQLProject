@@ -1,34 +1,13 @@
-﻿@model NoSQLProject.Models.Ticket
+﻿@model NoSQLProject.Models.TicketRequest
 
 @{
-    ViewData["Title"] = "Edit Ticket";
+    ViewData["Title"] = "Add Ticket Request";
 }
 
 <partial name="_ErrorMessage"/>
 
-<form action="/TicketsEmployee/Edit" method="post">
-    <input type="hidden" asp-for="Id"/>
-    <div class="form-group py-2 text-start">
-        <label for="Title">Title:</label>
-        <input type="text"
-               id="Title"
-               name="Title"
-               class="form-control input-background"
-               value="@Model.Title"
-               required/>
-    </div>
+<form>
 
-    <div class="form-group py-2 text-start">
-        <label for="Description">Description:</label>
-        <input type="text" id="Description"
-               name="Description"
-               class="form-control input-background"
-               value="@Model.Description"
-               required
-        />
-    </div>
-
-    <button type="submit" class="primary-button">Save</button>
 </form>
 
-<a href="/TicketsServiceDesk/Index">Back to Ticket List</a>
+<a href="/TicketsServiceDesk/Edit/@Model.TicketId">Back to Ticket</a>

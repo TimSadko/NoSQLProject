@@ -5,8 +5,27 @@
     var employee = Model;
 }
 
+<div class="welcome-card">
+    <h1 class="welcome-title">Welcome, @employee.FirstName</h1>
+
+    @if (employee is ServiceDeskEmployee)
+    {
+        <div class="role-badge">Service Desk Employee</div>
+        <p class="welcome-sub">You can manage employees, oversee ticket operations and see all of you requests.</p>
+        <a asp-action="Index" asp-controller="Employees" class="btn-modern">Manage Employees</a>
+        <a asp-action="Index" asp-controller="TicketsServiceDesk" class="btn-modern">Manage Tickets</a>
+        <a asp-action="Received" asp-controller="TicketRequests" class="btn-modern">Manage Requests</a>
+    }
+    else
+    {
+        <div class="role-badge">Regular Employee</div>
+        <p class="welcome-sub">Access and manage your support tickets easily below.</p>
+        <a asp-action="Index" asp-controller="TicketsEmployee" class="btn-modern">View My Tickets</a>
+    }
+</div>
+
 <style>
-    /* 🌈 Background setup */
+    /* Background setup */
     body {
         background: linear-gradient(135deg, #6a11cb, #2575fc);
         font-family: 'Inter', sans-serif;
@@ -17,7 +36,7 @@
         align-items: center;
     }
 
-    /* 🧊 Animated card container */
+    /* Animated card container */
     .welcome-card {
         background: #ffffff;
         border-radius: 20px;
@@ -29,12 +48,13 @@
         animation: fadeSlide 1s ease both;
     }
 
-    /* ✨ Entry animation */
+    /* Entry animation */
     @@keyframes fadeSlide {
         0% {
             opacity: 0;
             transform: translateY(30px);
         }
+
         100% {
             opacity: 1;
             transform: translateY(0);
@@ -55,7 +75,7 @@
         margin-bottom: 30px;
     }
 
-    /* 💡 Buttons with gradient hover */
+    /* Buttons with gradient hover */
     .btn-modern {
         display: inline-block;
         background: linear-gradient(135deg, #6a11cb, #2575fc);
@@ -68,6 +88,7 @@
         text-decoration: none;
         transition: all 0.3s ease;
         box-shadow: 0 6px 15px rgba(37, 117, 252, 0.3);
+        margin-bottom: 10px;
     }
 
     .btn-modern:hover {
@@ -96,16 +117,9 @@
 <div class="welcome-card">
     <h1 class="welcome-title">Welcome, @employee.FirstName</h1>
 
-    @if (employee is ServiceDeskEmployee)
-    {
-        <div class="role-badge">Service Desk Employee</div>
-        <p class="welcome-sub">You can manage employees and oversee ticket operations.</p>
-        <a asp-action="Index" asp-controller="Employees" class="btn-modern">Manage Employees →</a>
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
-    else
-    {
-        <div class="role-badge">Regular Employee</div>
-        <p class="welcome-sub">Access and manage your support tickets easily below.</p>
-        <a asp-action="Index" asp-controller="TicketsEmployee" class="btn-modern">View My Tickets →</a>
-    }
-</div>
+</style>

@@ -1,0 +1,27 @@
+﻿@model NoSQLProject.Models.AddTicketRequestViewModel
+
+@{
+    ViewData["Title"] = "Add Ticket Requests";
+}
+
+<partial name="_ErrorMessage" />
+
+<form action="/TicketRequests/Add" method="post">
+	<input type="hidden" asp-for="@Model.Request" value="@Model.Request" />
+	<input type="hidden" asp-for="@Model.Request.TicketId" value="@Model.Request.TicketId" />
+
+	<div class="form-group mb-3">
+		<label for="Email">Email</label>
+		<input type="text" asp-for="Email" placeholder="Request recipient email" required value="@Model?.Email" />
+	</div>
+
+	<div class="form-group mb-3">
+		<label for="Message">Message</label>
+		<input type="text" asp-for="Request.Message" placeholder="Message for recipient" value="@Model?.Request.Message" />
+	</div>
+
+	<button type="submit">Send Ticket Request</button>
+</form>
+
+<a href="/TicketsServiceDesk/Edit/@Model.Request.TicketId">Return to Ticket</a>
+<a href="/TicketRequests/Sent">Go to Sent Requests</a>
