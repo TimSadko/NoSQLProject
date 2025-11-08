@@ -21,13 +21,13 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created At</label>
-                    <input type="text" class="form-control info-input" readonly value="@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")" />
+                    <input type="text" class="form-control info-input" readonly value="@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12 mb-3">
                     <label class="info-label">Last Update</label>
-                    <input type="text" class="form-control info-input" readonly value="@Model.UpdatedAt.ToString("MMM dd, yyyy HH:mm")" />
+                    <input type="text" class="form-control info-input" readonly value="@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
             </div>
 
             <div class="d-flex justify-content-between mb-4">
-                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">← Back</a>
+                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">Back</a>
                 <button type="submit" class="btn btn-save px-4 py-2">Save Changes</button>
             </div>
         </form>
@@ -88,7 +88,7 @@
                             {
                                 <tr>
                                     <td class="fw-semibold">@(log.Creator == null ? "???" : log.Creator.FullName)</td>
-                                    <td class="date-cell">@log.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td class="date-cell">@log.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
                                     <td>
                                         <span class="status-badge status-@log.NewStatus.ToString().ToLower()">
                                             @log.NewStatus

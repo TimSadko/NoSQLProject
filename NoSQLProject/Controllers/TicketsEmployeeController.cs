@@ -50,8 +50,8 @@ namespace NoSQLProject.Controllers
                 ticket.CreatedById = authenticatedEmployee.Id;
                 ticket.Status = Ticket_Status.Open;
                 ticket.Logs = new List<Log>();
-                ticket.CreatedAt = DateTime.Now;
-                ticket.UpdatedAt = DateTime.Now;
+                ticket.CreatedAt = DateTime.UtcNow;
+                ticket.UpdatedAt = DateTime.UtcNow;
                 await ticketRepository.AddAsync(ticket);
                 return RedirectToAction("Index");
             }

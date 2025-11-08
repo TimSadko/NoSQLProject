@@ -22,17 +22,14 @@ public class EmployeesController : Controller
             List<Employee> employees;
 
             if (string.IsNullOrEmpty(status) || status == "All")
-            {
-                // Default: show all employees sorted
-                employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder);
+            {     
+                employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder); // Default: show all employees sorted
             }
             else
-            {
-                // Filter by status if provided
-                employees = await _employeeService.GetEmployeesByStatusAsync(status);
+            {           
+                employees = await _employeeService.GetEmployeesByStatusAsync(status); // Filter by status if provided
             }
 
-            // ✅ These lines allow the view to know current sort info for toggling
             ViewBag.SortField = sortField;
             ViewBag.SortOrder = sortOrder;
             ViewBag.Status = status;
