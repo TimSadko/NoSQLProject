@@ -118,14 +118,26 @@ namespace NoSQLProject.Controllers
 
             try
             {
+                // Fetch existing once so we can preserve fields (password, managed employees, etc.)
+                var existing = await _employeeService.GetEmployeeByIdAsync(employee.Id);
+                if (existing == null) throw new Exception("Employee not found");
+
+                // If no new password was entered, preserve the existing hashed password
+                if (string.IsNullOrWhiteSpace(employee.Password))
+                {
+                    employee.Password = existing.Password;
+                    // Remove any ModelState entries that might mark Password as required/invalid
+                    ModelState.Remove("Password");
+                    ModelState.Remove("employee.Password");
+                }
+
                 if (!ModelState.IsValid) throw new Exception("The model is invalid");
 
                 Employee toUpdate;
 
                 if (Role == "ServiceDeskEmployee")
                 {
-                    // Optionally fetch existing managed employees if needed
-                    var existing = await _employeeService.GetEmployeeByIdAsync(employee.Id);
+                    // Preserve managed employees from existing record (if any)
                     var managed = (existing as ServiceDeskEmployee)?.ManagedEmployees ?? new List<string>();
 
                     toUpdate = new ServiceDeskEmployee

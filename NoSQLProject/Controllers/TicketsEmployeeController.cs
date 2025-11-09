@@ -8,6 +8,20 @@ namespace NoSQLProject.Controllers
 {
     public class TicketsEmployeeController : Controller
     {
+        private readonly ITicketRepository ticketRepository;
+        private readonly ITicketRepository _ticketRepository;
+        private readonly IEmployeeRepository _employeeRepository;
+
+        public TicketsEmployeeController(
+            ITicketRepository ticketRepository,
+            ITicketRepository _ticketRepository,
+            IEmployeeRepository _employeeRepository)
+        {
+            this.ticketRepository = ticketRepository;
+            this._ticketRepository = _ticketRepository;
+            this._employeeRepository = _employeeRepository;
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index(string sortField = "Priority", int sortOrder = -1)
         {
@@ -28,7 +42,7 @@ namespace NoSQLProject.Controllers
 
             var employeeTickets = new EmployeeTickets(tickets, authenticatedEmployee);
 
-            
+
             ViewBag.SortField = sortField; // Pass sort info to view
             ViewBag.SortOrder = sortOrder;
 
