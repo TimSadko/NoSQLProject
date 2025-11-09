@@ -43,6 +43,11 @@ namespace NoSQLProject.Repositories
             return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("sender_id", sender_id)).Result.ToListAsync();
         }
 
+        public async Task<TicketRequest?> GetByIdAsync(string request_id)
+        {
+            return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id))).Result.FirstOrDefaultAsync();
+        }
+
         public async Task AddAsync(TicketRequest request)
         {
             request.CreatedAt = DateTime.UtcNow;

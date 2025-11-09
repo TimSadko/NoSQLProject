@@ -198,6 +198,33 @@ namespace NoSQLProject.Controllers
             }
         }
 
+        [HttpGet("TicketRequests/View/{request_id}")]
+        public async Task<ActionResult> View(string request_id)
+        {
+            var logged_in_employee = Authenticate();
+
+            if (logged_in_employee == null) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                TicketRequest? request = await _rep.GetByIdAsync(request_id);
+
+                if (request == null) throw new Exception("Could not find request with the id");
+
+                if (logged_in_employee.Id == request.SenderId) return RedirectToAction("Edit", new { request_id = request_id });
+
+                if (logged_in_employee.Id == request.RecipientId) ViewData["ticket_request_is_viewer_type"] = "recipient";
+                else ViewData["ticket_request_is_viewer_type"] = "guest";
+
+                return View(request);
+            }
+            catch (Exception ex)
+            {
+                ViewData["Exception"] = ex.Message;
+                return RedirectToAction("Received");
+            }
+        }
+
         private ServiceDeskEmployee? Authenticate()
         {
             var employee = Authorization.GetLoggedInEmployee(HttpContext);
