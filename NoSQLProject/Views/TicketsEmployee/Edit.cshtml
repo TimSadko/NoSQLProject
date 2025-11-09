@@ -4,31 +4,132 @@
     ViewData["Title"] = "Edit Ticket";
 }
 
-<partial name="_ErrorMessage"/>
+<partial name="_ErrorMessage" />
 
-<form action="/TicketsEmployee/Edit" method="post">
-    <input type="hidden" asp-for="Id"/>
-    <div class="form-group py-2 text-start">
-        <label for="Title">Title:</label>
-        <input type="text"
-               id="Title"
-               name="Title"
-               class="form-control input-background"
-               value="@Model.Title"
-               required/>
+<div class="fade-in">
+    <div class="ticket-card">
+        <h2 class="ticket-title">Edit Ticket</h2>
+
+        <form action="/TicketsEmployee/Edit" method="post" class="ticket-form">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label for="Title" class="form-label fw-semibold">Title</label>
+                <input type="text"
+                       id="Title"
+                       name="Title"
+                       class="form-control form-control-lg"
+                       value="@Model.Title"
+                       placeholder="Enter ticket title"
+                       required />
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="Description" class="form-label fw-semibold">Description</label>
+                <textarea id="Description"
+                          name="Description"
+                          class="form-control form-control-lg"
+                          rows="5"
+                          placeholder="Describe your issue or request..."
+                          required>@Model.Description</textarea>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="/TicketsEmployee/Index" class="btn btn-back px-4 py-2">← Back to Tickets</a>
+                <button type="submit" class="btn btn-save px-4 py-2">Save Changes</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="form-group py-2 text-start">
-        <label for="Description">Description:</label>
-        <input type="text" id="Description"
-               name="Description"
-               class="form-control input-background"
-               value="@Model.Description"
-               required
-        />
-    </div>
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
 
-    <button type="submit" class="primary-button">Save</button>
-</form>
+    .ticket-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 700px;
+        margin: 40px auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
 
-<a href="/TicketsServiceDesk/Index">Back to Ticket List</a>
+    .ticket-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4e54c8;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .ticket-form .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .ticket-form .form-control {
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        padding: 12px 16px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .ticket-form .form-control:focus {
+            border-color: #4e54c8;
+            box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.15);
+            outline: none;
+        }
+
+    .ticket-form textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #2575fc, #6a11cb);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.4);
+            color: white;
+        }
+
+    .btn-back {
+        background: #f3f4f6;
+        color: #333;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            background: #e0e7ff;
+            color: #4e54c8;
+            transform: translateY(-2px);
+        }
+
+    .fade-in {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease-in-out;
+    }
+
+    .form-control::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+</style>
