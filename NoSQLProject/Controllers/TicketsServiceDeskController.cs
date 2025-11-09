@@ -1,8 +1,8 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NoSQLProject.Models;
 using NoSQLProject.Other;
 using NoSQLProject.Repositories;
+using NoSQLProject.Services;
 
 namespace NoSQLProject.Controllers
 {
@@ -18,28 +18,27 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string sortField = "CreatedAt", int sortOrder = -1)
+        public async Task<IActionResult> Index(string sortField = "Priority", int sortOrder = -1)
         {
-            if (!Authenticate()) return RedirectToAction("Login", "Home"); 
+            if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
                 List<Ticket> view_model;
 
-                if(sortField == "CreatedBy")
+                if (sortField == "CreatedBy")
                 {
                     view_model = await _rep.GetAllAsync();
                 }
-                else if(sortField == "LogsNumber")
+                else if (sortField == "LogsNumber")
                 {
                     view_model = await _rep.GetAllAsync();
-
-                    view_model.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count) * sortOrder; });        
+                    view_model.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count) * sortOrder; });
                 }
                 else
                 {
                     view_model = await _rep.GetAllSortedAsync(sortField, sortOrder);
-                }              
+                }
 
                 List<Task<Employee?>> tasks = new List<Task<Employee?>>();
 
@@ -50,9 +49,9 @@ namespace NoSQLProject.Controllers
 
                 await Task.WhenAll(tasks);
 
-                for (int i = 0; i < tasks.Count; i++) 
+                for (int i = 0; i < tasks.Count; i++)
                 {
-                    view_model[i].Creator = tasks[i].Result; 
+                    view_model[i].Creator = tasks[i].Result;
                 }
 
                 if (sortField == "CreatedBy")
@@ -66,11 +65,14 @@ namespace NoSQLProject.Controllers
                         }
                         else
                         {
-                            if(t2.Creator == null) return -sortOrder;
+                            if (t2.Creator == null) return -sortOrder;
                             else return t.Creator.FullName.CompareTo(t2.Creator.FullName) * sortOrder;
                         }
                     });
                 }
+            
+                ViewBag.SortField = sortField; // Pass sort info to view
+                ViewBag.SortOrder = sortOrder;
 
                 return View(view_model);
             }
@@ -80,7 +82,6 @@ namespace NoSQLProject.Controllers
                 return View(new List<Ticket>());
             }
         }
-
 
         [HttpGet]
         public IActionResult Add()
@@ -105,6 +106,12 @@ namespace NoSQLProject.Controllers
                 t.CreatedAt = DateTime.UtcNow;
                 t.UpdatedAt = DateTime.UtcNow;
 
+                // ✅ NEW: Ensure priority is set (defaults to Low if not specified)
+                if (t.Priority == 0 && !Request.Form.ContainsKey("Priority"))
+                {
+                    t.Priority = Ticket_Priority.Undefined;
+                }
+
                 await _rep.AddAsync(t);
                 return RedirectToAction("Index");
             }
@@ -122,29 +129,29 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                if(id == null) throw new ArgumentNullException("Id is null");
+                if (id == null) throw new ArgumentNullException("Id is null");
 
                 Ticket? ticket = await _rep.GetByIdAsync((string)id);
 
                 if (ticket == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
 
-                List<Task<Employee?>> log_creator_tasks = new List<Task<Employee?>>(); 
+                List<Task<Employee?>> log_creator_tasks = new List<Task<Employee?>>();
 
                 for (int i = 0; i < ticket.Logs.Count; i++)
                 {
-                    log_creator_tasks.Add(_employees_rep.GetByIdAsync(ticket.Logs[i].CreatedById)); 
+                    log_creator_tasks.Add(_employees_rep.GetByIdAsync(ticket.Logs[i].CreatedById));
                 }
 
-                await Task.WhenAll(log_creator_tasks); 
+                await Task.WhenAll(log_creator_tasks);
 
-                for (int i = 0; i < log_creator_tasks.Count; i++) 
+                for (int i = 0; i < log_creator_tasks.Count; i++)
                 {
                     ticket.Logs[i].Creator = log_creator_tasks[i].Result;
                 }
 
                 Employee? ticket_creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
 
-                ViewData["ticket_creator"] = ticket_creator == null ? "???" : ticket_creator.FullName; 
+                ViewData["ticket_creator"] = ticket_creator == null ? "???" : ticket_creator.FullName;
 
                 return View(ticket);
             }
@@ -164,7 +171,7 @@ namespace NoSQLProject.Controllers
             {
                 await _rep.CheckUpdateAsync(ticket);
 
-                return RedirectToAction("Edit", new {id = ticket.Id});
+                return RedirectToAction("Edit", new { id = ticket.Id });
             }
             catch (Exception ex)
             {
@@ -287,7 +294,7 @@ namespace NoSQLProject.Controllers
 
                 await Task.WhenAll(log_creator_tasks);
 
-                for (int i = 0; i < log_creator_tasks.Count; i++) 
+                for (int i = 0; i < log_creator_tasks.Count; i++)
                 {
                     ticket.Logs[i].Creator = log_creator_tasks[i].Result;
                 }
@@ -324,8 +331,8 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpGet("TicketsServiceDesk/DeleteLog/{ticket_id}/{log_id}")]
-        public async Task<IActionResult> DeleteLog(string ticket_id, string log_id) 
-        { 
+        public async Task<IActionResult> DeleteLog(string ticket_id, string log_id)
+        {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try

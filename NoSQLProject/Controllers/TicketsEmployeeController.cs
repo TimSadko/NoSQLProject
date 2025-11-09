@@ -8,18 +8,8 @@ namespace NoSQLProject.Controllers
 {
     public class TicketsEmployeeController : Controller
     {
-        private readonly ITicketRepository _ticketRepository;
-        private readonly IEmployeeRepository _employeeRepository;
-
-        public TicketsEmployeeController(ITicketRepository ticketRepository, IEmployeeRepository employeeRepository)
-        {
-            _ticketRepository = ticketRepository;
-            _employeeRepository = employeeRepository;
-        }
-
-        // ✅ Index: Displays tickets with optional sorting
         [HttpGet]
-        public async Task<IActionResult> Index(string sortField = "CreatedAt", int sortOrder = -1)
+        public async Task<IActionResult> Index(string sortField = "Priority", int sortOrder = -1)
         {
             var authenticatedEmployee = Authenticate();
             if (authenticatedEmployee?.Id == null)
@@ -27,12 +17,24 @@ namespace NoSQLProject.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
-            var tickets = await _ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
+            var tickets = await ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
+
+            // Sort by priority if requested
+            if (sortField == "Priority")
+            {
+                if (sortOrder == -1) tickets = tickets.OrderByDescending(t => t.Priority).ThenByDescending(t => t.CreatedAt).ToList();
+                else tickets = tickets.OrderBy(t => t.Priority).ThenByDescending(t => t.CreatedAt).ToList();
+            }
+
             var employeeTickets = new EmployeeTickets(tickets, authenticatedEmployee);
+
+            
+            ViewBag.SortField = sortField; // Pass sort info to view
+            ViewBag.SortOrder = sortOrder;
+
             return View(employeeTickets);
         }
 
-        // ✅ GET: Add ticket page
         [HttpGet]
         public IActionResult Add()
         {
@@ -59,7 +61,10 @@ namespace NoSQLProject.Controllers
                 ticket.Logs = new List<Log>();
                 ticket.CreatedAt = DateTime.UtcNow;
                 ticket.UpdatedAt = DateTime.UtcNow;
-                await _ticketRepository.AddAsync(ticket);
+                ticket.Priority = Ticket_Priority.Undefined;
+
+                await ticketRepository.AddAsync(ticket);
+
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -100,7 +105,8 @@ namespace NoSQLProject.Controllers
             {
                 if (string.IsNullOrEmpty(ticket?.Id)) throw new Exception("Ticket id is empty or null!");
 
-                var ticketToChange = await _ticketRepository.GetByIdAsync(ticket.Id);
+                var ticketToChange = await ticketRepository.GetByIdAsync(ticket.Id);
+
                 if (ticketToChange == null)
                 {
                     TempData["Exception"] = "Ticket can not be found. Something went wrong!";
@@ -151,8 +157,8 @@ namespace NoSQLProject.Controllers
             try
             {
                 if (string.IsNullOrEmpty(ticket?.Id)) throw new Exception("Ticket id is empty or null!");
-               
-                var ticketToRemove = await _ticketRepository.GetByIdAsync(ticket.Id);
+
+                var ticketToRemove = await ticketRepository.GetByIdAsync(ticket.Id);
                 if (ticketToRemove == null)
                 {
                     TempData["Exception"] = "Ticket can not be found. Something went wrong!";
@@ -164,8 +170,8 @@ namespace NoSQLProject.Controllers
                     TempData["Exception"] = "Ticket has some logs. You can not delete it!";
                     return View(ticket);
                 }
-                
-                await _ticketRepository.DeleteAsync(ticket.Id);
+
+                await ticketRepository.DeleteAsync(ticket.Id);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
