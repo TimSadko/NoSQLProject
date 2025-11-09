@@ -1,7 +1,9 @@
 ﻿@model List<Ticket>
 
 @{
-    ViewData["Title"] = "Tickets Service Desk";
+    ViewData["Title"] = "Tickets (Service Desk)";
+    int nextOrder = ViewBag.SortOrder == -1 ? 1 : -1;
+    string currentSortField = ViewBag.SortField ?? "Priority";
 }
 
 <partial name="_ErrorMessage" />
@@ -26,36 +28,72 @@
                     <thead class="table-gradient text-white">
                         <tr>
                             <th>
-                                <a href="?sortField=Title&sortOrder=1" class="sort-link">Title ↑</a> |
-                                <a href="?sortField=Title&sortOrder=-1" class="sort-link">↓</a>
+                                <a asp-action="Index" asp-route-sortField="Priority" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Priority @(currentSortField == "Priority" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                </a>
                             </th>
                             <th>
-                                <a href="?sortField=Status&sortOrder=1" class="sort-link">Status ↑</a> |
-                                <a href="?sortField=Status&sortOrder=-1" class="sort-link">↓</a>
+                                <a asp-action="Index" asp-route-sortField="Title" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Title @(currentSortField == "Title" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                </a>
                             </th>
                             <th>
-                                <a href="?sortField=CreatedAt&sortOrder=1" class="sort-link">Created ↑</a> |
-                                <a href="?sortField=CreatedAt&sortOrder=-1" class="sort-link">↓</a>
+                                <a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Status @(currentSortField == "Status" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                </a>
                             </th>
                             <th>
-                                <a href="?sortField=UpdatedAt&sortOrder=1" class="sort-link">Updated ↑</a> |
-                                <a href="?sortField=UpdatedAt&sortOrder=-1" class="sort-link">↓</a>
+                                <a asp-action="Index" asp-route-sortField="CreatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Created @(currentSortField == "CreatedAt" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                </a>
                             </th>
                             <th>
-                                <a href="?sortField=CreatedBy&sortOrder=1" class="sort-link">Created By ↑</a> |
-                                <a href="?sortField=CreatedBy&sortOrder=-1" class="sort-link">↓</a>
+                                <a asp-action="Index" asp-route-sortField="UpdatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Updated @(currentSortField == "UpdatedAt" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                </a>
                             </th>
                             <th>
-                                <a href="?sortField=LogsNumber&sortOrder=1" class="sort-link">Logs ↑</a> |
-                                <a href="?sortField=LogsNumber&sortOrder=-1" class="sort-link">↓</a>
+                                <a asp-action="Index" asp-route-sortField="CreatedBy" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Created By @(currentSortField == "CreatedBy" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                </a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortField="LogsNumber" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Logs @(currentSortField == "LogsNumber" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                </a>
                             </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach(Ticket t in Model)
+                        @foreach (Ticket t in Model)
                         {
                             <tr>
+                                <td>
+                                    @{
+                                        var priorityClass = t.Priority switch
+                                        {
+                                            Ticket_Priority.Critical => "priority-critical",
+                                            Ticket_Priority.High => "priority-high",
+                                            Ticket_Priority.Medium => "priority-medium",
+                                            Ticket_Priority.Low => "priority-low",
+                                            Ticket_Priority.Undefined => "priority-undefined",
+                                            _ => "priority-undefined"
+                                        };
+                                        var priorityIcon = t.Priority switch
+                                        {
+                                            Ticket_Priority.Critical => "🔴",
+                                            Ticket_Priority.High => "🟠",
+                                            Ticket_Priority.Medium => "🟡",
+                                            Ticket_Priority.Low => "🟢",
+                                            Ticket_Priority.Undefined => "⚪",
+                                            _ => "⚪"
+                                        };
+                                    }
+                                    <span class="priority-badge @priorityClass">
+                                        @priorityIcon @t.Priority
+                                    </span>
+                                </td>
                                 <td class="ticket-title-cell">@t.Title</td>
                                 <td>
                                     <span class="status-badge status-@t.Status.ToString().ToLower()">
@@ -94,7 +132,7 @@
         backdrop-filter: blur(12px);
         border-radius: 20px;
         padding: 40px 50px;
-        max-width: 1200px;
+        max-width: 1300px;
         margin: 40px auto;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
@@ -156,7 +194,7 @@
         font-weight: 600;
         color: #333;
         text-align: left;
-        max-width: 250px;
+        max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -171,6 +209,47 @@
     .employee-cell {
         font-weight: 500;
         color: #555;
+    }
+
+    /* ✅ UPDATED: Priority Badge Styles with Undefined */
+    .priority-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .priority-critical {
+        background: #ffebee;
+        color: #c62828;
+        border: 1px solid #ef5350;
+    }
+
+    .priority-high {
+        background: #fff3e0;
+        color: #e65100;
+        border: 1px solid #ff9800;
+    }
+
+    .priority-medium {
+        background: #fff9c4;
+        color: #f57f17;
+        border: 1px solid #fbc02d;
+    }
+
+    .priority-low {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #66bb6a;
+    }
+
+    /* ✅ NEW: Undefined priority styling */
+    .priority-undefined {
+        background: #f5f5f5;
+        color: #757575;
+        border: 1px solid #bdbdbd;
     }
 
     .status-badge {
