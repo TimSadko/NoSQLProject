@@ -181,6 +181,8 @@ namespace NoSQLProject.Controllers
 
                 var request = new TicketRequest();
 
+                if (request.Message == null) request.Message = "";
+
                 request.TicketId = view_model.TicketId;
                 request.Message = view_model.Message;
 
@@ -210,13 +212,24 @@ namespace NoSQLProject.Controllers
                 TicketRequest? request = await _rep.GetByIdAsync(request_id);
 
                 if (request == null) throw new Exception("Could not find request with the id");
+                
+                Employee? recipient = await _employees_rep.GetByIdAsync(request.RecipientId);
 
-                if (logged_in_employee.Id == request.SenderId) return RedirectToAction("Edit", new { request_id = request_id });
+                if(recipient == null) throw new Exception("Could not find ticket recipient with the id");
 
-                if (logged_in_employee.Id == request.RecipientId) ViewData["ticket_request_is_viewer_type"] = "recipient";
-                else ViewData["ticket_request_is_viewer_type"] = "guest";
+                Employee? sender = await _employees_rep.GetByIdAsync(request.SenderId);
+                if (sender == null) throw new Exception("Could not find ticket sender with the id");
 
-                return View(request);
+                Ticket? ticket = await _ticket_rep.GetByIdAsync(request.TicketId);
+                if (ticket == null) throw new Exception("Could not find request ticket with the id");
+
+                request.Sender = sender;
+                request.Recipient = recipient;
+                request.Ticket = ticket;
+
+                if (logged_in_employee.Id == request.SenderId) return View("Edit", request);
+                else if (logged_in_employee.Id == request.RecipientId) return View("ViewRecipient", request);
+                else return View("ViewGuest", request);
             }
             catch (Exception ex)
             {

@@ -1,0 +1,45 @@
+﻿@model NoSQLProject.Models.TicketRequest
+
+@{
+	ViewData["Title"] = "View Ticket Requests";
+}
+
+<partial name="_ErrorMessage"/>
+
+<h1>Ticket Request View</h1>
+
+<div>
+	<partial name="~/Views/TicketRequests/_MainViewPart.cshtml" model="@Model" />
+
+	<div>
+		<label>Status:</label>
+		<input type="text" value="@Model.Status.ToString()" readonly />
+		
+		@{
+			if (Model.Status == TicketRequestStatus.Open)
+			{
+				<label>Actions:</label>
+				
+				<form action="/TicketRequests/ViewAccept/@Model.Id" method="post">
+					<button type="submit">Accept Request</button>
+				</form>
+
+				<form action="/TicketRequests/ViewReject/@Model.Id" method="post">
+					<button type="submit">Reject Request</button>
+				</form>
+			}
+			else if (Model.Status == TicketRequestStatus.Accepted)
+			{
+				<label>Actions:</label>
+				<a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Go to Ticket</a>
+
+				<form action="/TicketRequests/ViewFail/@Model.Id" method="post">
+					<button type="submit">Fail Request</button>
+				</form>
+			}
+		}
+	</div>
+</div>	
+
+
+<a href="/TicketRequests/Received">Go Back</a>
