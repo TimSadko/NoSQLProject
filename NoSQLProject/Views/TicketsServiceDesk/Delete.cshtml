@@ -36,7 +36,7 @@
                 <span class="detail-label">Description:</span>
                 <span class="detail-value">@Model?.Description</span>
             </div>
-            <!-- ✅ NEW: Priority Display -->
+            <!-- ✅ UPDATED: Priority Display with Undefined support -->
             <div class="detail-row">
                 <span class="detail-label">Priority:</span>
                 <span class="detail-value">
@@ -46,14 +46,18 @@
                             Ticket_Priority.Critical => "priority-critical",
                             Ticket_Priority.High => "priority-high",
                             Ticket_Priority.Medium => "priority-medium",
-                            _ => "priority-low"
+                            Ticket_Priority.Low => "priority-low",
+                            Ticket_Priority.Undefined => "priority-undefined",
+                            _ => "priority-undefined"
                         };
                         var priorityIcon = Model.Priority switch
                         {
                             Ticket_Priority.Critical => "🔴",
                             Ticket_Priority.High => "🟠",
                             Ticket_Priority.Medium => "🟡",
-                            _ => "🟢"
+                            Ticket_Priority.Low => "🟢",
+                            Ticket_Priority.Undefined => "⚪",
+                            _ => "⚪"
                         };
                     }
                     <span class="priority-badge @priorityClass">
@@ -195,7 +199,7 @@
         text-align: right;
     }
 
-    /* Priority Badge Styles */
+    /* ✅ UPDATED: Priority Badge Styles with Undefined */
     .priority-badge {
         display: inline-block;
         padding: 6px 12px;
@@ -229,6 +233,13 @@
         border: 1px solid #66bb6a;
     }
 
+    /* ✅ NEW: Undefined priority styling */
+    .priority-undefined {
+        background: #f5f5f5;
+        color: #757575;
+        border: 1px solid #bdbdbd;
+    }
+
     .logs-section {
         margin-top: 30px;
         padding-top: 20px;
@@ -241,6 +252,24 @@
         color: #4e54c8;
         margin-bottom: 16px;
     }
+
+    .btn-add-log {
+        background: linear-gradient(135deg, #00bcd4, #0097a7);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+        .btn-add-log:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
+            color: white;
+        }
 
     .logs-table {
         border-collapse: separate;

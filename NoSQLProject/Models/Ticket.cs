@@ -12,10 +12,11 @@ namespace NoSQLProject.Models
     // ✅ NEW: Priority Enum
     public enum Ticket_Priority
     {
-        Low = 0,
-        Medium = 1,
-        High = 2,
-        Critical = 3
+        Undefined = 0,  // ✅ NEW: Default value
+        Low = 1,
+        Medium = 2,
+        High = 3,
+        Critical = 4
     }
 
     public class Ticket
@@ -26,7 +27,7 @@ namespace NoSQLProject.Models
         private string _title = "";
         private string _description = "";
         private Ticket_Status _status = 0;
-        private Ticket_Priority _priority = Ticket_Priority.Low; // ✅ NEW: Default to Low
+        private Ticket_Priority _priority = Ticket_Priority.Undefined; // ✅ NEW: Default to Low
         private DateTime _created_at;
         private DateTime _updated_at;
 

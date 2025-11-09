@@ -174,7 +174,7 @@ namespace NoSQLProject.Repositories
         public async Task SetDefaultPriorityForNullRecordsAsync()
         {
             var filter = Builders<Ticket>.Filter.Exists("priority", false);
-            var update = Builders<Ticket>.Update.Set("priority", Ticket_Priority.Low);
+            var update = Builders<Ticket>.Update.Set("priority", Ticket_Priority.Undefined);
 
             await _tickets.UpdateManyAsync(filter, update);
         }

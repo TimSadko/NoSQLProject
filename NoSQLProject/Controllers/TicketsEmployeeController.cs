@@ -80,7 +80,7 @@ namespace NoSQLProject.Controllers
                 // ✅ NEW: Ensure priority is set (defaults to Low if not specified)
                 if (ticket.Priority == 0 && !Request.Form.ContainsKey("Priority"))
                 {
-                    ticket.Priority = Ticket_Priority.Low;
+                    ticket.Priority = Ticket_Priority.Undefined;
                 }
 
                 await ticketRepository.AddAsync(ticket);

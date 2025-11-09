@@ -24,16 +24,17 @@
 						  rows="4" placeholder="Describe the issue or request..." required>@Model?.Description</textarea>
 			</div>
 
-			<!-- ✅ NEW: Priority Field -->
+			<!-- ✅ UPDATED: Priority Field with Undefined as default -->
 			<div class="form-group mb-4">
 				<label for="Priority" class="form-label fw-semibold">Priority Level</label>
-				<select id="Priority" name="Priority" class="form-select form-select-lg" required>
-					<option value="0" selected>🟢 Low</option>
-					<option value="1">🟡 Medium</option>
-					<option value="2">🟠 High</option>
-					<option value="3">🔴 Critical</option>
+				<select id="Priority" name="Priority" class="form-select form-select-lg">
+					<option value="0" selected>⚪ Undefined (Default)</option>
+					<option value="1">🟢 Low</option>
+					<option value="2">🟡 Medium</option>
+					<option value="3">🟠 High</option>
+					<option value="4">🔴 Critical</option>
 				</select>
-				<small class="form-text text-muted">Select the urgency level of this ticket</small>
+				<small class="form-text text-muted">Select the urgency level of this ticket (default: Undefined)</small>
 			</div>
 
 			<div class="d-flex justify-content-between">
@@ -96,17 +97,15 @@
 			box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
 		}
 
+	@@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(25px);
+		}
 
-
-	{
-		opacity: 0;
-		transform: translateY(25px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 </style>
