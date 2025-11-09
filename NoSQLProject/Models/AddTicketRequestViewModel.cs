@@ -2,18 +2,21 @@
 {
     public class AddTicketRequestViewModel
     {
-        private TicketRequest _request;
+        private string _message;
         private string _email;
+        private string _ticket_id;
 
         public AddTicketRequestViewModel() { }
 
-        public AddTicketRequestViewModel(TicketRequest request, string email)
+        public AddTicketRequestViewModel(string message, string email, string ticket_id)
         {
-            _request = request;
+            _message = message;
             _email = email;
+            _ticket_id = ticket_id;
         }
 
-        public TicketRequest Request { get => _request; set => _request = value; }
+        public string Message { get => _message; set => _message = value; }
         public string Email { get => _email; set => _email = value; }
+        public string TicketId { get => _ticket_id; set => _ticket_id = value; }
     }
 }
