@@ -34,14 +34,12 @@ namespace NoSQLProject.Controllers
                 {
                     view_model = await _rep.GetAllAsync();
 
-                    if(sortOrder == 1) view_model.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count); });
-                    else view_model.Sort((Ticket t, Ticket t2) => { return t2.Logs.Count.CompareTo(t.Logs.Count); });
+                    view_model.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count) * sortOrder; });        
                 }
                 else
                 {
                     view_model = await _rep.GetAllSortedAsync(sortField, sortOrder);
                 }              
-
 
                 List<Task<Employee?>> tasks = new List<Task<Employee?>>();
 

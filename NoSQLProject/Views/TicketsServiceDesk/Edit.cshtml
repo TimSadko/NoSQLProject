@@ -21,13 +21,13 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created At</label>
-                    <input type="text" class="form-control info-input" readonly value="@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")" />
+                    <input type="text" class="form-control info-input" readonly value="@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12 mb-3">
                     <label class="info-label">Last Update</label>
-                    <input type="text" class="form-control info-input" readonly value="@Model.UpdatedAt.ToString("MMM dd, yyyy HH:mm")" />
+                    <input type="text" class="form-control info-input" readonly value="@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
                 </div>
             </div>
         </div>
@@ -52,10 +52,12 @@
             </div>
 
             <div class="d-flex justify-content-between mb-4">
-                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">← Back</a>
+                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">Back</a>
                 <button type="submit" class="btn btn-save px-4 py-2">Save Changes</button>
             </div>
         </form>
+
+        <a href="/TicketRequests/Add/@Model.Id">Add Ticket Request</a>
 
         <!-- Logs Section -->
         <div class="logs-section">
@@ -88,7 +90,7 @@
                             {
                                 <tr>
                                     <td class="fw-semibold">@(log.Creator == null ? "???" : log.Creator.FullName)</td>
-                                    <td class="date-cell">@log.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td class="date-cell">@log.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
                                     <td>
                                         <span class="status-badge status-@log.NewStatus.ToString().ToLower()">
                                             @log.NewStatus
@@ -244,41 +246,41 @@
         text-decoration: none;
     }
 
-        .btn-add-log:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
-            color: white;
-        }
+    .btn-add-log:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
+        color: white;
+    }
 
     .logs-table {
         border-collapse: separate;
         border-spacing: 0 8px;
     }
 
-        .logs-table thead th {
-            background: #f8f9fa;
-            padding: 12px;
-            font-weight: 600;
-            color: #555;
-            border: none;
-        }
+    .logs-table thead th {
+        background: #f8f9fa;
+        padding: 12px;
+        font-weight: 600;
+        color: #555;
+        border: none;
+    }
 
-        .logs-table tbody tr {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-        }
+    .logs-table tbody tr {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
 
-            .logs-table tbody tr:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                transform: translateY(-2px);
-            }
+    .logs-table tbody tr:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
 
-        .logs-table tbody td {
-            padding: 14px 12px;
-            vertical-align: middle;
-            border: none;
-        }
+    .logs-table tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border: none;
+    }
 
     .date-cell {
         font-size: 0.9rem;

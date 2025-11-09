@@ -1,0 +1,95 @@
+﻿@model List<NoSQLProject.Models.TicketRequest>
+
+@{
+    ViewData["Title"] = "Ticket Requests";
+}
+
+<partial name="_ErrorMessage" />
+
+<h1>Received Ticket Requests:</h1>
+
+<div>
+    <lebel>Requests:</lebel>
+    <a href="/TicketRequests/Received" class="selected-request-tab-link">Recieved</a> |
+    <a href="/TicketRequests/Sent" class="not-selected-request-tab-link">Sent</a> |
+    <a href="/TicketRequests/All" class="not-selected-request-tab-link">All</a>
+</div>
+
+@{
+    if(Model.Count == 0)
+    {
+        <div>No requests yet</div>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sender</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Message</th>
+                    <th>Ticket</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach(TicketRequest r in Model)
+                    {
+                        <tr>
+                            <td>@(r.Sender == null ? "???" : r.Sender.FullName)</td>
+                            <td>@r.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                            <td>@r.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                            <td>
+                                @if (string.IsNullOrEmpty(r.Message))
+                                {
+                                    <div>-</div>
+                                }
+                                else if(r.Message.Length > 50)
+                                {
+                                    <div>@(r.Message.Substring(0, 50))...</div>
+                                }
+                                else
+                                {
+                                    <div>@r.Message</div>
+                                }
+                            </td>
+                            <td>
+                                @if (string.IsNullOrEmpty(r.Ticket.Title))
+                                {
+                                    <div>-</div>
+                                }
+                                else if (r.Ticket.Title.Length > 50)
+                                {
+                                    <div>@(r.Ticket.Title.Substring(0, 50))...</div>
+                                }
+                                else
+                                {
+                                    <div>@r.Ticket.Title</div>
+                                }
+                            </td>
+                            <td>@r.Status</td>
+                            <td>
+                                <div>
+                                    <a>View</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+}
+
+<style>
+    .selected-request-tab-link{
+        text-decoration: underline;
+    }
+
+    .not-selected-request-tab-link {
+        text-decoration: none;
+    }
+</style>

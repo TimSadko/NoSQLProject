@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NoSQLProject.Models
 {
-    public enum Ticket_Status // Do not know what to put here, if you work with tickets fill this in!
+    public enum Ticket_Status 
     {
         Open = 0, Closed = 1, Resolved = 2
     }
