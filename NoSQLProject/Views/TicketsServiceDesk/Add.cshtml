@@ -15,13 +15,25 @@
 			<div class="form-group mb-3">
 				<label for="Title" class="form-label fw-semibold">Title</label>
 				<input type="text" id="Title" name="Title" class="form-control form-control-lg"
-					placeholder="Enter ticket title" required value="@Model?.Title" />
+					   placeholder="Enter ticket title" required value="@Model?.Title" />
 			</div>
 
-			<div class="form-group mb-4">
+			<div class="form-group mb-3">
 				<label for="Description" class="form-label fw-semibold">Description</label>
 				<textarea id="Description" name="Description" class="form-control form-control-lg"
-					rows="4" placeholder="Describe the issue or request..." required>@Model?.Description</textarea>
+						  rows="4" placeholder="Describe the issue or request..." required>@Model?.Description</textarea>
+			</div>
+
+			<!-- ✅ NEW: Priority Field -->
+			<div class="form-group mb-4">
+				<label for="Priority" class="form-label fw-semibold">Priority Level</label>
+				<select id="Priority" name="Priority" class="form-select form-select-lg" required>
+					<option value="0" selected>🟢 Low</option>
+					<option value="1">🟡 Medium</option>
+					<option value="2">🟠 High</option>
+					<option value="3">🔴 Critical</option>
+				</select>
+				<small class="form-text text-muted">Select the urgency level of this ticket</small>
 			</div>
 
 			<div class="d-flex justify-content-between">
@@ -57,16 +69,18 @@
 		margin-bottom: 2rem;
 	}
 
-	.ticket-form .form-control {
+	.ticket-form .form-control,
+	.ticket-form .form-select {
 		border-radius: 10px;
 		border: 1px solid #ccc;
 		transition: all 0.3s ease;
 	}
 
-	.ticket-form .form-control:focus {
-		border-color: #4e54c8;
-		box-shadow: 0 0 8px rgba(78, 84, 200, 0.4);
-	}
+		.ticket-form .form-control:focus,
+		.ticket-form .form-select:focus {
+			border-color: #4e54c8;
+			box-shadow: 0 0 8px rgba(78, 84, 200, 0.4);
+		}
 
 	.btn-add {
 		background: linear-gradient(135deg, #2575fc, #6a11cb);
@@ -77,13 +91,22 @@
 		transition: all 0.3s ease;
 	}
 
-	.btn-add:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
+		.btn-add:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
+		}
+
+
+
+	{
+		opacity: 0;
+		transform: translateY(25px);
 	}
 
-	@@keyframes fadeIn {
-		from { opacity: 0; transform: translateY(25px); }
-		to { opacity: 1; transform: translateY(0); }
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
 	}
 </style>

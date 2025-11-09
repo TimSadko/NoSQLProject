@@ -11,7 +11,7 @@
         <h2 class="delete-title">Delete Ticket</h2>
 
         <div class="alert alert-danger text-center fw-semibold mb-4">
-             Are you sure you want to permanently delete this ticket?
+            Are you sure you want to permanently delete this ticket?
         </div>
 
         <!-- Ticket Details -->
@@ -22,11 +22,11 @@
             </div>
             <div class="detail-row">
                 <span class="detail-label">Created At:</span>
-                <span class="detail-value">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+                <span class="detail-value">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Last Update:</span>
-                <span class="detail-value">@Model.UpdatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+                <span class="detail-value">@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Title:</span>
@@ -35,6 +35,31 @@
             <div class="detail-row">
                 <span class="detail-label">Description:</span>
                 <span class="detail-value">@Model?.Description</span>
+            </div>
+            <!-- ✅ NEW: Priority Display -->
+            <div class="detail-row">
+                <span class="detail-label">Priority:</span>
+                <span class="detail-value">
+                    @{
+                        var priorityClass = Model.Priority switch
+                        {
+                            Ticket_Priority.Critical => "priority-critical",
+                            Ticket_Priority.High => "priority-high",
+                            Ticket_Priority.Medium => "priority-medium",
+                            _ => "priority-low"
+                        };
+                        var priorityIcon = Model.Priority switch
+                        {
+                            Ticket_Priority.Critical => "🔴",
+                            Ticket_Priority.High => "🟠",
+                            Ticket_Priority.Medium => "🟡",
+                            _ => "🟢"
+                        };
+                    }
+                    <span class="priority-badge @priorityClass">
+                        @priorityIcon @Model.Priority
+                    </span>
+                </span>
             </div>
         </div>
 
@@ -83,8 +108,8 @@
                                         else if (log.Description.Length > 100)
                                         {
                                             @(log.Description.Substring(0, 100))
-
-                                        }
+                                            
+                                                                }
                                         else
                                         {
                                             @log.Description
@@ -170,13 +195,47 @@
         text-align: right;
     }
 
-    .logs-preview {
+    /* Priority Badge Styles */
+    .priority-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .priority-critical {
+        background: #ffebee;
+        color: #c62828;
+        border: 1px solid #ef5350;
+    }
+
+    .priority-high {
+        background: #fff3e0;
+        color: #e65100;
+        border: 1px solid #ff9800;
+    }
+
+    .priority-medium {
+        background: #fff9c4;
+        color: #f57f17;
+        border: 1px solid #fbc02d;
+    }
+
+    .priority-low {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #66bb6a;
+    }
+
+    .logs-section {
         margin-top: 30px;
         padding-top: 20px;
         border-top: 2px solid #e0e0e0;
     }
 
-    .logs-preview-title {
+    .logs-title {
         font-size: 1.3rem;
         font-weight: 700;
         color: #4e54c8;
@@ -274,6 +333,40 @@
         .btn-delete:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+            color: white;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-edit-sm {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+        .btn-edit-sm:hover {
+            background: #1976d2;
+            color: white;
+        }
+
+    .btn-delete-sm {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+
+        .btn-delete-sm:hover {
+            background: #d32f2f;
             color: white;
         }
 

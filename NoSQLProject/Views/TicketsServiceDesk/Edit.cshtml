@@ -2,8 +2,6 @@
 
 @{
     ViewData["Title"] = "Edit Ticket";
-
-    //Console.WriteLine(Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")); // Debug
 }
 
 <partial name="_ErrorMessage" />
@@ -21,13 +19,13 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created At</label>
-                    <input type="text" class="form-control info-input" readonly value="@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")" />
+                    <input type="text" class="form-control info-input" readonly value="@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12 mb-3">
                     <label class="info-label">Last Update</label>
-                    <input type="text" class="form-control info-input" readonly value="@Model.UpdatedAt.ToString("MMM dd, yyyy HH:mm")" />
+                    <input type="text" class="form-control info-input" readonly value="@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" />
                 </div>
             </div>
         </div>
@@ -46,16 +44,25 @@
                 <textarea class="form-control form-control-lg" asp-for="Description" rows="4" required>@Model?.Description</textarea>
             </div>
 
-            <div class="form-group mb-4">
-                <label for="Status" class="form-label fw-semibold">Status</label>
-                <select class="form-select form-select-lg" asp-for="Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="Status" class="form-label fw-semibold">Status</label>
+                    <select class="form-select form-select-lg" asp-for="Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
+                </div>
+
+                <!-- ✅ NEW: Priority Field -->
+                <div class="col-md-6 mb-3">
+                    <label for="Priority" class="form-label fw-semibold">Priority</label>
+                    <select class="form-select form-select-lg" asp-for="Priority" asp-items="@Html.GetEnumSelectList<Ticket_Priority>()"></select>
+                </div>
             </div>
 
             <div class="d-flex justify-content-between mb-4">
-                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">← Back</a>
+                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">Back</a>
                 <button type="submit" class="btn btn-save px-4 py-2">Save Changes</button>
             </div>
         </form>
+
 
         <!-- Logs Section -->
         <div class="logs-section">
@@ -84,11 +91,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(Log log in Model.Logs)
+                            @foreach (Log log in Model.Logs)
                             {
                                 <tr>
                                     <td class="fw-semibold">@(log.Creator == null ? "???" : log.Creator.FullName)</td>
-                                    <td class="date-cell">@log.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td class="date-cell">@log.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
                                     <td>
                                         <span class="status-badge status-@log.NewStatus.ToString().ToLower()">
                                             @log.NewStatus
@@ -103,7 +110,7 @@
                                         {
                                             @(log.Description.Substring(0, 100))
                                             
-                                        }
+                                                                }
                                         else
                                         {
                                             @log.Description
