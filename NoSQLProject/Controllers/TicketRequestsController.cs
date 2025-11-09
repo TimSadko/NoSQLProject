@@ -35,6 +35,82 @@ namespace NoSQLProject.Controllers
 
                 for (int i = 0; i < ticket_requests.Count; i++)
                 {
+                    employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].SenderId));
+                    ticket_tasks.Add(_ticket_rep.GetByIdAsync(ticket_requests[i].TicketId));
+                }
+
+                await Task.WhenAll(employees_tasks); 
+                await Task.WhenAll(ticket_tasks); 
+
+                for (int i = 0; i < ticket_requests.Count; i++)
+                {
+                    ticket_requests[i].Sender = employees_tasks[i].Result;
+                    ticket_requests[i].Ticket = ticket_tasks[i].Result;
+                }
+
+                return View(ticket_requests);
+            }
+            catch (Exception ex)
+            {
+                ViewData["Exception"] = ex.Message;
+                return View(new List<TicketRequest>());
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Sent()
+        {
+            var logged_in_employee = Authenticate();
+
+            if (logged_in_employee == null) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                List<TicketRequest> ticket_requests = await _rep.GetAllBySenderAsync(logged_in_employee.Id);
+
+                List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
+                List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
+
+                for (int i = 0; i < ticket_requests.Count; i++)
+                {
+                    employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].RecipientId));
+                    ticket_tasks.Add(_ticket_rep.GetByIdAsync(ticket_requests[i].TicketId));
+                }
+
+                await Task.WhenAll(employees_tasks);
+                await Task.WhenAll(ticket_tasks);
+
+                for (int i = 0; i < ticket_requests.Count; i++)
+                {
+                    ticket_requests[i].Recipient = employees_tasks[i].Result;
+                    ticket_requests[i].Ticket = ticket_tasks[i].Result;
+                }
+
+                return View(ticket_requests);
+            }
+            catch (Exception ex)
+            {
+                ViewData["Exception"] = ex.Message;
+                return View(new List<TicketRequest>());
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> All()
+        {
+            var logged_in_employee = Authenticate();
+
+            if (logged_in_employee == null) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                List<TicketRequest> ticket_requests = await _rep.GetAllAsync();
+
+                List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
+                List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
+
+                for (int i = 0; i < ticket_requests.Count; i++)
+                {
                     employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].RecipientId));
                     ticket_tasks.Add(_ticket_rep.GetByIdAsync(ticket_requests[i].TicketId));
                 }
@@ -44,13 +120,14 @@ namespace NoSQLProject.Controllers
                     employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].SenderId));
                 }
 
-                await Task.WhenAll(employees_tasks); 
-                await Task.WhenAll(ticket_tasks); 
+                await Task.WhenAll(employees_tasks);
+                await Task.WhenAll(ticket_tasks);
 
                 for (int i = 0; i < ticket_requests.Count; i++)
                 {
                     ticket_requests[i].Recipient = employees_tasks[i].Result;
                     ticket_requests[i].Sender = employees_tasks[i + ticket_requests.Count].Result;
+
                     ticket_requests[i].Ticket = ticket_tasks[i].Result;
                 }
 
@@ -100,6 +177,8 @@ namespace NoSQLProject.Controllers
 
                 if(emp.Id == logged_in_employee.Id) throw new Exception($"You cannot sent ticket request to yourself");
 
+                if(emp is not ServiceDeskEmployee) throw new Exception($"You can sent ticket request only to service desk employee");
+
                 var request = new TicketRequest();
 
                 request.TicketId = view_model.TicketId;
@@ -123,6 +202,18 @@ namespace NoSQLProject.Controllers
         {
             var employee = Authorization.GetLoggedInEmployee(HttpContext);
             return employee is null or not ServiceDeskEmployee ? null : (ServiceDeskEmployee)employee;
+        }
+
+        public static string CutString(int max_length, string str)
+        {
+            if(string.IsNullOrEmpty(str)) return "-";
+
+            if(str.Length > max_length)
+            {
+                return $"{str.Substring(0, max_length)}...";
+            }
+            
+            return str;
         }
     }
 }

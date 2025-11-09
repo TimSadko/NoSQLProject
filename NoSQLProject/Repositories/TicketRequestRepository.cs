@@ -13,8 +13,13 @@ namespace NoSQLProject.Repositories
             _requests = db.GetCollection<TicketRequest>("ticket_requests");
         }
 
-        public async Task<List<TicketRequest>> GetAllAsync()
+        public async Task<List<TicketRequest>> GetAllAsync(bool allow_archived = false)
         {
+            if (!allow_archived)
+            {
+                return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("archived", false)).Result.ToListAsync();
+            }
+
             return await _requests.FindAsync(new BsonDocument()).Result.ToListAsync();
         }
 
@@ -26,6 +31,16 @@ namespace NoSQLProject.Repositories
             }
 
             return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id)).Result.ToListAsync();
+        }
+
+        public async Task<List<TicketRequest>> GetAllBySenderAsync(string sender_id, bool allow_archived = false)
+        {
+            if (!allow_archived)
+            {
+                return await _requests.FindAsync(Builders<TicketRequest>.Filter.And(Builders<TicketRequest>.Filter.Eq("sender_id", sender_id), Builders<TicketRequest>.Filter.Eq("archived", false))).Result.ToListAsync();
+            }
+
+            return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("sender_id", sender_id)).Result.ToListAsync();
         }
 
         public async Task AddAsync(TicketRequest request)
