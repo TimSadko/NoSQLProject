@@ -9,10 +9,9 @@ namespace NoSQLProject.Models
         Open = 0, Closed = 1, Resolved = 2
     }
 
-    // ✅ NEW: Priority Enum
     public enum Ticket_Priority
     {
-        Undefined = 0,  // ✅ NEW: Default value
+        Undefined = 0, 
         Low = 1,
         Medium = 2,
         High = 3,
@@ -27,7 +26,7 @@ namespace NoSQLProject.Models
         private string _title = "";
         private string _description = "";
         private Ticket_Status _status = 0;
-        private Ticket_Priority _priority = Ticket_Priority.Undefined; // ✅ NEW: Default to Low
+        private Ticket_Priority _priority = Ticket_Priority.Undefined;
         private DateTime _created_at;
         private DateTime _updated_at;
 
@@ -35,8 +34,7 @@ namespace NoSQLProject.Models
 
         public Ticket() { }
 
-        public Ticket(string id, string created_by_id, List<Log> logs, string title, string description,
-                      Ticket_Status status, Ticket_Priority priority, DateTime created_at, DateTime updated_at)
+        public Ticket(string id, string created_by_id, List<Log> logs, string title, string description, Ticket_Status status, Ticket_Priority priority, DateTime created_at, DateTime updated_at)
         {
             _id = id;
             _created_by_id = created_by_id;
@@ -73,7 +71,6 @@ namespace NoSQLProject.Models
         [JsonPropertyName("status")]
         public Ticket_Status Status { get => _status; set => _status = value; }
 
-        // ✅ NEW: Priority Field
         [BsonElement("priority")]
         [JsonPropertyName("priority")]
         public Ticket_Priority Priority { get => _priority; set => _priority = value; }

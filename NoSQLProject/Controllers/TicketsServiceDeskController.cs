@@ -24,9 +24,6 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                // ✅ NEW: Ensure old tickets have default priority
-                await _rep.SetDefaultPriorityForNullRecordsAsync();
-
                 List<Ticket> view_model;
 
                 if (sortField == "CreatedBy")
@@ -37,10 +34,6 @@ namespace NoSQLProject.Controllers
                 {
                     view_model = await _rep.GetAllAsync();
                     view_model.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count) * sortOrder; });
-                }
-                else if (sortField == "Priority") // ✅ NEW: Priority sorting with date fallback
-                {
-                    view_model = await _rep.GetAllSortedAsync("Priority", sortOrder);
                 }
                 else
                 {
@@ -77,9 +70,8 @@ namespace NoSQLProject.Controllers
                         }
                     });
                 }
-
-                // ✅ NEW: Pass sort info to view
-                ViewBag.SortField = sortField;
+            
+                ViewBag.SortField = sortField; // Pass sort info to view
                 ViewBag.SortOrder = sortOrder;
 
                 return View(view_model);

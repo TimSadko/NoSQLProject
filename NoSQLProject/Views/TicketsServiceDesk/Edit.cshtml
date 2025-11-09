@@ -50,7 +50,6 @@
                     <select class="form-select form-select-lg" asp-for="Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
                 </div>
 
-                <!-- ✅ NEW: Priority Field -->
                 <div class="col-md-6 mb-3">
                     <label for="Priority" class="form-label fw-semibold">Priority</label>
                     <select class="form-select form-select-lg" asp-for="Priority" asp-items="@Html.GetEnumSelectList<Ticket_Priority>()"></select>

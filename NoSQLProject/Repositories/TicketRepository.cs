@@ -143,21 +143,18 @@ namespace NoSQLProject.Repositories
             await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)));
         }
 
-        // ✅ UPDATED: Enhanced sorting with Priority support
         public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1)
         {
             var sortBuilder = Builders<Ticket>.Sort;
             SortDefinition<Ticket> sortDef;
 
-            // ✅ NEW: Special handling for Priority sorting
             if (sortField == "Priority")
             {
-                // Sort by priority first, then by date
-                if (sortOrder == 1) // Ascending (Low to Critical)
+                if (sortOrder == 1)
                 {
                     sortDef = sortBuilder.Ascending(t => t.Priority).Descending(t => t.CreatedAt);
                 }
-                else // Descending (Critical to Low)
+                else
                 {
                     sortDef = sortBuilder.Descending(t => t.Priority).Descending(t => t.CreatedAt);
                 }
@@ -168,15 +165,6 @@ namespace NoSQLProject.Repositories
             }
 
             return await _tickets.Find(new BsonDocument()).Sort(sortDef).ToListAsync();
-        }
-
-        // ✅ NEW: Method to update priority for existing tickets without it
-        public async Task SetDefaultPriorityForNullRecordsAsync()
-        {
-            var filter = Builders<Ticket>.Filter.Exists("priority", false);
-            var update = Builders<Ticket>.Update.Set("priority", Ticket_Priority.Undefined);
-
-            await _tickets.UpdateManyAsync(filter, update);
         }
     }
 }

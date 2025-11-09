@@ -17,8 +17,5 @@ namespace NoSQLProject.Repositories
         Task EditLogAsync(string ticket_id, Log log);
         Task DeleteLogAsync(string ticket_id, string log_id);
         Task<List<Log>> GetLogsByTicketIdAsync(string id);
-
-        // ✅ NEW: Method to set default priority for existing tickets
-        Task SetDefaultPriorityForNullRecordsAsync();
     }
 }

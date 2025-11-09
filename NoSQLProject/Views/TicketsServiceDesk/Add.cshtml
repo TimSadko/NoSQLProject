@@ -24,17 +24,9 @@
 						  rows="4" placeholder="Describe the issue or request..." required>@Model?.Description</textarea>
 			</div>
 
-			<!-- ✅ UPDATED: Priority Field with Undefined as default -->
-			<div class="form-group mb-4">
-				<label for="Priority" class="form-label fw-semibold">Priority Level</label>
-				<select id="Priority" name="Priority" class="form-select form-select-lg">
-					<option value="0" selected>⚪ Undefined (Default)</option>
-					<option value="1">🟢 Low</option>
-					<option value="2">🟡 Medium</option>
-					<option value="3">🟠 High</option>
-					<option value="4">🔴 Critical</option>
-				</select>
-				<small class="form-text text-muted">Select the urgency level of this ticket (default: Undefined)</small>
+			<div class="col-md-6 mb-3">
+				<label for="Priority" class="form-label fw-semibold">Priority</label>
+				<select class="form-select form-select-lg" asp-for="Priority" asp-items="@Html.GetEnumSelectList<Ticket_Priority>()"></select>
 			</div>
 
 			<div class="d-flex justify-content-between">
