@@ -17,7 +17,8 @@
             <div class="navbar-container">
                 <a class="logo-link" asp-controller="Home" asp-action="Index">My Ticket Tracker</a>
                 <ul class="navbar-menu">
-                    <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                    <li><a asp-controller="Home" asp-action="Privacy" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">Privacy</a></li>
+
                     @{
                         var emp = NoSQLProject.Other.Authorization.GetLoggedInEmployee(this.Context);
                         if (emp != null)
@@ -25,18 +26,18 @@
                             <li><a asp-controller="Home" asp-action="Logout">Logout</a></li>
                             if (emp is NoSQLProject.Models.ServiceDeskEmployee)
                             {
-                                <li><a asp-controller="Employees" asp-action="Index">Employees</a></li>
-                                <li><a asp-controller="TicketsServiceDesk" asp-action="Index">Tickets</a></li>
-                                <li><a asp-controller="TicketRequests" asp-action="Received">Requests</a></li>
+                                <li><a asp-controller="Employees" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Employees" ? "active" : "")">Employees</a></li>
+                                <li><a asp-controller="TicketsServiceDesk" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "TicketsServiceDesk" ? "active" : "")">Tickets</a></li>
+                                <li><a asp-controller="TicketRequests" asp-action="Received" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "TicketRequests" ? "active" : "")">Requests</a></li>
                             }
                             else
                             {
-                                <li><a asp-controller="TicketsEmployee" asp-action="Index">Tickets</a></li>
+                                <li><a asp-controller="TicketsEmployee" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "TicketsEmployee" ? "active" : "")">Tickets</a></li>
                             }
                         }
                         else
                         {
-                            <li><a asp-controller="Home" asp-action="Login">Login</a></li>
+                            <li><a asp-controller="Home" asp-action="Login" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Login" ? "active" : "")">Login</a></li>
                         }
                     }
                 </ul>
@@ -65,8 +66,8 @@
 
 <style>
     /* ═══════════════════════════════════════════════════════════
-       FIXED HEADER & FOOTER LAYOUT
-       ═══════════════════════════════════════════════════════════ */
+           FIXED HEADER & FOOTER LAYOUT
+           ═══════════════════════════════════════════════════════════ */
 
     html, body {
         height: 100%;
@@ -82,8 +83,8 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       FIXED HEADER
-       ═══════════════════════════════════════════════════════════ */
+           FIXED HEADER
+           ═══════════════════════════════════════════════════════════ */
 
     .fixed-header {
         position: fixed;
@@ -147,9 +148,16 @@
                 color: #4e54c8;
             }
 
+            /* Active page highlighting */
+            .navbar-menu a.active {
+                color: #4e54c8;
+                font-weight: 600;
+                border-bottom: 2px solid #4e54c8;
+            }
+
     /* ═══════════════════════════════════════════════════════════
-       MAIN CONTENT AREA
-       ═══════════════════════════════════════════════════════════ */
+           MAIN CONTENT AREA
+           ═══════════════════════════════════════════════════════════ */
 
     .main-content {
         flex: 1;
@@ -164,8 +172,8 @@
         }
 
     /* ═══════════════════════════════════════════════════════════
-       FIXED FOOTER
-       ═══════════════════════════════════════════════════════════ */
+           FIXED FOOTER
+           ═══════════════════════════════════════════════════════════ */
 
     .fixed-footer {
         position: fixed;
@@ -192,8 +200,8 @@
             }
 
     /* ═══════════════════════════════════════════════════════════
-       LAYOUT ADJUSTMENTS
-       ═══════════════════════════════════════════════════════════ */
+           LAYOUT ADJUSTMENTS
+           ═══════════════════════════════════════════════════════════ */
 
     .navbar-container {
         flex-wrap: wrap;
@@ -204,8 +212,8 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       SCROLLBAR STYLING (Optional)
-       ═══════════════════════════════════════════════════════════ */
+           SCROLLBAR STYLING (Optional)
+           ═══════════════════════════════════════════════════════════ */
 
     .main-content::-webkit-scrollbar {
         width: 8px;
