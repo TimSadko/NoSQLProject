@@ -27,6 +27,10 @@
                             {
                                 <li><a asp-controller="Employees" asp-action="Index">Employees</a></li>
                                 <li><a asp-controller="TicketsServiceDesk" asp-action="Index">Tickets</a></li>
+
+                                <li><a asp-controller="Employees" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Employees" ? "active" : "")">Employees</a></li>
+                                <li><a asp-controller="TicketsServiceDesk" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "TicketsServiceDesk" ? "active" : "")">Tickets</a></li>
+                                <li><a asp-controller="TicketRequests" asp-action="Received" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "TicketRequests" ? "active" : "")">Requests</a></li>
                             }
                             else
                             {
