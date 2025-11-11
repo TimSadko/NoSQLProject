@@ -1,10 +1,12 @@
 ﻿@model NoSQLProject.Models.AddTicketRequestViewModel
 
 @{
-    ViewData["Title"] = "Add Ticket Requests";
+    ViewData["Title"] = "Add Request";
 }
 
 <partial name="_ErrorMessage" />
+
+<h1>New Request</h1>
 
 <form action="/TicketRequests/Add" method="post">
 	<input type="hidden" asp-for="TicketId" value="@Model.TicketId" />

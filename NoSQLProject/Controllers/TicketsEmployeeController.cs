@@ -129,6 +129,7 @@ namespace NoSQLProject.Controllers
 
                 ticketToChange.Title = ticket.Title;
                 ticketToChange.Description = ticket.Description;
+                ticketToChange.UpdatedAt = DateTime.UtcNow;
 
                 await _ticketRepository.EditAsync(ticketToChange);
 

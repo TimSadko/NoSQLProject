@@ -87,6 +87,5 @@ namespace NoSQLProject.Models
         [BsonIgnore]
         [JsonIgnore]
         public Ticket? Ticket { get => _ticket; set => _ticket = value; }
-
     }
 }

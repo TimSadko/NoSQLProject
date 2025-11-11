@@ -2,30 +2,31 @@
 @model List<NoSQLProject.Models.TicketRequest>
 
 @{
-    ViewData["Title"] = "Received Requests";
+    ViewData["Title"] = "All Requests";
 }
 
 <partial name="_ErrorMessage" />
 
-<h1>Received Ticket Requests:</h1>
+<h1>All Requests:</h1>
 
 <div>
     <lebel>Requests:</lebel>
-    <a href="/TicketRequests/Received" class="selected-request-tab-link">Recieved</a> |
+    <a href="/TicketRequests/Received" class="not-selected-request-tab-link">Recieved</a> |
     <a href="/TicketRequests/Sent" class="not-selected-request-tab-link">Sent</a> |
-    <a href="/TicketRequests/All" class="not-selected-request-tab-link">All</a>
+    <a href="/TicketRequests/All" class="selected-request-tab-link">All</a>
 </div>
 
 @{
-    if(Model.Count == 0)
+    if (Model.Count == 0)
     {
-        <div>No requests received yet</div>
+        <div>No requests yet</div>
     }
     else
     {
         <table class="table">
             <thead>
                 <tr>
+                    <th>Recipient</th>
                     <th>Sender</th>
                     <th>Sent At</th>
                     <th>Last Upadte</th>
@@ -37,9 +38,10 @@
             </thead>
             <tbody>
                 @{
-                    foreach(TicketRequest r in Model)
+                    foreach (TicketRequest r in Model)
                     {
                         <tr>
+                            <td>@(r.Recipient == null ? "???" : r.Recipient.FullName)</td>
                             <td>@(r.Sender == null ? "???" : r.Sender.FullName)</td>
                             <td>@r.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
                             <td>@r.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
@@ -60,7 +62,7 @@
 }
 
 <style>
-    .selected-request-tab-link{
+    .selected-request-tab-link {
         text-decoration: underline;
     }
 
