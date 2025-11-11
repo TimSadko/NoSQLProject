@@ -238,6 +238,56 @@ namespace NoSQLProject.Controllers
             }
         }
 
+        [HttpGet("TicketRequests/Delete/{request_id}")]
+        public async Task<ActionResult> Delete(string request_id)
+        {
+			var logged_in_employee = Authenticate();
+
+			if (logged_in_employee == null) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				TicketRequest? request = await _rep.GetByIdAsync(request_id);
+
+                if (request == null) throw new Exception("Could not found request with the id");
+
+                if(logged_in_employee.Id != request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
+
+                return View(request);
+			}
+			catch (Exception ex)
+			{
+				ViewData["Exception"] = ex.Message;
+				return RedirectToAction("Received");
+			}
+		}
+
+        [HttpPost]
+        public async Task<ActionResult> Delete(TicketRequest request_id_only)
+        {
+			var logged_in_employee = Authenticate();
+
+			if (logged_in_employee == null) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				TicketRequest? loaded_request = await _rep.GetByIdAsync(request_id_only.Id);
+
+				if (loaded_request == null) throw new Exception("Could not found request with the id");
+
+				if (logged_in_employee.Id != loaded_request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
+
+                await _rep.DeleteAsync(loaded_request.Id);
+
+				return RedirectToAction("Sent");
+			}
+			catch (Exception ex)
+			{
+				ViewData["Exception"] = ex.Message;
+				return RedirectToAction("Received");
+			}
+		}
+
         private ServiceDeskEmployee? Authenticate()
         {
             var employee = Authorization.GetLoggedInEmployee(HttpContext);

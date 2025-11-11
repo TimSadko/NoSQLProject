@@ -9,5 +9,7 @@ namespace NoSQLProject.Repositories
         Task<List<TicketRequest>> GetAllBySenderAsync(string sender_id, bool allow_archived = false);
         Task<TicketRequest?> GetByIdAsync(string request_id);
         Task AddAsync(TicketRequest request);
-    }
+        Task DeleteAsync(string request_id);
+
+	}
 }

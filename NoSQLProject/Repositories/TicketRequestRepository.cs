@@ -55,5 +55,10 @@ namespace NoSQLProject.Repositories
 
             await _requests.InsertOneAsync(request);
         }
+
+        public async Task DeleteAsync(string request_id)
+        {
+			await _requests.DeleteOneAsync(Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id)));
+		}
     }
 }

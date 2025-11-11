@@ -1,7 +1,7 @@
 ﻿@model NoSQLProject.Models.TicketRequest
 
 @{
-	ViewData["Title"] = "View Request";
+	ViewData["Title"] = "Edit Request";
 }
 
 <partial name="_ErrorMessage" />
@@ -15,6 +15,8 @@
 		<label>Status:</label>
 		<input type="text" value="@Model.Status.ToString()" readonly />
 	</div>
+
+	<a href="/TicketRequests/Delete/@Model.Id">Delete</a>
 </div>
 
 <a href="/TicketRequests/All">Go Back</a>
