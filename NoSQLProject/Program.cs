@@ -5,6 +5,9 @@ using NoSQLProject.Other;
 using NoSQLProject.Repositories;
 using System.Collections.Generic;
 using NoSQLProject.Services;
+using Microsoft.AspNetCore.Authentication;
+using NoSQLProject.Other.Security;
+using Microsoft.OpenApi.Models;
 
 namespace NoSQLProject
 {
@@ -60,6 +63,54 @@ namespace NoSQLProject
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            // Swagger + endpoints explorer for testing
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "NoSQLProject API",
+                    Version = "v1"
+                });
+
+                // Define HTTP Basic security scheme
+                c.AddSecurityDefinition("basic", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "basic",
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    Description = "Basic authentication using the Authorization header."
+                });
+
+                // Require Basic auth for operations that have [Authorize]
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "basic"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
+
+            // Basic Authentication registration (only used where explicitly required)
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme =
+                    BasicAuthenticationHandler.SchemeName; // not enforced globally unless [Authorize] is applied
+                options.DefaultChallengeScheme = BasicAuthenticationHandler.SchemeName;
+            }).AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(BasicAuthenticationHandler.SchemeName,
+                null);
+
+            builder.Services.AddAuthorization();
+
             builder.Services.AddSession(options => // Configure sessions
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -76,12 +127,18 @@ namespace NoSQLProject
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            else
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseSession(); // Enable sessions
@@ -91,19 +148,20 @@ namespace NoSQLProject
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
             // BsonClassMap registration
-if (!BsonClassMap.IsClassMapRegistered(typeof(Employee)))
-{
-    BsonClassMap.RegisterClassMap<Employee>(cm =>
-    {
-        cm.AutoMap();
-        cm.SetIsRootClass(true);
-        cm.AddKnownType(typeof(ServiceDeskEmployee));
-    });
-}
-if (!BsonClassMap.IsClassMapRegistered(typeof(ServiceDeskEmployee)))
-{
-    BsonClassMap.RegisterClassMap<ServiceDeskEmployee>(cm => cm.AutoMap());
-}
+            if (!BsonClassMap.IsClassMapRegistered(typeof(Employee)))
+            {
+                BsonClassMap.RegisterClassMap<Employee>(cm =>
+                {
+                    cm.AutoMap();
+                    cm.SetIsRootClass(true);
+                    cm.AddKnownType(typeof(ServiceDeskEmployee));
+                });
+            }
+
+            if (!BsonClassMap.IsClassMapRegistered(typeof(ServiceDeskEmployee)))
+            {
+                BsonClassMap.RegisterClassMap<ServiceDeskEmployee>(cm => cm.AutoMap());
+            }
 
             app.Run();
         }
