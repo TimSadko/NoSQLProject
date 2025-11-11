@@ -29,8 +29,16 @@
             <div class="form-group mb-3">
                 <label for="Role" class="form-label fw-semibold">Role</label>
                 <select id="Role" name="Role" class="form-select form-select-lg">
-                    <option value="Employee" selected="@(isServiceDesk ? null : "selected")">Employee</option>
-                    <option value="ServiceDeskEmployee" selected="@(isServiceDesk ? "selected" : null)">Service Desk</option>
+                    @if (!isServiceDesk)
+                    {
+                        <option value="Employee" selected>Employee</option>
+                        <option value="ServiceDeskEmployee">Service Desk</option>
+                    }
+                    else
+                    {
+                        <option value="Employee">Employee</option>
+                        <option value="ServiceDeskEmployee" selected>Service Desk</option>
+                    }
                 </select>
             </div>
 
@@ -88,7 +96,7 @@
         font-weight: 700;
         color: #4e54c8;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .employee-form .form-control,
