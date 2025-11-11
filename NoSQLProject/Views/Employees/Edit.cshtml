@@ -29,8 +29,16 @@
             <div class="form-group mb-3">
                 <label for="Role" class="form-label fw-semibold">Role</label>
                 <select id="Role" name="Role" class="form-select form-select-lg">
-                    <option value="Employee" selected="@(isServiceDesk ? null : "selected")">Employee</option>
-                    <option value="ServiceDeskEmployee" selected="@(isServiceDesk ? "selected" : null)">Service Desk</option>
+                    @if (!isServiceDesk)
+                    {
+                        <option value="Employee" selected>Employee</option>
+                        <option value="ServiceDeskEmployee">Service Desk</option>
+                    }
+                    else
+                    {
+                        <option value="Employee">Employee</option>
+                        <option value="ServiceDeskEmployee" selected>Service Desk</option>
+                    }
                 </select>
             </div>
 
@@ -42,7 +50,8 @@
 
             <div class="form-group mb-3">
                 <label asp-for="Password" class="form-label fw-semibold"></label>
-                <input asp-for="Password" class="form-control form-control-lg" type="password" autocomplete="new-password" placeholder="Leave blank to keep current password" />
+                <!-- Disable client-side validation for password so leaving it blank is allowed -->
+                <input asp-for="Password" class="form-control form-control-lg" type="password" autocomplete="new-password" placeholder="Leave blank to keep current password" data-val="false" />
                 <small class="form-text text-muted">Leave blank to keep the current password.</small>
             </div>
 
@@ -87,7 +96,7 @@
         font-weight: 700;
         color: #4e54c8;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .employee-form .form-control,

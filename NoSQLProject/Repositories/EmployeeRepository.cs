@@ -1,5 +1,4 @@
-﻿
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using NoSQLProject.Models;
 
@@ -111,7 +110,6 @@ namespace NoSQLProject.Repositories
 
             return await _employees.Find(filter).ToListAsync();
         }
-
 
     }
 }

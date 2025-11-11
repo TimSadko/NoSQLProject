@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "Password Reset Link";
+}
+<div class="forgot-password-form">
+    <h2>Password Reset Link (Simulation)</h2>
+
+    <p>An email would normally be sent to: <b>@ViewBag.Email</b></p>
+    <p>For this demo, the reset link is shown below — you can copy it or click the button to open it.</p>
+
+    <div class="form-group">
+        <label for="resetLink">Reset Link</label>
+        <input id="resetLink" class="form-control" readonly aria-readonly="true" value="@ViewBag.Link" />
+    </div>
+
+    <div style="display:flex; gap:0.5rem; align-items:center; margin-top:0.5rem;">
+        <a href="@ViewBag.Link" class="btn reset-btn reset-link" role="button" aria-label="Open password reset link">
+            Open Reset Link
+        </a>
+        <button type="button" class="btn" onclick="navigator.clipboard?.writeText(document.getElementById('resetLink').value)" aria-label="Copy reset link">
+            Copy Link
+        </button>
+    </div>
+</div>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using NoSQLProject.Models;
 using NoSQLProject.Other;
 using NoSQLProject.Repositories;
+using NoSQLProject.ViewModels;
 using System.Diagnostics;
 
 namespace NoSQLProject.Controllers
@@ -14,6 +15,7 @@ namespace NoSQLProject.Controllers
         {
             _rep = rep;
         }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -38,9 +40,9 @@ namespace NoSQLProject.Controllers
             {
                 var loggedin = Authorization.GetLoggedInEmployee(HttpContext); // Get employee from sessions
 
-                if (loggedin != null) return RedirectEmployee(loggedin); // If employee is in sesions, redirect him to his main page, bypassing login
+                if (loggedin != null) return RedirectEmployee(loggedin); // If employee is in sessions, redirect him to his main page, bypassing login
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
             }
@@ -52,7 +54,7 @@ namespace NoSQLProject.Controllers
         public async Task<IActionResult> Login(LoginModel model)
         {
             try
-            {              
+            {
                 Employee? emp = await _rep.GetByCredentialsAsync(model.Email, Hasher.GetHashedString(model.Password)); // Get employee from db by credentials
 
                 if (emp == null || emp.Status != Employee_Status.Active) throw new Exception("Incorrect Email or Password"); // If no employee found throw exception
@@ -68,6 +70,7 @@ namespace NoSQLProject.Controllers
                 return View();
             }
         }
+
         private RedirectToActionResult RedirectEmployee(Employee emp)
         {
             // Redirect all employees to the shared welcome page
@@ -80,6 +83,70 @@ namespace NoSQLProject.Controllers
             Authorization.RemoveLoggedInEmployee(HttpContext);
 
             return RedirectToAction("Login");
+        }
+
+        // GET: show the forgot-password form (now in Views/Home/Password/ForgotPassword.cshtml)
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            ViewData["Title"] = "Forgot Password";
+            return View("Password/ForgotPassword");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var user = await _rep.GetByEmailAsync(email);
+            if (user == null)
+                return View("Password/ForgotPasswordConfirmation");
+
+            string token = Hasher.GetHashedString(user.Id + user.Password);
+            string resetLink = Url.Action("ResetPassword", "Home",
+                new { userId = user.Id, token = token }, protocol: Request.Scheme);
+
+            ViewBag.Link = resetLink;
+            ViewBag.Email = email;
+            return View("Password/DisplayResetLink");
+        }
+
+
+        [HttpGet]
+        public IActionResult ResetPassword(string userId, string token)
+        {
+            var model = new ResetPasswordViewModel
+            {
+                UserId = userId,
+                Token = token
+            };
+            return View("Password/ResetPassword", model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            var user = await _rep.GetByIdAsync(model.UserId);
+            if (user == null)
+                return View("Password/ResetPasswordConfirmation");
+
+            var expectedToken = Hasher.GetHashedString(user.Id + user.Password);
+            if (model.Token != expectedToken)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid or expired token.");
+                return View("Password/ResetPassword", model);
+            }
+
+            user.Password = Hasher.GetHashedString(model.NewPassword);
+            await _rep.UpdateAsync(user);
+
+            return View("Password/ResetPasswordConfirmation");
+        }
+
+
+        [HttpGet]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View("Password/ResetPasswordConfirmation");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
