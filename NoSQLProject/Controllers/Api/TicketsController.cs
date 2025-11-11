@@ -124,7 +124,7 @@ namespace NoSQLProject.Controllers.Api
             existing.UpdatedAt = DateTime.UtcNow;
 
             // Use fine-grained update to avoid replacing the whole doc
-            await ticketRepository.CheckUpdateAsync(existing);
+            await ticketRepository.EditAsync(existing);
 
             return NoContent();
         }
