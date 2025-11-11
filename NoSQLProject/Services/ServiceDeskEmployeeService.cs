@@ -127,12 +127,10 @@ namespace NoSQLProject.Services
 
 			if (ticket_old.Description != ticket_new.Description ||
 				ticket_old.Title != ticket_new.Title ||
-				ticket_old.Status != ticket_new.Status ||
 				ticket_old.Priority != ticket_new.Priority)
 			{
 				ticket_old.Description = ticket_new.Description;
 				ticket_old.Title = ticket_new.Title;
-				ticket_old.Status = ticket_new.Status;
 				ticket_old.Priority = ticket_new.Priority;
 				ticket_old.UpdatedAt = DateTime.UtcNow;
 
@@ -145,6 +143,8 @@ namespace NoSQLProject.Services
 			log.Id = ObjectId.GenerateNewId().ToString();
 			log.CreatedAt = DateTime.UtcNow;
 			log.CreatedById = creator.Id;
+
+			var rquest_list = await _request_rep.GetTicketAcceptedRequestsAsync(ticket.Id, creator.Id);
 
 			await _rep.AddLogAsync(ticket, log, creator);
 		}
