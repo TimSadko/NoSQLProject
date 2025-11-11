@@ -8,14 +8,13 @@ namespace NoSQLProject.Controllers
 {
     public class TicketsServiceDeskController : Controller
     {
-        private readonly ITicketRepository _rep;
-        private readonly IEmployeeRepository _employees_rep;
+        private readonly IServiceDeskEmployeeService _service;
 
-        public TicketsServiceDeskController(ITicketRepository rep, IEmployeeRepository employees_rep)
+        public TicketsServiceDeskController(IServiceDeskEmployeeService service)
         {
-            _rep = rep;
-            _employees_rep = employees_rep;
-        }
+            _service = service;
+
+		}
 
         [HttpGet]
         public async Task<IActionResult> Index(string sortField = "Priority", int sortOrder = -1)
@@ -24,57 +23,12 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                List<Ticket> view_model;
-
-                if (sortField == "CreatedBy")
-                {
-                    view_model = await _rep.GetAllAsync();
-                }
-                else if (sortField == "LogsNumber")
-                {
-                    view_model = await _rep.GetAllAsync();
-                    view_model.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count) * sortOrder; });
-                }
-                else
-                {
-                    view_model = await _rep.GetAllSortedAsync(sortField, sortOrder);
-                }
-
-                List<Task<Employee?>> tasks = new List<Task<Employee?>>();
-
-                for (int i = 0; i < view_model.Count; i++)
-                {
-                    tasks.Add(_employees_rep.GetByIdAsync(view_model[i].CreatedById));
-                }
-
-                await Task.WhenAll(tasks);
-
-                for (int i = 0; i < tasks.Count; i++)
-                {
-                    view_model[i].Creator = tasks[i].Result;
-                }
-
-                if (sortField == "CreatedBy")
-                {
-                    view_model.Sort((Ticket t, Ticket t2) =>
-                    {
-                        if (t.Creator == null)
-                        {
-                            if (t2.Creator == null) return 0;
-                            else return sortOrder;
-                        }
-                        else
-                        {
-                            if (t2.Creator == null) return -sortOrder;
-                            else return t.Creator.FullName.CompareTo(t2.Creator.FullName) * sortOrder;
-                        }
-                    });
-                }
+                var tickets = await _service.GetTicketsSortedAsync(sortField, sortOrder);
             
                 ViewBag.SortField = sortField; // Pass sort info to view
                 ViewBag.SortOrder = sortOrder;
 
-                return View(view_model);
+                return View(tickets);
             }
             catch (Exception ex)
             {
@@ -94,25 +48,14 @@ namespace NoSQLProject.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(Ticket t)
         {
-            if (!Authenticate()) return RedirectToAction("Login", "Home");
+			var emp = Authorization.GetLoggedInEmployee(HttpContext);
 
-            try
+			if (emp == null || emp is not ServiceDeskEmployee) return RedirectToAction("Login", "Home");
+
+			try
             {
-                var emp = Authorization.GetLoggedInEmployee(HttpContext);
+                await _service.AddTicketAsync(t, emp);
 
-                t.CreatedById = emp.Id;
-                t.Status = Ticket_Status.Open;
-                t.Logs = new List<Log>();
-                t.CreatedAt = DateTime.UtcNow;
-                t.UpdatedAt = DateTime.UtcNow;
-
-                // ✅ NEW: Ensure priority is set (defaults to Low if not specified)
-                if (t.Priority == 0 && !Request.Form.ContainsKey("Priority"))
-                {
-                    t.Priority = Ticket_Priority.Undefined;
-                }
-
-                await _rep.AddAsync(t);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -129,31 +72,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                if (id == null) throw new ArgumentNullException("Id is null");
-
-                Ticket? ticket = await _rep.GetByIdAsync((string)id);
-
-                if (ticket == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
-
-                List<Task<Employee?>> log_creator_tasks = new List<Task<Employee?>>();
-
-                for (int i = 0; i < ticket.Logs.Count; i++)
-                {
-                    log_creator_tasks.Add(_employees_rep.GetByIdAsync(ticket.Logs[i].CreatedById));
-                }
-
-                await Task.WhenAll(log_creator_tasks);
-
-                for (int i = 0; i < log_creator_tasks.Count; i++)
-                {
-                    ticket.Logs[i].Creator = log_creator_tasks[i].Result;
-                }
-
-                Employee? ticket_creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
-
-                ViewData["ticket_creator"] = ticket_creator == null ? "???" : ticket_creator.FullName;
-
-                return View(ticket);
+				return View(await _service.LoadTicketByIdAsync(id));
             }
             catch (Exception ex)
             {
@@ -169,8 +88,8 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                await _rep.CheckUpdateAsync(ticket);
-
+                await _service.EditTicketAsync(ticket);
+                
                 return RedirectToAction("Edit", new { id = ticket.Id });
             }
             catch (Exception ex)
@@ -187,15 +106,9 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                Ticket? t = await _rep.GetByIdAsync(id);
+                Ticket? t = await _service.GetTicketByIdAsync(id);
 
-                if (t == null) throw new Exception($"Ticket with Id({id}) does not exist");
-
-                Log l = new Log();
-
-                l.NewStatus = t.Status;
-
-                return View(new LogViewModel(t, l));
+                return View(new LogViewModel(t, new Log() { NewStatus = t.Status }));
             }
             catch (Exception ex)
             {
@@ -207,15 +120,13 @@ namespace NoSQLProject.Controllers
         [HttpPost]
         public async Task<IActionResult> AddLog(LogViewModel model)
         {
-            if (!Authenticate()) return RedirectToAction("Login", "Home");
+			var emp = Authorization.GetLoggedInEmployee(this.HttpContext);
 
-            try
+			if (emp == null || emp is not ServiceDeskEmployee) return RedirectToAction("Login", "Home");
+
+			try
             {
-                var emp = Authorization.GetLoggedInEmployee(this.HttpContext);
-
-                if (emp == null) return RedirectToAction("Login", "Home");
-
-                await _rep.AddLogAsync(model.Ticket, model.Log, emp);
+                await _service.AddLogAsync(model.Ticket, model.Log, emp);
 
                 return RedirectToAction("Edit", new { id = model.Ticket.Id });
             }
@@ -233,19 +144,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                Ticket? t = await _rep.GetByIdAsync(ticket_id);
-
-                if (t == null) throw new Exception($"Ticket with Id({ticket_id}) does not exist");
-
-                Log? l = t.Logs.FirstOrDefault(log => log.Id == log_id);
-
-                if (l == null) throw new Exception($"Log with Id({log_id}) does not exist");
-
-                Employee? creator = await _employees_rep.GetByIdAsync(l.CreatedById);
-
-                ViewData["creator"] = creator == null ? "???" : creator.FullName;
-
-                return View(new LogViewModel(t, l));
+                return View(await _service.GetLogViewModelAsync(ticket_id, log_id));
             }
             catch (Exception ex)
             {
@@ -261,7 +160,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                await _rep.EditLogAsync(view_model.Ticket.Id, view_model.Log);
+                await _service.EditLogAsync(view_model.Ticket.Id, view_model.Log);
 
                 return RedirectToAction("Edit", new { id = view_model.Ticket.Id });
             }
@@ -279,31 +178,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                if (id == null) throw new ArgumentNullException("Id is null");
-
-                Ticket? ticket = await _rep.GetByIdAsync((string)id);
-
-                if (ticket == null) throw new ArgumentNullException($"Ticket with Id({id}) does not exist");
-
-                List<Task<Employee?>> log_creator_tasks = new List<Task<Employee?>>();
-
-                for (int i = 0; i < ticket.Logs.Count; i++)
-                {
-                    log_creator_tasks.Add(_employees_rep.GetByIdAsync(ticket.Logs[i].CreatedById));
-                }
-
-                await Task.WhenAll(log_creator_tasks);
-
-                for (int i = 0; i < log_creator_tasks.Count; i++)
-                {
-                    ticket.Logs[i].Creator = log_creator_tasks[i].Result;
-                }
-
-                Employee? creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
-
-                ViewData["ticket_creator"] = creator == null ? "???" : creator.FullName;
-
-                return View(ticket);
+                return View(await _service.LoadTicketByIdAsync(id));
             }
             catch (Exception ex)
             {
@@ -319,7 +194,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                await _rep.DeleteAsync(ticket.Id);
+                await _service.DeleteTicketAsync(ticket.Id);
 
                 return RedirectToAction("Index");
             }
@@ -337,19 +212,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                Ticket? t = await _rep.GetByIdAsync(ticket_id);
-
-                if (t == null) throw new Exception($"Ticket with Id({ticket_id}) does not exist");
-
-                Log? l = t.Logs.FirstOrDefault(log => log.Id == log_id);
-
-                if (l == null) throw new Exception($"Log with Id({log_id}) does not exist");
-
-                Employee? creator = await _employees_rep.GetByIdAsync(l.CreatedById);
-
-                ViewData["creator"] = creator == null ? "???" : creator.FullName;
-
-                return View(new LogViewModel(t, l));
+                return View(await _service.GetLogViewModelAsync(ticket_id, log_id));
             }
             catch (Exception ex)
             {
@@ -365,7 +228,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                await _rep.DeleteLogAsync(view_model.Ticket.Id, view_model.Log.Id);
+                await _service.DeleteLogAsync(view_model.Ticket.Id, view_model.Log.Id);
 
                 return RedirectToAction("Edit", new { id = view_model.Ticket.Id });
             }

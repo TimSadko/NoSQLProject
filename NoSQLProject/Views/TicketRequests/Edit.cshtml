@@ -16,7 +16,12 @@
 		<input type="text" value="@Model.Status.ToString()" readonly />
 	</div>
 
-	<a href="/TicketRequests/Delete/@Model.Id">Delete</a>
+	@{
+		if(Model.Status == TicketRequestStatus.Open)
+		{
+			<a href="/TicketRequests/Delete/@Model.Id">Delete</a>
+		}
+	}	
 </div>
 
 <a href="/TicketRequests/All">Go Back</a>

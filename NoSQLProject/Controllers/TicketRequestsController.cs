@@ -277,7 +277,9 @@ namespace NoSQLProject.Controllers
 
 				if (logged_in_employee.Id != loaded_request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
 
-                await _rep.DeleteAsync(loaded_request.Id);
+                if(loaded_request.Status != TicketRequestStatus.Open) throw new Exception("Only unaccepted requests could be deleted");
+
+				await _rep.DeleteAsync(loaded_request.Id);
 
 				return RedirectToAction("Sent");
 			}

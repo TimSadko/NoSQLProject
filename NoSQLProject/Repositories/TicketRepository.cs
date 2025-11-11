@@ -38,48 +38,7 @@ namespace NoSQLProject.Repositories
 
         public async Task EditAsync(Ticket t)
         {
-            t.UpdatedAt = DateTime.UtcNow;
-
             await _tickets.ReplaceOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)), t);
-        }
-
-        public async Task CheckUpdateAsync(Ticket _new_ticket_version)
-        {
-            var old_ticket_version = await GetByIdAsync(_new_ticket_version.Id);
-
-            if (old_ticket_version.Description == _new_ticket_version.Description &&
-                old_ticket_version.Title == _new_ticket_version.Title &&
-                old_ticket_version.Status == _new_ticket_version.Status &&
-                old_ticket_version.Priority == _new_ticket_version.Priority) return;
-
-            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(_new_ticket_version.Id));
-
-            List<Task<UpdateResult>> update_tasks = new List<Task<UpdateResult>>();
-
-            if (old_ticket_version.Title != _new_ticket_version.Title)
-            {
-                update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("title", _new_ticket_version.Title)));
-            }
-
-            if (old_ticket_version.Description != _new_ticket_version.Description)
-            {
-                update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("description", _new_ticket_version.Description)));
-            }
-
-            if (old_ticket_version.Status != _new_ticket_version.Status)
-            {
-                update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", _new_ticket_version.Status)));
-            }
-
-            // ✅ NEW: Priority update
-            if (old_ticket_version.Priority != _new_ticket_version.Priority)
-            {
-                update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("priority", _new_ticket_version.Priority)));
-            }
-
-            update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.UtcNow)));
-
-            await Task.WhenAll(update_tasks);
         }
 
         public async Task AddLogAsync(Ticket t, Log l, Employee e)
@@ -87,10 +46,6 @@ namespace NoSQLProject.Repositories
             var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id));
 
             List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>();
-
-            l.Id = ObjectId.GenerateNewId().ToString();
-            l.CreatedAt = DateTime.UtcNow;
-            l.CreatedById = e.Id;
 
             tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l)));
 
@@ -121,7 +76,9 @@ namespace NoSQLProject.Repositories
             tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("logs.$.description", log.Description)));
             tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("logs.$.new_status", log.NewStatus)));
 
-            await Task.WhenAll(tasks);
+			tasks.Add(_tickets.UpdateOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id)), Builders<Ticket>.Update.Set("updated_at", DateTime.UtcNow)));
+
+			await Task.WhenAll(tasks);
         }
 
         public async Task DeleteLogAsync(string ticket_id, string log_id)

@@ -37,8 +37,6 @@ namespace NoSQLProject
 
                 return new MongoClient(settings);
             });
-            //Adding employee svcs 
-            builder.Services.AddScoped<EmployeeService>();
             // 2) Register IMongoDatabase as SCOPED (new per HTTP request)
             // WHY: Fits the ASP.NET request lifecycle and keeps each request cleanly separated.
             builder.Services.AddScoped(sp =>
@@ -57,8 +55,12 @@ namespace NoSQLProject
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
             builder.Services.AddScoped<ITicketRequestRepository, TicketRequestRepository>();
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
+			// Adding Services
+			builder.Services.AddScoped<EmployeeService>();
+			builder.Services.AddScoped<IServiceDeskEmployeeService, ServiceDeskEmployeeService>();
+
+			// Add services to the container.
+			builder.Services.AddControllersWithViews();
 
             builder.Services.AddSession(options => // Configure sessions
             {
