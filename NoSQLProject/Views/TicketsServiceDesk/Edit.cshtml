@@ -15,7 +15,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Creator</label>
-                    <input type="text" class="form-control info-input" readonly value="@Model.Creator.FullName" />
+                    <input type="text" class="form-control info-input" readonly value="@ViewData["ticket_creator"]" />
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created At</label>
@@ -62,7 +62,9 @@
             </div>
         </form>
 
-        <a href="/TicketRequests/Add/@Model.Id">Add Ticket Request</a>
+        <div class="mb-4 text-center">
+            <a href="/TicketRequests/Add/@Model.Id" class="btn btn-request px-4 py-2">Add Ticket Request</a>
+        </div>
 
         <!-- Logs Section -->
         <div class="logs-section">
@@ -228,6 +230,23 @@
             color: #4e54c8;
         }
 
+    .btn-request {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-request:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+            color: white;
+        }
+
     .logs-section {
         margin-top: 40px;
         padding-top: 30px;
@@ -251,41 +270,41 @@
         text-decoration: none;
     }
 
-    .btn-add-log:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
-        color: white;
-    }
+        .btn-add-log:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
+            color: white;
+        }
 
     .logs-table {
         border-collapse: separate;
         border-spacing: 0 8px;
     }
 
-    .logs-table thead th {
-        background: #f8f9fa;
-        padding: 12px;
-        font-weight: 600;
-        color: #555;
-        border: none;
-    }
+        .logs-table thead th {
+            background: #f8f9fa;
+            padding: 12px;
+            font-weight: 600;
+            color: #555;
+            border: none;
+        }
 
-    .logs-table tbody tr {
-        background: white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        transition: all 0.2s ease;
-    }
+        .logs-table tbody tr {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
 
-    .logs-table tbody tr:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
+            .logs-table tbody tr:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                transform: translateY(-2px);
+            }
 
-    .logs-table tbody td {
-        padding: 14px 12px;
-        vertical-align: middle;
-        border: none;
-    }
+        .logs-table tbody td {
+            padding: 14px 12px;
+            vertical-align: middle;
+            border: none;
+        }
 
     .date-cell {
         font-size: 0.9rem;
