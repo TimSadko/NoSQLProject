@@ -155,12 +155,15 @@ namespace NoSQLProject.Services
 			{
 				if (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)
 				{		
-					if(r.RecipientId == creator.Id)
+					if (r.RecipientId == creator.Id)
 					{
-						if(log.NewStatus == Ticket_Status.Closed) update_list.Add(_request_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Closed));
-						else if(log.NewStatus == Ticket_Status.Resolved) update_list.Add(_request_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Fulfilled));
+						if (log.NewStatus == Ticket_Status.Closed)
+							update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Closed));
+						else if (log.NewStatus == Ticket_Status.Resolved)
+							update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Fulfilled));
 					}
-					else if(log.NewStatus != Ticket_Status.Open) update_list.Add(_request_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Canceled));
+					else if (log.NewStatus != Ticket_Status.Open)
+						update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Canceled));
 
 					break;
 				}

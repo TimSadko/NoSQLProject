@@ -67,7 +67,7 @@ public async Task<IActionResult> Index(string sortField = "Priority", int sortOr
             break;
     }
 
-  
+
 
     var employeeTickets = new EmployeeTickets(tickets, authenticatedEmployee);
 
@@ -158,7 +158,6 @@ public async Task<IActionResult> Index(string sortField = "Priority", int sortOr
 
                 ticketToChange.Title = ticket.Title;
                 ticketToChange.Description = ticket.Description;
-                ticketToChange.UpdatedAt = DateTime.UtcNow;
 
                 await _ticketRepository.EditAsync(ticketToChange);
 

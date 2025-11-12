@@ -17,7 +17,9 @@ namespace NoSQLProject.Repositories
         {
             if (!allow_archived)
             {
-                return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("archived", false)).Result.ToListAsync();
+                return await _requests.FindAsync(
+                    Builders<TicketRequest>.Filter.Eq("archived", false)
+                ).Result.ToListAsync();
             }
 
             return await _requests.FindAsync(new BsonDocument()).Result.ToListAsync();
@@ -25,27 +27,43 @@ namespace NoSQLProject.Repositories
 
         public async Task<List<TicketRequest>> GetAllByRecipientAsync(string recipient_id, bool allow_archived = false)
         {
-            if (!allow_archived) 
+            if (!allow_archived)
             {
-                return await _requests.FindAsync(Builders<TicketRequest>.Filter.And(Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id), Builders<TicketRequest>.Filter.Eq("archived", false))).Result.ToListAsync();
+                var filter = Builders<TicketRequest>.Filter.And(
+                    Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id),
+                    Builders<TicketRequest>.Filter.Eq("archived", false)
+                );
+
+                return await _requests.FindAsync(filter).Result.ToListAsync();
             }
 
-            return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id)).Result.ToListAsync();
+            return await _requests.FindAsync(
+                Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id)
+            ).Result.ToListAsync();
         }
 
         public async Task<List<TicketRequest>> GetAllBySenderAsync(string sender_id, bool allow_archived = false)
         {
             if (!allow_archived)
             {
-                return await _requests.FindAsync(Builders<TicketRequest>.Filter.And(Builders<TicketRequest>.Filter.Eq("sender_id", sender_id), Builders<TicketRequest>.Filter.Eq("archived", false))).Result.ToListAsync();
+                var filter = Builders<TicketRequest>.Filter.And(
+                    Builders<TicketRequest>.Filter.Eq("sender_id", sender_id),
+                    Builders<TicketRequest>.Filter.Eq("archived", false)
+                );
+
+                return await _requests.FindAsync(filter).Result.ToListAsync();
             }
 
-            return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("sender_id", sender_id)).Result.ToListAsync();
+            return await _requests.FindAsync(
+                Builders<TicketRequest>.Filter.Eq("sender_id", sender_id)
+            ).Result.ToListAsync();
         }
 
         public async Task<TicketRequest?> GetByIdAsync(string request_id)
         {
-            return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id))).Result.FirstOrDefaultAsync();
+            return await _requests.FindAsync(
+                Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id))
+            ).Result.FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(TicketRequest request)
@@ -58,17 +76,28 @@ namespace NoSQLProject.Repositories
 
         public async Task DeleteAsync(string request_id)
         {
-			await _requests.DeleteOneAsync(Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id)));
-		}
+            await _requests.DeleteOneAsync(
+                Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id))
+            );
+        }
 
         public async Task<List<TicketRequest>> GetTicketRequestsAsync(string ticket_id)
         {
-            return await _requests.FindAsync(Builders<TicketRequest>.Filter.Where(r => r.TicketId == ticket_id && r.Archived == false)).Result.ToListAsync();
+            var filter = Builders<TicketRequest>.Filter.Where(
+                r => r.TicketId == ticket_id && r.Archived == false
+            );
+            return await _requests.FindAsync(filter).Result.ToListAsync();
         }
 
-        public async Task UpdateRequestStatus(string request_id, TicketRequestStatus status)
+        // ✅ FIXED: method name now matches the interface
+        public async Task UpdateRequestStatusAsync(string request_id, TicketRequestStatus status)
         {
-            await _requests.UpdateOneAsync(Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id)), Builders<TicketRequest>.Update.Set("status", status));
+            var filter = Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id));
+            var update = Builders<TicketRequest>.Update
+                .Set("status", status)
+                .Set("updated_at", DateTime.UtcNow);
+
+            await _requests.UpdateOneAsync(filter, update);
         }
     }
 }
