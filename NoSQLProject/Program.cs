@@ -61,6 +61,7 @@ namespace NoSQLProject
 			// Adding Services
 			builder.Services.AddScoped<EmployeeService>();
 			builder.Services.AddScoped<IServiceDeskEmployeeService, ServiceDeskEmployeeService>();
+			builder.Services.AddScoped<ITicketRequestService, TicketRequestService>();
 
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();

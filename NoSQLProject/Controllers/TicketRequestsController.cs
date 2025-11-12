@@ -8,15 +8,11 @@ namespace NoSQLProject.Controllers
 {
     public class TicketRequestsController : Controller
     {
-        private readonly ITicketRequestRepository _rep;
-        private readonly ITicketRepository _ticket_rep;
-        private readonly IEmployeeRepository _employees_rep;
+        private readonly ITicketRequestService _service;
 
-        public TicketRequestsController(ITicketRequestRepository rep, ITicketRepository ticket_rep, IEmployeeRepository employees_rep)
+        public TicketRequestsController(ITicketRequestService service)
         {
-            _rep = rep;
-            _ticket_rep = ticket_rep;
-            _employees_rep = employees_rep;
+            _service = service;
         }
 
         [HttpGet]
@@ -28,27 +24,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                List<TicketRequest> ticket_requests = await _rep.GetAllByRecipientAsync(logged_in_employee.Id);
-
-                List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
-                List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
-
-                for (int i = 0; i < ticket_requests.Count; i++)
-                {
-                    employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].SenderId));
-                    ticket_tasks.Add(_ticket_rep.GetByIdAsync(ticket_requests[i].TicketId));
-                }
-
-                await Task.WhenAll(employees_tasks); 
-                await Task.WhenAll(ticket_tasks); 
-
-                for (int i = 0; i < ticket_requests.Count; i++)
-                {
-                    ticket_requests[i].Sender = employees_tasks[i].Result;
-                    ticket_requests[i].Ticket = ticket_tasks[i].Result;
-                }
-
-                return View(ticket_requests);
+                return View(await _service.GetReceivedTicketRequestsAsync(logged_in_employee.Id));
             }
             catch (Exception ex)
             {
@@ -66,28 +42,8 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                List<TicketRequest> ticket_requests = await _rep.GetAllBySenderAsync(logged_in_employee.Id);
-
-                List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
-                List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
-
-                for (int i = 0; i < ticket_requests.Count; i++)
-                {
-                    employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].RecipientId));
-                    ticket_tasks.Add(_ticket_rep.GetByIdAsync(ticket_requests[i].TicketId));
-                }
-
-                await Task.WhenAll(employees_tasks);
-                await Task.WhenAll(ticket_tasks);
-
-                for (int i = 0; i < ticket_requests.Count; i++)
-                {
-                    ticket_requests[i].Recipient = employees_tasks[i].Result;
-                    ticket_requests[i].Ticket = ticket_tasks[i].Result;
-                }
-
-                return View(ticket_requests);
-            }
+				return View(await _service.GetSentTicketRequestsAsync(logged_in_employee.Id));
+			}
             catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
@@ -104,35 +60,8 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                List<TicketRequest> ticket_requests = await _rep.GetAllAsync();
-
-                List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
-                List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
-
-                for (int i = 0; i < ticket_requests.Count; i++)
-                {
-                    employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].RecipientId));
-                    ticket_tasks.Add(_ticket_rep.GetByIdAsync(ticket_requests[i].TicketId));
-                }
-
-                for (int i = 0; i < ticket_requests.Count; i++)
-                {
-                    employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].SenderId));
-                }
-
-                await Task.WhenAll(employees_tasks);
-                await Task.WhenAll(ticket_tasks);
-
-                for (int i = 0; i < ticket_requests.Count; i++)
-                {
-                    ticket_requests[i].Recipient = employees_tasks[i].Result;
-                    ticket_requests[i].Sender = employees_tasks[i + ticket_requests.Count].Result;
-
-                    ticket_requests[i].Ticket = ticket_tasks[i].Result;
-                }
-
-                return View(ticket_requests);
-            }
+				return View(await _service.GetAllTicketRequestsAsync());
+			}
             catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
@@ -171,37 +100,7 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                var emp = await _employees_rep.GetByEmailAsync(view_model.Email);
-
-                if (emp == null) throw new Exception($"Employee with email: \"{view_model.Email}\" does not exist, please enter valid service desk employee email address");
-
-                if(emp.Id == logged_in_employee.Id) throw new Exception($"You cannot sent ticket request to yourself");
-
-                if(emp is not ServiceDeskEmployee) throw new Exception($"You can sent ticket request only to service desk employees");
-
-                var request = new TicketRequest();
-
-                if (request.Message == null) request.Message = "";
-
-                request.TicketId = view_model.TicketId;
-                request.Message = view_model.Message;
-
-                request.SenderId = logged_in_employee.Id;
-                request.RecipientId = emp.Id;
-
-                List<Task> tasks = new List<Task>();
-
-				tasks.Add(_rep.AddAsync(request));
-
-                // Request redirection part
-                List<TicketRequest> ticket_requests = await _rep.GetTicketRequestsAsync(view_model.TicketId);
-
-                foreach (TicketRequest r in ticket_requests)
-                {
-                    if(r.RecipientId == logged_in_employee.Id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Redirected));
-                }
-
-                await Task.WhenAll(tasks);
+                await _service.AddRequestAsync(view_model.Email, logged_in_employee.Id, view_model.TicketId, view_model.Message);
 
 				return RedirectToAction("Index", "TicketsServiceDesk");
             }
@@ -221,27 +120,9 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                TicketRequest? request = await _rep.GetByIdAsync(request_id);
+                var page = await _service.GetViewPageAsync(request_id, logged_in_employee.Id);
 
-                if (request == null) throw new Exception("Could not find request with the id");
-                
-                Employee? recipient = await _employees_rep.GetByIdAsync(request.RecipientId);
-
-                if(recipient == null) throw new Exception("Could not find ticket recipient with the id");
-
-                Employee? sender = await _employees_rep.GetByIdAsync(request.SenderId);
-                if (sender == null) throw new Exception("Could not find ticket sender with the id");
-
-                Ticket? ticket = await _ticket_rep.GetByIdAsync(request.TicketId);
-                if (ticket == null) throw new Exception("Could not find request ticket with the id");
-
-                request.Sender = sender;
-                request.Recipient = recipient;
-                request.Ticket = ticket;
-
-                if (logged_in_employee.Id == request.SenderId) return View("Edit", request);
-                else if (logged_in_employee.Id == request.RecipientId) return View("ViewRecipient", request);
-                else return View("ViewGuest", request);
+                return View(page.Item1, page.Item2);
             }
             catch (Exception ex)
             {
@@ -259,13 +140,7 @@ namespace NoSQLProject.Controllers
 
 			try
 			{
-				TicketRequest? request = await _rep.GetByIdAsync(request_id);
-
-                if (request == null) throw new Exception("Could not found request with the id");
-
-                if(logged_in_employee.Id != request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
-
-                return View(request);
+                return View(await _service.GetRequestForDeleteAsync(request_id, logged_in_employee.Id));
 			}
 			catch (Exception ex)
 			{
@@ -283,15 +158,7 @@ namespace NoSQLProject.Controllers
 
 			try
 			{
-				TicketRequest? loaded_request = await _rep.GetByIdAsync(request_id_only.Id);
-
-				if (loaded_request == null) throw new Exception("Could not found request with the id");
-
-				if (logged_in_employee.Id != loaded_request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
-
-                if(loaded_request.Status != TicketRequestStatus.Open) throw new Exception("Only unaccepted requests could be deleted");
-
-				await _rep.DeleteAsync(loaded_request.Id);
+				await _service.DeleteRequestAsync(request_id_only.Id, logged_in_employee.Id);
 
 				return RedirectToAction("Sent");
 			}
@@ -311,11 +178,7 @@ namespace NoSQLProject.Controllers
 
 			try
 			{
-                TicketRequest? request = await _rep.GetByIdAsync(request_id_only.Id);
-
-                if (request == null) throw new Exception("Ticket request with the id do not exsists");
-
-                if (request.Status == TicketRequestStatus.Open) await _rep.UpdateRequestStatus(request_id_only.Id, TicketRequestStatus.Accepted);
+                await _service.ChangeRequestStausOnConditionAsync(request_id_only.Id, TicketRequestStatus.Open, TicketRequestStatus.Accepted);
 
 				return RedirectToAction("View", new { request_id = request_id_only.Id });
 			}
@@ -335,11 +198,7 @@ namespace NoSQLProject.Controllers
 
 			try
 			{
-				TicketRequest? request = await _rep.GetByIdAsync(request_id_only.Id);
-
-				if (request == null) throw new Exception("Ticket request with the id do not exsists");
-
-				if (request.Status == TicketRequestStatus.Open) await _rep.UpdateRequestStatus(request_id_only.Id, TicketRequestStatus.Rejected);
+				await _service.ChangeRequestStausOnConditionAsync(request_id_only.Id, TicketRequestStatus.Open, TicketRequestStatus.Rejected);
 
 				return RedirectToAction("View", new { request_id = request_id_only.Id });
 			}
@@ -359,11 +218,7 @@ namespace NoSQLProject.Controllers
 
 			try
 			{
-				TicketRequest? request = await _rep.GetByIdAsync(request_id_only.Id);
-
-				if (request == null) throw new Exception("Ticket request with the id do not exsists");
-
-				if (request.Status == TicketRequestStatus.Accepted) await _rep.UpdateRequestStatus(request_id_only.Id, TicketRequestStatus.Failed);
+				await _service.ChangeRequestStausOnConditionAsync(request_id_only.Id, TicketRequestStatus.Accepted, TicketRequestStatus.Failed);
 
 				return RedirectToAction("View", new { request_id = request_id_only.Id });
 			}
