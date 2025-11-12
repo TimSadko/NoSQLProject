@@ -1,0 +1,652 @@
+﻿/* ═══════════════════════════════════════════════════════════
+   COMMON STYLES FOR ALL VIEWS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Base Body Styling */
+body {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+}
+
+/* Fade-in Animation */
+.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CARD COMPONENTS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Generic Card Container */
+.card-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 40px 50px;
+    margin: 40px auto;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.8s ease-in-out forwards;
+}
+
+/* Card Titles */
+.card-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #4e54c8;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORM COMPONENTS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Form Labels */
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Form Inputs & Selects */
+.form-control,
+.form-select {
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #4e54c8;
+        box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.15);
+        outline: none;
+    }
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.form-control::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Info Section (Read-only fields) */
+.info-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+
+.info-input {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTON COMPONENTS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Primary Action Button */
+.btn-add,
+.btn-save,
+.btn-send {
+    background: linear-gradient(135deg, #2575fc, #6a11cb);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+    .btn-add:hover,
+    .btn-save:hover,
+    .btn-send:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 117, 252, 0.4);
+        color: white;
+    }
+
+/* Secondary/Back Button */
+.btn-back,
+.btn-cancel {
+    background: #f3f4f6;
+    color: #333;
+    font-weight: 500;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+    .btn-back:hover,
+    .btn-cancel:hover {
+        background: #e0e7ff;
+        color: #4e54c8;
+        transform: translateY(-2px);
+    }
+
+/* Delete Button */
+.btn-delete {
+    background: linear-gradient(135deg, #ef5350, #d32f2f);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+    .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+        color: white;
+    }
+
+/* View/Edit Button */
+.btn-view,
+.btn-edit {
+    background: #00bcd4;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: none;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+    .btn-view:hover,
+    .btn-edit:hover {
+        background: #0097a7;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+/* Request Button */
+.btn-request {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+    .btn-request:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+        color: white;
+    }
+
+/* Add Log Button */
+.btn-add-log {
+    background: linear-gradient(135deg, #00bcd4, #0097a7);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+    .btn-add-log:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
+        color: white;
+    }
+
+/* Small Action Buttons */
+.btn-action {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-edit-sm {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+    .btn-edit-sm:hover {
+        background: #1976d2;
+        color: white;
+    }
+
+.btn-delete-sm {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+    .btn-delete-sm:hover {
+        background: #d32f2f;
+        color: white;
+    }
+
+/* ═══════════════════════════════════════════════════════════
+   TABLE COMPONENTS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Table Styling */
+.data-table {
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+    .data-table thead th {
+        padding: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .data-table tbody tr {
+        background: rgba(255, 255, 255, 0.85);
+        transition: all 0.25s ease;
+    }
+
+        .data-table tbody tr:hover {
+            background: rgba(78, 84, 200, 0.1);
+            transform: scale(1.01);
+        }
+
+    .data-table tbody td {
+        padding: 16px 12px;
+        vertical-align: middle;
+    }
+
+/* Table Header Gradient */
+.table-gradient {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+}
+
+/* Table Cell Types */
+.date-cell {
+    font-size: 0.9rem;
+    color: #666;
+    white-space: nowrap;
+}
+
+.employee-cell,
+.sender-cell {
+    font-weight: 600;
+    color: #333;
+}
+
+.ticket-title-cell,
+.ticket-cell,
+.message-cell {
+    text-align: left;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.description-cell {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Action Buttons Container */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Sort Links */
+.sort-link {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+    .sort-link:hover {
+        opacity: 0.8;
+        text-decoration: underline;
+    }
+
+/* ═══════════════════════════════════════════════════════════
+   BADGE COMPONENTS
+   ═══════════════════════════════════════════════════════════ */
+
+/* Priority Badges */
+.priority-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-critical {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef5350;
+}
+
+.priority-high {
+    background: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ff9800;
+}
+
+.priority-medium {
+    background: #fff9c4;
+    color: #f57f17;
+    border: 1px solid #fbc02d;
+}
+
+.priority-low {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #66bb6a;
+}
+
+.priority-undefined {
+    background: #f5f5f5;
+    color: #757575;
+    border: 1px solid #bdbdbd;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-open {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-closed {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.status-resolved {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.status-accepted {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.status-rejected {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.status-fulfilled {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.status-redirected {
+    background: #fff9c4;
+    color: #f57f17;
+}
+
+.status-failed {
+    background: #fbe9e7;
+    color: #bf360c;
+}
+
+/* Logs Badge */
+.logs-badge {
+    display: inline-block;
+    background: #f3f4f6;
+    color: #4e54c8;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+}
+
+/* Type Badge */
+.type-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #f3f4f6;
+    color: #666;
+}
+
+/* Role Badge */
+.role-badge {
+    background: #f3f4ff;
+    color: #6a11cb;
+    font-weight: 600;
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAB NAVIGATION
+   ═══════════════════════════════════════════════════════════ */
+
+.tabs-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tab-link {
+    padding: 8px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #666;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+    .tab-link:hover {
+        background: #f3f4f6;
+        color: #4e54c8;
+    }
+
+    .tab-link.active {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        font-weight: 600;
+    }
+
+/* ═══════════════════════════════════════════════════════════
+   DETAIL VIEW COMPONENTS
+   ═══════════════════════════════════════════════════════════ */
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+.description-row {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #666;
+    min-width: 120px;
+}
+
+.detail-value {
+    color: #333;
+    flex: 1;
+}
+
+.description-content {
+    margin-top: 8px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    width: 100%;
+    display: block;
+    line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOGS SECTION
+   ═══════════════════════════════════════════════════════════ */
+
+.logs-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #e0e0e0;
+}
+
+.logs-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4e54c8;
+}
+
+.logs-table {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+    .logs-table thead th {
+        background: #f8f9fa;
+        padding: 12px;
+        font-weight: 600;
+        color: #555;
+        border: none;
+    }
+
+    .logs-table tbody tr {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+
+        .logs-table tbody tr:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+    .logs-table tbody td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border: none;
+    }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DROPDOWN MENU
+   ═══════════════════════════════════════════════════════════ */
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu-custom {
+    position: absolute;
+    z-index: 1050;
+    min-width: 120px;
+    padding: 8px 0;
+    margin: 4px 0 0;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+    .dropdown-menu-custom .dropdown-item {
+        padding: 10px 20px;
+        color: #333;
+        transition: all 0.2s ease;
+    }
+
+        .dropdown-menu-custom .dropdown-item:hover {
+            background: #f3f4f6;
+            color: #4e54c8;
+        }
+
+.btn-action {
+    background: #f3f4f6;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    padding: 8px 16px;
+}
+
+    .btn-action:hover {
+        background: #e0e7ff;
+        color: #4e54c8;
+    }
