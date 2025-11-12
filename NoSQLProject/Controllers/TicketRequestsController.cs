@@ -363,7 +363,7 @@ namespace NoSQLProject.Controllers
 
 				if (request == null) throw new Exception("Ticket request with the id do not exsists");
 
-				if (request.Status == TicketRequestStatus.Open) await _rep.UpdateRequestStatus(request_id_only.Id, TicketRequestStatus.Failed);
+				if (request.Status == TicketRequestStatus.Accepted) await _rep.UpdateRequestStatus(request_id_only.Id, TicketRequestStatus.Failed);
 
 				return RedirectToAction("View", new { request_id = request_id_only.Id });
 			}
