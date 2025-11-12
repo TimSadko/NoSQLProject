@@ -22,32 +22,61 @@ namespace NoSQLProject.Controllers
             this._employeeRepository = _employeeRepository;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index(string sortField = "Priority", int sortOrder = -1)
-        {
-            var authenticatedEmployee = Authenticate();
-            if (authenticatedEmployee?.Id == null)
-            {
-                return RedirectToAction("Login", "Home");
-            }
+[HttpGet]
+public async Task<IActionResult> Index(string sortField = "Priority", int sortOrder = -1)
+{
+    var authenticatedEmployee = Authenticate();
+    if (authenticatedEmployee?.Id == null)
+    {
+        return RedirectToAction("Login", "Home");
+    }
 
-            var tickets = await ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
+    var tickets = await ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
 
-            // Sort by priority if requested
-            if (sortField == "Priority")
-            {
-                if (sortOrder == -1) tickets = tickets.OrderByDescending(t => t.Priority).ThenByDescending(t => t.CreatedAt).ToList();
-                else tickets = tickets.OrderBy(t => t.Priority).ThenByDescending(t => t.CreatedAt).ToList();
-            }
+    // ✅ Sorting logic for multiple fields
+    switch (sortField)
+    {
+        case "Priority":
+            tickets = sortOrder == -1
+                ? tickets.OrderByDescending(t => t.Priority).ThenByDescending(t => t.CreatedAt).ToList()
+                : tickets.OrderBy(t => t.Priority).ThenByDescending(t => t.CreatedAt).ToList();
+            break;
 
-            var employeeTickets = new EmployeeTickets(tickets, authenticatedEmployee);
+        case "Title":
+            tickets = sortOrder == -1
+                ? tickets.OrderByDescending(t => t.Title).ToList()
+                : tickets.OrderBy(t => t.Title).ToList();
+            break;
 
+        case "Status":
+            tickets = sortOrder == -1
+                ? tickets.OrderByDescending(t => t.Status).ToList()
+                : tickets.OrderBy(t => t.Status).ToList();
+            break;
 
-            ViewBag.SortField = sortField; // Pass sort info to view
-            ViewBag.SortOrder = sortOrder;
+        case "UpdatedAt":
+            tickets = sortOrder == -1
+                ? tickets.OrderByDescending(t => t.UpdatedAt).ToList()
+                : tickets.OrderBy(t => t.UpdatedAt).ToList();
+            break;
 
-            return View(employeeTickets);
-        }
+        case "CreatedAt":
+            tickets = sortOrder == -1
+                ? tickets.OrderByDescending(t => t.CreatedAt).ToList()
+                : tickets.OrderBy(t => t.CreatedAt).ToList();
+            break;
+    }
+
+  
+
+    var employeeTickets = new EmployeeTickets(tickets, authenticatedEmployee);
+
+    ViewBag.SortField = sortField;
+    ViewBag.SortOrder = sortOrder;
+
+    return View(employeeTickets);
+}
+
 
         [HttpGet]
         public IActionResult Add()
