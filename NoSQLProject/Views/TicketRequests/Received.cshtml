@@ -43,36 +43,8 @@
                         {
                             <tr>
                                 <td class="sender-cell">@(request.Sender == null ? "???" : request.Sender.FullName)</td>
-                                <td class="ticket-cell">
-                                    @if (string.IsNullOrEmpty(request.Ticket?.Title))
-                                    {
-                                        <span class="text-muted">-</span>
-                                    }
-                                    else if (request.Ticket.Title.Length > 50)
-                                    {
-                                        @(request.Ticket.Title.Substring(0, 50))
-                                        
-                                                        }
-                                    else
-                                    {
-                                        @request.Ticket.Title
-                                    }
-                                </td>
-                                <td class="message-cell">
-                                    @if (string.IsNullOrEmpty(request.Message))
-                                    {
-                                        <span class="text-muted">-</span>
-                                    }
-                                    else if (request.Message.Length > 50)
-                                    {
-                                        @(request.Message.Substring(0, 50))
-                                        
-                                                        }
-                                    else
-                                    {
-                                        @request.Message
-                                    }
-                                </td>
+                                <td class="ticket-cell">@NoSQLProject.Controllers.TicketRequestsController.CutString(50, request.Ticket.Title) </td>
+                                <td class="message-cell">@NoSQLProject.Controllers.TicketRequestsController.CutString(50, request.Message) </td>
                                 <td>
                                     <span class="status-badge status-@request.Status.ToString().ToLower()">
                                         @request.Status
@@ -81,7 +53,7 @@
                                 <td class="date-cell">@request.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                                 <td class="date-cell">@request.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                                 <td>
-                                    <a href="#" class="btn btn-view">View</a>
+                                    <a href="/TicketRequests/View/@request.Id" class="btn btn-view">View</a>
                                 </td>
                             </tr>
                         }

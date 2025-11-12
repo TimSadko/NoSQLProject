@@ -51,36 +51,8 @@
                                 </td>
                                 <td class="sender-cell">@(request.Sender == null ? "???" : request.Sender.FullName)</td>
                                 <td class="sender-cell">@(request.Recipient == null ? "???" : request.Recipient.FullName)</td>
-                                <td class="ticket-cell">
-                                    @if (string.IsNullOrEmpty(request.Ticket?.Title))
-                                    {
-                                        <span class="text-muted">-</span>
-                                    }
-                                    else if (request.Ticket.Title.Length > 40)
-                                    {
-                                        @(request.Ticket.Title.Substring(0, 40))
-                                        
-                                                        }
-                                    else
-                                    {
-                                        @request.Ticket.Title
-                                    }
-                                </td>
-                                <td class="message-cell">
-                                    @if (string.IsNullOrEmpty(request.Message))
-                                    {
-                                        <span class="text-muted">-</span>
-                                    }
-                                    else if (request.Message.Length > 40)
-                                    {
-                                        @(request.Message.Substring(0, 40))
-                                        
-                                                        }
-                                    else
-                                    {
-                                        @request.Message
-                                    }
-                                </td>
+                                <td class="ticket-cell">@NoSQLProject.Controllers.TicketRequestsController.CutString(50, request.Ticket.Title) </td>
+                                <td class="message-cell">@NoSQLProject.Controllers.TicketRequestsController.CutString(50, request.Message) </td>
                                 <td>
                                     <span class="status-badge status-@request.Status.ToString().ToLower()">
                                         @request.Status
@@ -89,7 +61,7 @@
                                 <td class="date-cell">@request.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                                 <td class="date-cell">@request.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                                 <td>
-                                    <a href="#" class="btn btn-view">View</a>
+                                    <a href="/TicketRequests/View/@request.Id" class="btn btn-view">View</a>
                                 </td>
                             </tr>
                         }
@@ -141,43 +113,43 @@
         transition: all 0.3s ease;
     }
 
-        .tab-link:hover {
-            background: #f3f4f6;
-            color: #4e54c8;
-        }
+    .tab-link:hover {
+        background: #f3f4f6;
+        color: #4e54c8;
+    }
 
-        .tab-link.active {
-            background: linear-gradient(135deg, #4e54c8, #8f94fb);
-            color: white;
-            font-weight: 600;
-        }
+    .tab-link.active {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        color: white;
+        font-weight: 600;
+    }
 
     .requests-table {
         border-collapse: separate;
         border-spacing: 0 12px;
     }
 
-        .requests-table thead th {
-            padding: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-            font-size: 0.9rem;
-        }
+    .requests-table thead th {
+        padding: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        font-size: 0.9rem;
+    }
 
-        .requests-table tbody tr {
-            background: rgba(255, 255, 255, 0.85);
-            transition: all 0.25s ease;
-        }
+    .requests-table tbody tr {
+        background: rgba(255, 255, 255, 0.85);
+        transition: all 0.25s ease;
+    }
 
-            .requests-table tbody tr:hover {
-                background: rgba(78, 84, 200, 0.1);
-                transform: scale(1.01);
-            }
+    .requests-table tbody tr:hover {
+        background: rgba(78, 84, 200, 0.1);
+        transform: scale(1.01);
+    }
 
-        .requests-table tbody td {
-            padding: 16px 12px;
-            vertical-align: middle;
-        }
+    .requests-table tbody td {
+        padding: 16px 12px;
+        vertical-align: middle;
+    }
 
     .table-gradient {
         background: linear-gradient(135deg, #4e54c8, #8f94fb);
@@ -264,11 +236,11 @@
         font-size: 0.9rem;
     }
 
-        .btn-view:hover {
-            background: #0097a7;
-            color: white;
-            transform: translateY(-2px);
-        }
+    .btn-view:hover {
+        background: #0097a7;
+        color: white;
+        transform: translateY(-2px);
+    }
 
     .fade-in {
         opacity: 1;
