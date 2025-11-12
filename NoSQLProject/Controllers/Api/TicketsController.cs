@@ -119,7 +119,6 @@ namespace NoSQLProject.Controllers.Api
             // Apply updates if provided
             if (request.Title != null) existing.Title = request.Title;
             if (request.Description != null) existing.Description = request.Description;
-            if (request.Status.HasValue) existing.Status = request.Status.Value;
 
             existing.UpdatedAt = DateTime.UtcNow;
 
