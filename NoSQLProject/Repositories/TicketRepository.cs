@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using NoSQLProject.Models;
 using NoSQLProject.Services;
+using System.Threading.Tasks;
 
 namespace NoSQLProject.Repositories
 {
@@ -45,16 +46,21 @@ namespace NoSQLProject.Repositories
         {
             var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id));
 
-            List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>();
-
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l)));
-
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", l.NewStatus)));
-
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.UtcNow)));
-
-            await Task.WhenAll(tasks);
+            await _tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l));
         }
+
+        public async Task UpdateTicketStatusAsync(string ticket_id, Ticket_Status status)
+        {
+			var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id));
+
+			List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>();
+
+			tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", status)));
+
+			tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.UtcNow)));
+
+			await Task.WhenAll(tasks);
+		}
 
         public async Task<Log?> GetLogByIdAsync(string ticket_id, string log_id)
         {

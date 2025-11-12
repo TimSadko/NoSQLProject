@@ -140,13 +140,33 @@ namespace NoSQLProject.Services
 
 		public async Task AddLogAsync(Ticket ticket, Log log, Employee creator)
 		{
+			List<Task> update_list = new List<Task>();
+
 			log.Id = ObjectId.GenerateNewId().ToString();
 			log.CreatedAt = DateTime.UtcNow;
-			log.CreatedById = creator.Id;
+			log.CreatedById = creator.Id;			
 
-			var rquest_list = await _request_rep.GetTicketAcceptedRequestsAsync(ticket.Id, creator.Id);
+			update_list.Add(_rep.AddLogAsync(ticket, log, creator));
+			update_list.Add(_rep.UpdateTicketStatusAsync(ticket.Id, log.NewStatus));
 
-			await _rep.AddLogAsync(ticket, log, creator);
+			var request_list = await _request_rep.GetTicketRequestsAsync(ticket.Id);
+
+			foreach (var r in request_list) // Go through the ticket requests, changing their status if needed 
+			{
+				if (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)
+				{		
+					if(r.RecipientId == creator.Id)
+					{
+						if(log.NewStatus == Ticket_Status.Closed) update_list.Add(_request_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Closed));
+						else if(log.NewStatus == Ticket_Status.Resolved) update_list.Add(_request_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Fulfilled));
+					}
+					else if(log.NewStatus != Ticket_Status.Open) update_list.Add(_request_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Canceled));
+
+					break;
+				}
+			}
+
+			await Task.WhenAll(update_list);
 		}
 
 		public async Task<LogViewModel> GetLogViewModelAsync(string ticket_id, string log_id)

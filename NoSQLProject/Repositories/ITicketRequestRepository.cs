@@ -10,6 +10,7 @@ namespace NoSQLProject.Repositories
         Task<TicketRequest?> GetByIdAsync(string request_id);
         Task AddAsync(TicketRequest request);
         Task DeleteAsync(string request_id);
-        Task<List<TicketRequest>> GetTicketAcceptedRequestsAsync(string ticket_id, string recipient_id);
+        Task<List<TicketRequest>> GetTicketRequestsAsync(string ticket_id);
+        Task UpdateRequestStatus(string request_id, TicketRequestStatus status);
 	}
 }

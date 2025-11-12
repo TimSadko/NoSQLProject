@@ -173,11 +173,11 @@ namespace NoSQLProject.Controllers
             {
                 var emp = await _employees_rep.GetByEmailAsync(view_model.Email);
 
-                if (emp == null) throw new Exception($"Employee with email \"{view_model.Email}\" does not exist, please enter valid service desk employee email");
+                if (emp == null) throw new Exception($"Employee with email: \"{view_model.Email}\" does not exist, please enter valid service desk employee email address");
 
                 if(emp.Id == logged_in_employee.Id) throw new Exception($"You cannot sent ticket request to yourself");
 
-                if(emp is not ServiceDeskEmployee) throw new Exception($"You can sent ticket request only to service desk employee");
+                if(emp is not ServiceDeskEmployee) throw new Exception($"You can sent ticket request only to service desk employees");
 
                 var request = new TicketRequest();
 
@@ -189,9 +189,21 @@ namespace NoSQLProject.Controllers
                 request.SenderId = logged_in_employee.Id;
                 request.RecipientId = emp.Id;
 
-                await _rep.AddAsync(request);
+                List<Task> tasks = new List<Task>();
 
-                return RedirectToAction("Index", "TicketsServiceDesk");
+				tasks.Add(_rep.AddAsync(request));
+
+                // Request redirection part
+                List<TicketRequest> ticket_requests = await _rep.GetTicketRequestsAsync(view_model.TicketId);
+
+                foreach (TicketRequest r in ticket_requests)
+                {
+                    if(r.RecipientId == logged_in_employee.Id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Redirected));
+                }
+
+                await Task.WhenAll(tasks);
+
+				return RedirectToAction("Index", "TicketsServiceDesk");
             }
             catch (Exception ex)
             {
@@ -290,7 +302,79 @@ namespace NoSQLProject.Controllers
 			}
 		}
 
-        private ServiceDeskEmployee? Authenticate()
+        [HttpPost]
+        public async Task<ActionResult> ViewAccept(TicketRequest request_id_only)
+        {
+			var logged_in_employee = Authenticate();
+
+			if (logged_in_employee == null) return RedirectToAction("Login", "Home");
+
+			try
+			{
+                TicketRequest? request = await _rep.GetByIdAsync(request_id_only.Id);
+
+                if (request == null) throw new Exception("Ticket request with the id do not exsists");
+
+                if (request.Status == TicketRequestStatus.Open) await _rep.UpdateRequestStatus(request_id_only.Id, TicketRequestStatus.Accepted);
+
+				return RedirectToAction("View", new { request_id = request_id_only.Id });
+			}
+			catch (Exception ex)
+			{
+				ViewData["Exception"] = ex.Message;
+				return RedirectToAction("View", new { request_id = request_id_only.Id });
+			}
+		}
+
+		[HttpPost]
+		public async Task<ActionResult> ViewReject(TicketRequest request_id_only)
+		{
+			var logged_in_employee = Authenticate();
+
+			if (logged_in_employee == null) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				TicketRequest? request = await _rep.GetByIdAsync(request_id_only.Id);
+
+				if (request == null) throw new Exception("Ticket request with the id do not exsists");
+
+				if (request.Status == TicketRequestStatus.Open) await _rep.UpdateRequestStatus(request_id_only.Id, TicketRequestStatus.Rejected);
+
+				return RedirectToAction("View", new { request_id = request_id_only.Id });
+			}
+			catch (Exception ex)
+			{
+				ViewData["Exception"] = ex.Message;
+				return RedirectToAction("View", new { request_id = request_id_only.Id });
+			}
+		}
+
+		[HttpPost]
+		public async Task<ActionResult> ViewFail(TicketRequest request_id_only)
+		{
+			var logged_in_employee = Authenticate();
+
+			if (logged_in_employee == null) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				TicketRequest? request = await _rep.GetByIdAsync(request_id_only.Id);
+
+				if (request == null) throw new Exception("Ticket request with the id do not exsists");
+
+				if (request.Status == TicketRequestStatus.Open) await _rep.UpdateRequestStatus(request_id_only.Id, TicketRequestStatus.Failed);
+
+				return RedirectToAction("View", new { request_id = request_id_only.Id });
+			}
+			catch (Exception ex)
+			{
+				ViewData["Exception"] = ex.Message;
+				return RedirectToAction("View", new { request_id = request_id_only.Id });
+			}
+		}
+
+		private ServiceDeskEmployee? Authenticate()
         {
             var employee = Authorization.GetLoggedInEmployee(HttpContext);
             return employee is null or not ServiceDeskEmployee ? null : (ServiceDeskEmployee)employee;
