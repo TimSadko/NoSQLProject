@@ -6,18 +6,98 @@
 
 <partial name="_ErrorMessage" />
 
-<form action="/TicketsServiceDesk/Add" method="post">
-    <div class="form-group py-2 text-start">
-        <label for="Title">Title:</label>
-        <input type="text" id="Title" name="Title" class="form-control input-background" required value="@Model?.Title" />
-    </div>
+<div class="fade-in">
+	<div class="ticket-card shadow-lg">
+		<h2 class="ticket-title">Add New Ticket</h2>
 
-    <div class="form-group py-2 text-start">
-        <label for="Description">Description:</label>
-        <input type="text" id="Description" name="Description" class="form-control input-background" required value="@Model?.Description" />
-    </div>
+		<form action="/TicketsServiceDesk/Add" method="post" class="ticket-form">
 
-    <button type="submit" class="primary-button">Add</button>
-</form>
+			<div class="form-group mb-3">
+				<label for="Title" class="form-label fw-semibold">Title</label>
+				<input type="text" id="Title" name="Title" class="form-control form-control-lg"
+					   placeholder="Enter ticket title" required value="@Model?.Title" />
+			</div>
 
-<a href="/TicketsServiceDesk/Index">Back to Ticket List</a>
+			<div class="form-group mb-3">
+				<label for="Description" class="form-label fw-semibold">Description</label>
+				<textarea id="Description" name="Description" class="form-control form-control-lg"
+						  rows="4" placeholder="Describe the issue or request..." required>@Model?.Description</textarea>
+			</div>
+
+			<div class="col-md-6 mb-3">
+				<label for="Priority" class="form-label fw-semibold">Priority</label>
+				<select class="form-select form-select-lg" asp-for="Priority" asp-items="@Html.GetEnumSelectList<Ticket_Priority>()"></select>
+			</div>
+
+			<div class="d-flex justify-content-between">
+				<a href="/TicketsServiceDesk/Index" class="btn btn-secondary px-4 py-2">← Back</a>
+				<button type="submit" class="btn btn-add px-4 py-2">Add Ticket</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<style>
+	body {
+		background: linear-gradient(135deg, #4e54c8, #8f94fb);
+		font-family: 'Inter', sans-serif;
+	}
+
+	.ticket-card {
+		background: rgba(255, 255, 255, 0.92);
+		backdrop-filter: blur(12px);
+		border-radius: 20px;
+		padding: 40px 50px;
+		max-width: 600px;
+		margin: 0 auto;
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+		animation: fadeIn 0.8s ease-in-out forwards;
+	}
+
+	.ticket-title {
+		font-size: 2rem;
+		font-weight: 700;
+		color: #4e54c8;
+		text-align: center;
+		margin-bottom: 2rem;
+	}
+
+	.ticket-form .form-control,
+	.ticket-form .form-select {
+		border-radius: 10px;
+		border: 1px solid #ccc;
+		transition: all 0.3s ease;
+	}
+
+		.ticket-form .form-control:focus,
+		.ticket-form .form-select:focus {
+			border-color: #4e54c8;
+			box-shadow: 0 0 8px rgba(78, 84, 200, 0.4);
+		}
+
+	.btn-add {
+		background: linear-gradient(135deg, #2575fc, #6a11cb);
+		color: white;
+		font-weight: 600;
+		border: none;
+		border-radius: 10px;
+		transition: all 0.3s ease;
+	}
+
+		.btn-add:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
+		}
+
+	@@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(25px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+</style>

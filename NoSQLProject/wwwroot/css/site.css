@@ -19,6 +19,12 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: #6D8EA0; /* Morandi blue */
+}
+
+header,
+footer {
+  background-color: #fff !important; /* White, or choose another color */
 }
 
 .custom-navbar {
@@ -96,4 +102,137 @@ body {
 .logo-link:hover {
     color: #222;
     text-decoration: underline;
+}
+
+.new-log-description-input {
+    /*height: 125px;*/
+}
+
+/* --- Forgot Password form styles --- */
+.forgot-password-form {
+    max-width: 420px;
+    background: rgba(255,255,255,0.95);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    margin-top: 1rem;
+}
+
+.form-group {
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #1f2a33;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    padding: 0.5rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #cfd8df;
+    background: #fff;
+    color: #1f2a33;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: box-shadow .12s ease, border-color .12s ease;
+}
+
+/* Reuse existing focus ring selector for .form-control */
+.form-control:focus {
+    outline: none;
+    border-color: #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Basic button base to match focus selector used in file */
+.btn {
+    display: inline-block;
+    font-weight: 600;
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background-color .12s ease, transform .06s ease, box-shadow .12s ease;
+}
+
+/* Reset button specific styling */
+.reset-btn {
+    background-color: #258cfb; /* matches focus accent */
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(37,140,251,0.18);
+    border: 1px solid rgba(0,0,0,0.04);
+}
+
+.reset-btn:hover {
+    background-color: #1e78d1;
+    transform: translateY(-1px);
+}
+
+.reset-btn:active {
+    transform: translateY(0);
+}
+
+.reset-btn:focus {
+    outline: none;
+    /* keep the shared focus ring already declared for .btn:focus */
+}
+
+/* Readonly input styling so the displayed link is clearly not editable */
+.form-control[readonly], .form-control[aria-readonly="true"] {
+    background: #f5f7fa;
+    cursor: text;
+}
+
+/* Ensure anchor looks like the reset button and removes underline */
+.reset-link {
+    text-decoration: none;
+    display: inline-block;
+    line-height: 1;
+}
+
+/* Optional: small visual tweak for the Copy button to pair with reset button */
+.btn[onclick] {
+    background-color: #eef3f7;
+    color: #1f2a33;
+    border: 1px solid #d6dde3;
+    box-shadow: none;
+}
+.btn[onclick]:hover {
+    background-color: #e1e9ef;
+}
+
+.btn-login,
+.btn-gradient-purple {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(78, 84, 200, 0.3);
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-login:hover,
+.btn-gradient-purple:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(78, 84, 200, 0.35);
+}
+
+.btn-login:focus,
+.btn-gradient-purple:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(142, 116, 251, 0.6);
 }

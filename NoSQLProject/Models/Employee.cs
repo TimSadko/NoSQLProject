@@ -4,21 +4,24 @@ using System.Text.Json.Serialization;
 
 namespace NoSQLProject.Models
 {
+    // ✅ Enum for employee statuses
     public enum Employee_Status
     {
-        Active = 0, Deactivated = 1, Archived = 2
+        Active = 0,
+        Deactivated = 1,
+        Archived = 2
     }
 
-	[BsonDiscriminator(RootClass = true)]
-	[BsonKnownTypes(typeof(ServiceDeskEmployee))]
-	public class Employee
+    [BsonDiscriminator(RootClass = true)]
+    [BsonKnownTypes(typeof(ServiceDeskEmployee))]
+    public class Employee
     {
         protected string? _id = "";
-		protected string _first_name = "";
-		protected string _last_name = "";
-		protected string _email = "";
-		protected string _password = "";
-		protected Employee_Status _status = 0;
+        protected string _first_name = "";
+        protected string _last_name = "";
+        protected string _email = "";
+        protected string _password = "";
+        protected Employee_Status _status = 0;
 
         public Employee() { }
 
@@ -34,16 +37,16 @@ namespace NoSQLProject.Models
 
         [BsonId]
         [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
-        public string? Id { get => _id; set => _id = value; }
+        public string Id { get => _id; set => _id = value; }
 
         [BsonElement("first_name")]
         [JsonPropertyName("first_name")]
-        [Display(Name = "First name")] // <-- Add this line
+        [Display(Name = "First name")]
         public string FirstName { get => _first_name; set => _first_name = value; }
 
         [BsonElement("last_name")]
         [JsonPropertyName("last_name")]
-        [Display(Name = "Last name")] // <-- Add this line
+        [Display(Name = "Last name")]
         public string LastName { get => _last_name; set => _last_name = value; }
 
         [BsonElement("email")]
@@ -57,6 +60,10 @@ namespace NoSQLProject.Models
 
         [BsonElement("status")]
         [JsonPropertyName("status")]
-        public Employee_Status Status { get => _status; set => _status = value; }      
+        public Employee_Status Status { get => _status; set => _status = value; }
+
+        [BsonIgnore]
+        [JsonIgnore]
+        public string FullName { get => $"{_first_name} {_last_name}"; }
     }
 }

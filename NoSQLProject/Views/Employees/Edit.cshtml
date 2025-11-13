@@ -4,45 +4,130 @@
     ViewData["Title"] = "Edit Employee";
     var isServiceDesk = Model.GetType().Name == "ServiceDeskEmployee";
 }
-@* 3 CONTROL Z *@
-<h2>Edit Employee</h2>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
-    <div class="form-group">
-        <label asp-for="FirstName"></label>
-        <input asp-for="FirstName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="LastName"></label>
-        <input asp-for="LastName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label for="Role">Role</label>
-        <select id="Role" name="Role" class="form-select">
-            <option value="Employee" selected="@(isServiceDesk ? null : "selected")">Employee</option>
-            <option value="ServiceDeskEmployee" selected="@(isServiceDesk ? "selected" : null)">Service Desk</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" autocomplete="new-password" value="" />
-        <small class="form-text text-muted">Leave blank to keep the current password.</small>
-    </div>
-    <div class="form-group">
-        <label asp-for="Status"></label>
-        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<NoSQLProject.Models.Employee_Status>()"></select>
-    </div>
+<partial name="_ErrorMessage" />
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary ml-2">Back</a>
-</form>
+<div class="fade-in">
+    <div class="employee-card shadow-lg">
+        <h2 class="employee-title">Edit Employee</h2>
+
+        <form asp-action="Edit" method="post" class="employee-form">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="FirstName" class="form-label fw-semibold"></label>
+                <input asp-for="FirstName" class="form-control form-control-lg" placeholder="Enter first name" />
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="LastName" class="form-label fw-semibold"></label>
+                <input asp-for="LastName" class="form-control form-control-lg" placeholder="Enter last name" />
+                <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="Role" class="form-label fw-semibold">Role</label>
+                <select id="Role" name="Role" class="form-select form-select-lg">
+                    @if (!isServiceDesk)
+                    {
+                        <option value="Employee" selected>Employee</option>
+                        <option value="ServiceDeskEmployee">Service Desk</option>
+                    }
+                    else
+                    {
+                        <option value="Employee">Employee</option>
+                        <option value="ServiceDeskEmployee" selected>Service Desk</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="form-label fw-semibold"></label>
+                <input asp-for="Email" class="form-control form-control-lg" placeholder="example@email.com" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Password" class="form-label fw-semibold"></label>
+                <!-- Disable client-side validation for password so leaving it blank is allowed -->
+                <input asp-for="Password" class="form-control form-control-lg" type="password" autocomplete="new-password" placeholder="Leave blank to keep current password" data-val="false" />
+                <small class="form-text text-muted">Leave blank to keep the current password.</small>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Status" class="form-label fw-semibold"></label>
+                <select asp-for="Status" class="form-select form-select-lg"
+                        asp-items="Html.GetEnumSelectList<NoSQLProject.Models.Employee_Status>()"></select>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-secondary px-4 py-2">← Back</a>
+                <button type="submit" class="btn btn-save px-4 py-2">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
 
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .employee-card {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 600px;
+        width: 100%;
+        margin: 0 auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.8s ease-in-out forwards;
+    }
+
+    .employee-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4e54c8;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .employee-form .form-control,
+    .employee-form .form-select {
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        transition: all 0.3s ease;
+    }
+
+    .employee-form .form-control:focus,
+    .employee-form .form-select:focus {
+        border-color: #4e54c8;
+        box-shadow: 0 0 8px rgba(78, 84, 200, 0.4);
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #2575fc, #6a11cb);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>

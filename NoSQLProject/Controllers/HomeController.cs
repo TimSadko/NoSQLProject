@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using NoSQLProject.Models;
 using NoSQLProject.Other;
 using NoSQLProject.Repositories;
+using NoSQLProject.ViewModels;
 using System.Diagnostics;
 
 namespace NoSQLProject.Controllers
@@ -16,9 +17,13 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return RedirectToAction("Login"); ;
+            var loggedin = Authorization.GetLoggedInEmployee(HttpContext);
+            if (loggedin == null)
+                return RedirectToAction("Login");
+
+            return View("Home", loggedin);
         }
 
         [HttpGet]
@@ -32,11 +37,11 @@ namespace NoSQLProject.Controllers
         {
             try
             {
-                var loggedin = Authorization.GetLoggedInEmployee(HttpContext); // Get employee from sessions
+                var loggedin = Authorization.GetLoggedInEmployee(HttpContext); 
 
-                if (loggedin != null) return RedirectEmployee(loggedin); // If employee is in sesions, redirect him to his main page, bypassing login
+                if (loggedin != null) return RedirectEmployee(loggedin); 
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 ViewData["Exception"] = ex.Message;
             }
@@ -48,13 +53,13 @@ namespace NoSQLProject.Controllers
         public async Task<IActionResult> Login(LoginModel model)
         {
             try
-            {              
-                Employee? emp = await _rep.GetByCredentialsAsync(model.Email, Hasher.GetHashedString(model.Password)); // Get employee from db by credentials
+            {
+                Employee? emp = await _rep.GetByCredentialsAsync(model.Email, Hasher.GetHashedString(model.Password)); 
 
-                if (emp == null) throw new Exception("Incorrect Email or Password"); // If no employee found throw exception
+                if (emp == null || emp.Status != Employee_Status.Active) throw new Exception("Incorrect Email or Password"); 
 
-                Authorization.SetLoggedInEmployee(HttpContext, emp); // Save current logged in employee in session
-                HttpContext.Session.SetString("UserId", emp.Id); // Set the user ID in the session
+                Authorization.SetLoggedInEmployee(HttpContext, emp); 
+                HttpContext.Session.SetString("UserId", emp.Id); 
 
                 return RedirectEmployee(emp);
             }
@@ -67,14 +72,7 @@ namespace NoSQLProject.Controllers
 
         private RedirectToActionResult RedirectEmployee(Employee emp)
         {
-            if (emp is ServiceDeskEmployee sde) // Depending on type of employee redirect to a different pages
-            {
-                return RedirectToAction("Index", "Employees");
-            }
-            else
-            {
-                return RedirectToAction("Index", "TicketsNormal");
-            }
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
@@ -83,6 +81,69 @@ namespace NoSQLProject.Controllers
             Authorization.RemoveLoggedInEmployee(HttpContext);
 
             return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            ViewData["Title"] = "Forgot Password";
+            return View("Password/ForgotPassword");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var user = await _rep.GetByEmailAsync(email);
+            if (user == null)
+                return View("Password/ForgotPasswordConfirmation");
+
+            string token = Hasher.GetHashedString(user.Id + user.Password);
+            string resetLink = Url.Action("ResetPassword", "Home", 
+                new { userId = user.Id, token }, protocol: Request.Scheme);
+
+            ViewBag.Link = resetLink;
+            ViewBag.Email = email;
+            return View("Password/DisplayResetLink");
+        }
+
+
+        [HttpGet]
+        public IActionResult ResetPassword(string userId, string token)
+        {
+            var model = new ResetPasswordViewModel
+            {
+                UserId = userId,
+                Token = token
+            };
+            return View("Password/ResetPassword", model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            var user = await _rep.GetByIdAsync(model.UserId);
+            if (user == null)
+                return View("Password/ResetPasswordConfirmation");
+
+            var expectedToken = Hasher.GetHashedString(user.Id + user.Password);
+            if (model.Token != expectedToken)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid or expired token.");
+                return View("Password/ResetPassword", model);
+            }
+
+            user.Password = Hasher.GetHashedString(model.NewPassword);
+            await _rep.UpdateAsync(user);
+
+            return View("Password/ResetPasswordConfirmation");
+        }
+
+
+        [HttpGet]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View("Password/ResetPasswordConfirmation");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

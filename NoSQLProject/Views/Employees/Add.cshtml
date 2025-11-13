@@ -3,42 +3,134 @@
 @{
     ViewData["Title"] = "Add Employee";
 }
-<h2>Add Employee</h2>
 
-<form asp-action="Add" method="post">
-    <div class="form-group">
-        <label asp-for="FirstName"></label>
-        <input asp-for="FirstName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="LastName"></label>
-        <input asp-for="LastName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label for="Role">Role</label>
-        <select id="Role" name="Role" class="form-select">
-            <option value="Employee">Employee</option>
-            <option value="ServiceDeskEmployee">Service Desk</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Status"></label>
-        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<NoSQLProject.Models.Employee_Status>()"></select>
-    </div>
+<div class="fade-in">
+    <div class="form-card">
+        <h2 class="form-title">Add Employee</h2>
 
-    <button type="submit" class="btn btn-primary">Add</button>
-    <a asp-action="Index" class="btn btn-secondary ml-2">Back</a>
-</form>
+        <form asp-action="Add" method="post">
+            <div class="form-group mb-3">
+                <label asp-for="FirstName" class="form-label">First Name</label>
+                <input asp-for="FirstName" class="form-control input-style" placeholder="Enter first name" />
+            </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+            <div class="form-group mb-3">
+                <label asp-for="LastName" class="form-label">Last Name</label>
+                <input asp-for="LastName" class="form-control input-style" placeholder="Enter last name" />
+            </div>
 
+            <div class="form-group mb-3">
+                <label for="Role" class="form-label">Role</label>
+                <select id="Role" name="Role" class="form-select input-style">
+                    <option value="Employee">Employee</option>
+                    <option value="ServiceDeskEmployee">Service Desk</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control input-style" placeholder="example@email.com" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Password" class="form-label">New Password</label>
+                <input asp-for="Password" class="form-control input-style" type="password" placeholder="Enter password" />
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Status" class="form-label">Status</label>
+                <select asp-for="Status" class="form-select input-style" asp-items="Html.GetEnumSelectList<NoSQLProject.Models.Employee_Status>()"></select>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <a asp-action="Index" class="btn btn-secondary btn-back">← Back</a>
+                <button type="submit" class="btn btn-add">Add Employee</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 600px;
+        margin: 60px auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 0.8s ease-in-out forwards;
+    }
+
+    .form-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4e54c8;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 6px;
+    }
+
+    .input-style {
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 1rem;
+        border: 1px solid #ddd;
+        transition: all 0.3s ease;
+    }
+
+    .input-style:focus {
+        border-color: #6a11cb;
+        box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.15);
+        outline: none;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #2575fc, #6a11cb);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
+    }
+
+    .btn-back {
+        background: #f3f4f6;
+        color: #333;
+        border-radius: 12px;
+        font-weight: 500;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-back:hover {
+        background: #e0e7ff;
+        color: #4e54c8;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
