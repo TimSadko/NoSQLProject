@@ -128,6 +128,7 @@ public async Task<IActionResult> Index(string sortField = "Priority", int sortOr
             if (string.IsNullOrEmpty(id)) throw new Exception("Ticket id is empty or null!");
 
             var ticket = await _ticketRepository.GetByIdAsync(id);
+
             if (ticket == null)
             {
                 TempData["Exception"] = "Ticket is null. Something went wrong!";
@@ -158,6 +159,7 @@ public async Task<IActionResult> Index(string sortField = "Priority", int sortOr
 
                 ticketToChange.Title = ticket.Title;
                 ticketToChange.Description = ticket.Description;
+                ticketToChange.UpdatedAt = DateTime.UtcNow;
 
                 await _ticketRepository.EditAsync(ticketToChange);
 

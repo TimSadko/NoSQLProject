@@ -126,9 +126,7 @@ namespace NoSQLProject.Services
 
 			if (ticket_old == null) throw new Exception("Ticket with the id does not exsist");
 
-			if (ticket_old.Description != ticket_new.Description ||
-				ticket_old.Title != ticket_new.Title ||
-				ticket_old.Priority != ticket_new.Priority)
+			if (ticket_old.Description != ticket_new.Description || ticket_old.Title != ticket_new.Title || ticket_old.Priority != ticket_new.Priority)
 			{
 				ticket_old.Description = ticket_new.Description;
 				ticket_old.Title = ticket_new.Title;
