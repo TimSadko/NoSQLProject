@@ -139,7 +139,7 @@
         backdrop-filter: blur(12px);
         border-radius: 20px;
         padding: 40px 50px;
-        max-width: 2100px;
+        max-width: 1300px;
         margin: 40px auto;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
@@ -161,100 +161,200 @@
         text-decoration: none;
     }
 
-    .btn-add:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
-        color: white;
-    }
-
-    .fade-in-alert {
-        animation: fadeInSlide 0.6s ease forwards;
-        text-align: center;
-        font-weight: 600;
-        border-radius: 10px;
-        margin: 15px auto;
-        width: 90%;
-        max-width: 800px;
-    }
-
-    @@keyframes fadeInSlide {
-        0% { opacity: 0; transform: translateY(-10px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-
-    .alert-success {
-        background: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #66bb6a;
-        padding: 12px 20px;
-    }
-
-    .alert-danger {
-        background: #ffebee;
-        color: #c62828;
-        border: 1px solid #ef5350;
-        padding: 12px 20px;
-    }
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
+            color: white;
+        }
 
     .tickets-table {
         border-collapse: separate;
         border-spacing: 0 12px;
     }
 
-    .tickets-table tbody tr {
-        background: rgba(255, 255, 255, 0.85);
-        transition: all 0.25s ease;
+        .tickets-table thead th {
+            padding: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tickets-table tbody tr {
+            background: rgba(255, 255, 255, 0.85);
+            transition: all 0.25s ease;
+        }
+
+            .tickets-table tbody tr:hover {
+                background: rgba(78, 84, 200, 0.1);
+                transform: scale(1.01);
+            }
+
+        .tickets-table tbody td {
+            padding: 16px 12px;
+            vertical-align: middle;
+        }
+
+    .table-gradient {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
     }
 
-    .tickets-table tbody tr:hover {
-        background: rgba(78, 84, 200, 0.1);
-        transform: scale(1.01);
-    }
-
-    .priority-badge, .status-badge, .logs-badge {
+    .ticket-title-cell {
         font-weight: 600;
-        font-size: 0.85rem;
+        color: #333;
+        text-align: left;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-    .priority-critical { background: #ffebee; color: #c62828; border: 1px solid #ef5350; }
-    .priority-high { background: #fff3e0; color: #e65100; border: 1px solid #ff9800; }
-    .priority-medium { background: #fff9c4; color: #f57f17; border: 1px solid #fbc02d; }
-    .priority-low { background: #e8f5e9; color: #2e7d32; border: 1px solid #66bb6a; }
+    .date-cell {
+        font-size: 0.9rem;
+        color: #666;
+        white-space: nowrap;
+    }
+
+    .employee-cell {
+        font-weight: 500;
+        color: #555;
+    }
+
+    /* ✅ UPDATED: Priority Badge Styles with Undefined */
+    .priority-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .priority-critical {
+        background: #ffebee;
+        color: #c62828;
+        border: 1px solid #ef5350;
+    }
+
+    .priority-high {
+        background: #fff3e0;
+        color: #e65100;
+        border: 1px solid #ff9800;
+    }
+
+    .priority-medium {
+        background: #fff9c4;
+        color: #f57f17;
+        border: 1px solid #fbc02d;
+    }
+
+    .priority-low {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #66bb6a;
+    }
+
+    /* ✅ NEW: Undefined priority styling */
+    .priority-undefined {
+        background: #f5f5f5;
+        color: #757575;
+        border: 1px solid #bdbdbd;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-open {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-closed {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-resolved {
+        background: #e8f5e9;
+        color: #388e3c;
+    }
+
+    .logs-badge {
+        display: inline-block;
+        background: #f3f4f6;
+        color: #4e54c8;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+    }
 
     .action-buttons {
         display: flex;
-        flex-wrap: wrap;
         gap: 8px;
         justify-content: center;
+        align-items: center;
     }
 
-    .status-actions {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-    }
-
-    /* --- Simplified Action Buttons --- */
-    .btn-view, .btn-delete, .btn-escalate, .btn-close {
-        border: none;
+    .btn-view {
+        background: #00bcd4;
+        color: white;
         border-radius: 8px;
         font-weight: 600;
         padding: 8px 16px;
-        font-size: 0.85rem;
-        color: white;
-        cursor: pointer;
-        transition: background 0.25s ease, transform 0.1s ease;
+        border: none;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 0.9rem;
     }
 
-    .btn-view { background: #00bcd4; }
-    .btn-view:hover { background: #0097a7; }
+        .btn-view:hover {
+            background: #0097a7;
+            color: white;
+            transform: translateY(-2px);
+        }
 
-    .btn-delete { background: #e74c3c; }
-    .btn-delete:hover { background: #c0392b; }
+    .btn-delete {
+        background: #ef5350;
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 8px 16px;
+        border: none;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
 
-    .btn-escalate { background: #f39c12; }
-    .btn-escalate:hover { background: #e67e22; }
+        .btn-delete:hover {
+            background: #d32f2f;
+            color: white;
+            transform: translateY(-2px);
+        }
 
-    .btn-close { background: #2ecc71; }
-    .btn-close:hover { background: #27ae60; }
+    .sort-link {
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+    }
+
+        .sort-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+    .fade-in {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease-in-out;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
 </style>
