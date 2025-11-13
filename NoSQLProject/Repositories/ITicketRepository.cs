@@ -9,8 +9,8 @@ namespace NoSQLProject.Repositories
         Task<Ticket?> GetByIdAsync(string id);
         Task AddAsync(Ticket t);
         Task EditAsync(Ticket t);
-        Task DeleteAsync(string id);
-        Task CheckUpdateAsync(Ticket t);
+        Task UpdateTicketStatusAsync(string ticket_id, Ticket_Status status);
+		Task DeleteAsync(string id);
         Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1);
         Task AddLogAsync(Ticket t, Log l, Employee e);
         Task<Log?> GetLogByIdAsync(string ticket_id, string log_id);
