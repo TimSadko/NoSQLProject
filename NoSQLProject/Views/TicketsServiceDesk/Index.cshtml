@@ -6,7 +6,6 @@
     string currentSortField = ViewBag.SortField ?? "Priority";
 }
 
-<!-- ✅ Feedback messages -->
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success fade-in-alert">
@@ -108,18 +107,16 @@
                                     <div class="action-buttons">
                                         <a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-view">View</a>
                                         <a href="/TicketsServiceDesk/Delete/@t.Id" class="btn btn-delete">Delete</a>
-                                        <div class="status-actions">
-                                            <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post">
-                                                <input type="hidden" name="id" value="@t.Id" />
-                                                <input type="hidden" name="actionType" value="escalate" />
-                                                <button type="submit" class="btn btn-escalate">Escalate</button>
-                                            </form>
-                                            <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post">
-                                                <input type="hidden" name="id" value="@t.Id" />
-                                                <input type="hidden" name="actionType" value="close" />
-                                                <button type="submit" class="btn btn-close">Close</button>
-                                            </form>
-                                        </div>
+                                        <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post">
+                                            <input type="hidden" name="ticket_id" value="@t.Id" />
+                                            <input type="hidden" name="action_type" value="escalate" />
+                                            <button type="submit" class="btn btn-escalate">Escalate</button>
+                                        </form>
+                                        <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post">
+                                            <input type="hidden" name="ticket_id" value="@t.Id" />
+                                            <input type="hidden" name="action_type" value="close" />
+                                            <button type="submit" class="btn btn-close">Close</button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -142,7 +139,7 @@
         backdrop-filter: blur(12px);
         border-radius: 20px;
         padding: 40px 50px;
-        max-width: 1300px;
+        max-width: 2100px;
         margin: 40px auto;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }

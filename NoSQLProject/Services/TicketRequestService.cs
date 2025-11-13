@@ -118,16 +118,19 @@ namespace NoSQLProject.Services
 			request.SenderId = logged_in_employee_id;
 			request.RecipientId = emp.Id;
 
+			request.CreatedAt = DateTime.UtcNow;
+			request.UpdatedAt = DateTime.UtcNow;
+
 			List<Task> tasks = new List<Task>();
 
 			tasks.Add(_rep.AddAsync(request));
 
 			// Request redirection part
-			List<TicketRequest> ticket_requests = await _rep.GetTicketRequestsAsync(ticket_id);
+			List<TicketRequest> ticket_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
 
 			foreach (TicketRequest r in ticket_requests)
 			{
-				if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatus(r.Id, TicketRequestStatus.Redirected));
+				if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
 			}
 
 			await Task.WhenAll(tasks);
@@ -188,7 +191,7 @@ namespace NoSQLProject.Services
 
 			if (request == null) throw new Exception("Ticket request with the id do not exsists");
 
-			if (request.Status == condition_status) await _rep.UpdateRequestStatus(request_id, set_status);
+			if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
 		}
 	}	
 }
