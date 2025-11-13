@@ -19,26 +19,48 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string sortField = "Status", int sortOrder = 1, string status = "All")
+        public async Task<IActionResult> Index(string sortField = "Status", int sortOrder = 1, string status = "All", string role = "All")
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
             try
             {
-                List<Employee> employees;
+                // Always fetch a sorted list first so sorting remains consistent
+                var employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder);
 
-                if (string.IsNullOrEmpty(status) || status == "All")
+                // Filter by status if requested ("All" means no filter)
+                if (!string.IsNullOrEmpty(status) && !string.Equals(status, "All", StringComparison.OrdinalIgnoreCase))
                 {
-                    employees = await _employeeService.GetAllEmployeesSortedAsync(sortField, sortOrder); // Default: show all employees sorted
+                    // Try parse as enum name first (case-insensitive), fall back to numeric parsing
+                    if (Enum.TryParse<Employee_Status>(status, true, out var enumStatus))
+                    {
+                        employees = employees.Where(e => e.Status == enumStatus).ToList();
+                    }
+                    else if (int.TryParse(status, out var statusInt))
+                    {
+                        employees = employees.Where(e => (int)e.Status == statusInt).ToList();
+                    }
                 }
-                else
+
+                // Filter by role if requested ("All" means no filter)
+                if (!string.IsNullOrEmpty(role) && !string.Equals(role, "All", StringComparison.OrdinalIgnoreCase))
                 {
-                    employees = await _employeeService.GetEmployeesByStatusAsync(status); // Filter by status if provided
+                    if (string.Equals(role, "ServiceDeskEmployee", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(role, "ServiceDesk", StringComparison.OrdinalIgnoreCase))
+                    {
+                        employees = employees.Where(e => e is ServiceDeskEmployee).ToList();
+                    }
+                    else if (string.Equals(role, "Employee", StringComparison.OrdinalIgnoreCase) ||
+                             string.Equals(role, "Normal", StringComparison.OrdinalIgnoreCase))
+                    {
+                        employees = employees.Where(e => !(e is ServiceDeskEmployee)).ToList();
+                    }
                 }
 
                 ViewBag.SortField = sortField;
                 ViewBag.SortOrder = sortOrder;
                 ViewBag.Status = status;
+                ViewBag.Role = role;
 
                 return View(employees);
             }
@@ -118,15 +140,12 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                // Fetch existing once so we can preserve fields (password, managed employees, etc.)
                 var existing = await _employeeService.GetEmployeeByIdAsync(employee.Id);
                 if (existing == null) throw new Exception("Employee not found");
 
-                // If no new password was entered, preserve the existing hashed password
                 if (string.IsNullOrWhiteSpace(employee.Password))
                 {
                     employee.Password = existing.Password;
-                    // Remove any ModelState entries that might mark Password as required/invalid
                     ModelState.Remove("Password");
                     ModelState.Remove("employee.Password");
                 }
@@ -137,7 +156,6 @@ namespace NoSQLProject.Controllers
 
                 if (Role == "ServiceDeskEmployee")
                 {
-                    // Preserve managed employees from existing record (if any)
                     var managed = (existing as ServiceDeskEmployee)?.ManagedEmployees ?? new List<string>();
 
                     toUpdate = new ServiceDeskEmployee
@@ -216,12 +234,59 @@ namespace NoSQLProject.Controllers
             try
             {
                 var managedEmployees = await _employeeService.GetEmployeesManagedByAsync(id);
+                var allEmployees = (await _employeeService.GetAllEmployeesAsync()).ToList();
+                var managedIds = managedEmployees?.Select(e => e.Id).ToHashSet() ?? new HashSet<string>();
+                var allManagedIds = await _employeeService.GetAllManagedEmployeeIdsAsync();
+
+                var availableToAdd = allEmployees
+                    .Where(e => !(e is ServiceDeskEmployee) && !managedIds.Contains(e.Id) && !allManagedIds.Contains(e.Id))
+                    .ToList();
+
+                ViewBag.AvailableEmployees = availableToAdd;
+                ViewBag.ServiceDeskId = id;
+
                 return View(managedEmployees ?? new List<Employee>());
             }
             catch (Exception ex)
             {
                 TempData["Exception"] = ex.Message;
                 return View(new List<Employee>());
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddManagedEmployee(string serviceDeskId, string employeeId)
+        {
+            if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                await _employeeService.AddManagedEmployeeAsync(serviceDeskId, employeeId);
+                return RedirectToAction("ManagedEmployees", new { id = serviceDeskId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("ManagedEmployees", new { id = serviceDeskId });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveManagedEmployee(string serviceDeskId, string employeeId)
+        {
+            if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                await _employeeService.RemoveManagedEmployeeAsync(serviceDeskId, employeeId);
+                return RedirectToAction("ManagedEmployees", new { id = serviceDeskId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("ManagedEmployees", new { id = serviceDeskId });
             }
         }
 
