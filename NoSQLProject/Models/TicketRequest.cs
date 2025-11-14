@@ -5,7 +5,14 @@ namespace NoSQLProject.Models
 {
     public enum TicketRequestStatus
     {
-        Open = 0, Accepted = 1, Rejected = 2, Fulfilled = 3, Redirected = 4, Failed = 5
+        Open = 0, // New unaccepted request
+        Accepted = 1,
+        Rejected = 2, 
+        Fulfilled = 3, 
+        Closed = 4, // Close due to issue not being a real error, e.g. user level error
+        Redirected = 5, // Redirected to another employee
+        Failed = 6, 
+        Cancelled = 7 // If another employee fisnish the ticket before the asigned one 
     }
 
     public class TicketRequest
@@ -87,6 +94,5 @@ namespace NoSQLProject.Models
         [BsonIgnore]
         [JsonIgnore]
         public Ticket? Ticket { get => _ticket; set => _ticket = value; }
-
     }
 }

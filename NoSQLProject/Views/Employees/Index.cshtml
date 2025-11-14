@@ -2,19 +2,21 @@
 
 @{
     ViewData["Title"] = "Employees";
+
     int nextOrder = ViewBag.SortOrder == 1 ? -1 : 1;
+    string currentSortField = ViewBag.SortField ?? "FirstName";
 }
 
 <div class="fade-in">
-    <div class="employees-card">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="employees-title">Employees</h2>
-            <a asp-action="Add" class="btn btn-add">+ Add Employee</a>
-        </div>
+    <div class="employees-card shadow-lg">
 
-        @if (TempData["ErrorMessage"] != null)
+        <h2 class="employees-title mb-4">Employees</h2>
+
+        @if (TempData["Exception"] != null)
         {
-            <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+            <div class="alert alert-danger text-center fw-semibold">
+                @TempData["Exception"]
+            </div>
         }
 
         @if (Model == null || !Model.Any())
@@ -25,201 +27,195 @@
         }
         else
         {
-            <table class="table table-hover align-middle text-center employees-table">
-                <thead class="table-gradient text-white">
-                    <tr>
-                        <th><a asp-action="Index" asp-route-sortField="FirstName" asp-route-sortOrder="@nextOrder" class="sort-link">First Name</a></th>
-                        <th><a asp-action="Index" asp-route-sortField="LastName" asp-route-sortOrder="@nextOrder" class="sort-link">Last Name</a></th>
-                        <th><a asp-action="Index" asp-route-sortField="Email" asp-route-sortOrder="@nextOrder" class="sort-link">Email</a></th>
-                        <th><a asp-action="Index" asp-route-sortField="Role" asp-route-sortOrder="@nextOrder" class="sort-link">Role</a></th>
-                        <th><a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">Status</a></th>
-                        <th>Management</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var employee in Model)
-                    {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center employees-table">
+                    <thead class="table-gradient text-white">
                         <tr>
-                            <td>@employee.FirstName</td>
-                            <td>@employee.LastName</td>
-                            <td>@employee.Email</td>
-                            <td>@(employee is NoSQLProject.Models.ServiceDeskEmployee ? "Service Desk" : "Employee")</td>
-                            <td>@employee.Status</td>
-                            <td>
-                                @if (employee is NoSQLProject.Models.ServiceDeskEmployee sde)
-                                {
-                                    <a asp-action="ManagedEmployees" asp-route-id="@sde.Id" class="btn btn-view">View Managed</a>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">—</span>
-                                }
-                            </td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-action dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                        Actions
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-custom">
-                                        <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@employee.Id">Edit</a></li>
-                                        <li><a class="dropdown-item" asp-action="Delete" asp-route-id="@employee.Id">Delete</a></li>
-                                    </ul>
-                                </div>
-                            </td>
+                            <th>
+                                <a asp-action="Index" asp-route-sortField="FirstName" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    First Name @(currentSortField == "FirstName" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                </a>
+                            </th>
+
+                            <th>
+                                <a asp-action="Index" asp-route-sortField="LastName" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Last Name @(currentSortField == "LastName" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                </a>
+                            </th>
+
+                            <th>
+                                <a asp-action="Index" asp-route-sortField="Email" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Email @(currentSortField == "Email" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                </a>
+                            </th>
+
+                            <th>
+                                <a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Status @(currentSortField == "Status" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                </a>
+                            </th>
+
+                            <th>
+                                <a asp-action="Index" asp-route-sortField="Role" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Role @(currentSortField == "Role" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                </a>
+                            </th>
+
+                            <th>Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var e in Model)
+                        {
+                            <tr>
+                                <td>@e.FirstName</td>
+                                <td>@e.LastName</td>
+                                <td>@e.Email</td>
+
+                                <td>
+                                    <span class="status-badge status-@e.Status.ToString().ToLower()">
+                                        @e.Status
+                                    </span>
+                                </td>
+
+                                <td>@e.GetType().Name</td>
+
+                                <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-edit">Edit</a>
+                                        <a asp-action="Delete" asp-route-id="@e.Id" class="btn btn-delete">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
     </div>
 </div>
 
 <style>
+
     body {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
         background: linear-gradient(135deg, #4e54c8, #8f94fb);
         font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
     }
 
+    /* Card Container */
     .employees-card {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.92);
         backdrop-filter: blur(12px);
         border-radius: 20px;
         padding: 40px 50px;
         max-width: 1100px;
         margin: 40px auto;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 0.6s ease;
+    }
+
+    keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .employees-title {
-        font-size: 2rem;
+        font-size: 2.3rem;
         font-weight: 700;
         color: #4e54c8;
+        text-align: left;
+        margin-bottom: 25px;
     }
 
-    .btn-add {
-        background: linear-gradient(135deg, #2575fc, #6a11cb);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 20px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-        .btn-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
-        }
-
+    /* Table */
     .employees-table {
         border-collapse: separate;
         border-spacing: 0 12px;
     }
 
-        .employees-table thead th {
-            padding: 14px;
-            font-weight: 600;
-        }
+    .employees-table thead th {
+        padding: 14px;
+        font-weight: 600;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+    }
 
-        .employees-table tbody tr {
-            background: rgba(255, 255, 255, 0.85);
-            transition: all 0.25s ease;
-        }
+    .employees-table tbody tr {
+        background: rgba(255, 255, 255, 0.85);
+        transition: transform 0.25s ease, background 0.25s ease;
+    }
 
-            .employees-table tbody tr:hover {
-                background: rgba(78, 84, 200, 0.1);
-                transform: scale(1.01);
-            }
-
-        .employees-table tbody td {
-            padding: 16px 12px;
-            vertical-align: middle;
-        }
+    .employees-table tbody tr:hover {
+        background: rgba(78, 84, 200, 0.12);
+        transform: scale(1.01);
+    }
 
     .table-gradient {
         background: linear-gradient(135deg, #4e54c8, #8f94fb);
     }
 
-    .btn-view {
+    /* Status Chips */
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .status-deactivated {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    /* Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-edit {
         background: #00bcd4;
         color: white;
-        border-radius: 20px;
+        border-radius: 10px;
+        padding: 7px 16px;
         font-weight: 600;
-        padding: 6px 16px;
-        border: none;
-        transition: all 0.3s ease;
         text-decoration: none;
-        display: inline-block;
+        transition: 0.3s ease;
     }
 
-        .btn-view:hover {
-            background: #0097a7;
-            color: white;
-        }
-
-    .btn-action {
-        background: #f3f4f6;
-        color: #333;
-        border: none;
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        padding: 8px 16px;
+    .btn-edit:hover {
+        background: #0097a7;
+        transform: translateY(-2px);
     }
 
-        .btn-action:hover {
-            background: #e0e7ff;
-            color: #4e54c8;
-        }
-
-    /* FIXED: Dropdown menu positioning */
-    .dropdown {
-        position: relative;
+    .btn-delete {
+        background: #ef5350;
+        color: white;
+        border-radius: 10px;
+        padding: 7px 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.3s ease;
     }
 
-    .dropdown-menu-custom {
-        position: absolute;
-        z-index: 1050;
-        min-width: 120px;
-        padding: 8px 0;
-        margin: 4px 0 0;
-        background: white;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    .btn-delete:hover {
+        background: #d32f2f;
+        transform: translateY(-2px);
     }
 
-        .dropdown-menu-custom .dropdown-item {
-            padding: 10px 20px;
-            color: #333;
-            transition: all 0.2s ease;
-        }
-
-            .dropdown-menu-custom .dropdown-item:hover {
-                background: #f3f4f6;
-                color: #4e54c8;
-            }
-
-    /* Ensure table rows don't overlap dropdowns */
-    .employees-table tbody tr {
-        position: relative;
-        z-index: 1;
-    }
-
-        .employees-table tbody tr:hover {
-            z-index: 2;
-        }
-
-    /* Keep dropdown above everything when open */
-    .dropdown.show {
-        z-index: 1060;
-    }
-
+    /* Sort links */
     .sort-link {
         color: white;
         font-weight: 600;
@@ -227,14 +223,19 @@
         transition: opacity 0.2s ease;
     }
 
-        .sort-link:hover {
-            opacity: 0.8;
-            text-decoration: underline;
-        }
+    .sort-link:hover {
+        opacity: 0.8;
+        text-decoration: underline;
+    }
 
     .fade-in {
         opacity: 1;
         transform: translateY(0);
         transition: all 0.6s ease-in-out;
     }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
 </style>

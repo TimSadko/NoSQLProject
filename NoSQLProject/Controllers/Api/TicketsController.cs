@@ -119,12 +119,11 @@ namespace NoSQLProject.Controllers.Api
             // Apply updates if provided
             if (request.Title != null) existing.Title = request.Title;
             if (request.Description != null) existing.Description = request.Description;
-            if (request.Status.HasValue) existing.Status = request.Status.Value;
 
             existing.UpdatedAt = DateTime.UtcNow;
 
             // Use fine-grained update to avoid replacing the whole doc
-            await ticketRepository.CheckUpdateAsync(existing);
+            await ticketRepository.EditAsync(existing);
 
             return NoContent();
         }

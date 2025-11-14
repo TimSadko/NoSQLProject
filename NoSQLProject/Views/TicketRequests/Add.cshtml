@@ -1,26 +1,133 @@
 ﻿@model NoSQLProject.Models.AddTicketRequestViewModel
 
 @{
-    ViewData["Title"] = "Add Ticket Requests";
+    ViewData["Title"] = "Add Ticket Request";
 }
 
 <partial name="_ErrorMessage" />
 
-<form action="/TicketRequests/Add" method="post">
-	<input type="hidden" asp-for="TicketId" value="@Model.TicketId" />
+<div class="fade-in">
+    <div class="request-card">
+        <h2 class="request-title">Add Ticket Request</h2>
 
-	<div class="form-group mb-3">
-		<label for="Email">Email</label>
-		<input type="text" asp-for="Email" placeholder="Request recipient email" required value="@Model?.Email" />
-	</div>
+        <form action="/TicketRequests/Add" method="post" class="request-form">
+            <input type="hidden" asp-for="TicketId" value="@Model.TicketId" />
 
-	<div class="form-group mb-3">
-		<label for="Message">Message</label>
-		<input type="text" asp-for="Message" placeholder="Message for recipient" value="@Model?.Message" />
-	</div>
+            <div class="form-group mb-3">
+                <label for="Email" class="form-label fw-semibold">Recipient Email</label>
+                <input type="email"
+                       asp-for="Email"
+                       class="form-control form-control-lg"
+                       placeholder="Enter service desk employee email"
+                       required
+                       value="@Model?.Email" />
+                <small class="form-text text-muted">Email of the service desk employee who will receive this request</small>
+            </div>
 
-	<button type="submit">Send Ticket Request</button>
-</form>
+            <div class="form-group mb-4">
+                <label for="Message" class="form-label fw-semibold">Message</label>
+                <textarea asp-for="Message"
+                          class="form-control form-control-lg"
+                          rows="5"
+                          placeholder="Add a message for the recipient (optional)">@Model?.Message</textarea>
+            </div>
 
-<a href="/TicketsServiceDesk/Edit/@Model.TicketId">Return to Ticket</a>
-<a href="/TicketRequests/Sent">Go to Sent Requests</a>
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="/TicketsServiceDesk/Edit/@Model.TicketId" class="btn btn-back px-4 py-2">← Back to Ticket</a>
+                <button type="submit" class="btn btn-send px-4 py-2">📤 Send Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .request-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 40px 50px;
+        max-width: 700px;
+        margin: 40px auto;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .request-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4e54c8;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .request-form .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .request-form .form-control {
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        padding: 12px 16px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .request-form .form-control:focus {
+        border-color: #4e54c8;
+        box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.15);
+        outline: none;
+    }
+
+    .request-form textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .btn-send {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-send:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+        color: white;
+    }
+
+    .btn-back {
+        background: #f3f4f6;
+        color: #333;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-back:hover {
+        background: #e0e7ff;
+        color: #4e54c8;
+        transform: translateY(-2px);
+    }
+
+    .fade-in {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease-in-out;
+    }
+
+    .form-control::placeholder {
+        color: #999;
+        font-style: italic;
+    }
+</style>
