@@ -24,7 +24,6 @@ namespace NoSQLProject.Models
         private DateTime _created_at;
         private DateTime _updated_at;
         private TicketRequestStatus _status = TicketRequestStatus.Open;
-        private bool _archived = false;
 
         private Employee? _sender = null;
         private Employee? _recipient = null;
@@ -32,7 +31,7 @@ namespace NoSQLProject.Models
 
         public TicketRequest() { }
 
-        public TicketRequest(string id, string sender_id, string recipient_id, string ticket_id, string message, DateTime created_at, DateTime updated_at, TicketRequestStatus status, bool archived)
+        public TicketRequest(string id, string sender_id, string recipient_id, string ticket_id, string message, DateTime created_at, DateTime updated_at, TicketRequestStatus status)
         {
             _id = id;
             _sender_id = sender_id;
@@ -42,7 +41,6 @@ namespace NoSQLProject.Models
             _created_at = created_at;
             _updated_at = updated_at;
             _status = status;
-            _archived = archived;
         }
 
         [BsonId]
@@ -76,10 +74,6 @@ namespace NoSQLProject.Models
         [BsonElement("status")]
         [JsonPropertyName("status")]
         public TicketRequestStatus Status { get => _status; set => _status = value; }
-
-        [BsonElement("archived")]
-        [JsonPropertyName("archived")]
-        public bool Archived { get => _archived; set => _archived = value; }
 
 
         [BsonIgnore]

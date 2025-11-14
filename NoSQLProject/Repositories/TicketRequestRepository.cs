@@ -66,7 +66,7 @@ namespace NoSQLProject.Repositories
 
         public async Task<List<TicketRequest>> GetRequestsByTicketAsync(string ticket_id)
         {         
-            return await _requests.FindAsync(Builders<TicketRequest>.Filter.Where(r => r.TicketId == ticket_id && r.Archived == false)).Result.ToListAsync();
+            return await _requests.FindAsync(Builders<TicketRequest>.Filter.Where(r => r.TicketId == ticket_id)).Result.ToListAsync();
         }
 
         public async Task UpdateRequestStatusAsync(string request_id, TicketRequestStatus status)

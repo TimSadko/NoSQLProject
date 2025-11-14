@@ -10,7 +10,6 @@
     <div class="log-card">
         <h2 class="log-title">Edit Log</h2>
 
-        <!-- Log Info Section -->
         <div class="info-section mb-4">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -24,7 +23,6 @@
             </div>
         </div>
 
-        <!-- Edit Form -->
         <form action="/TicketsServiceDesk/EditLog" method="post" class="log-form">
             <input type="hidden" asp-for="@Model.Ticket.Id" value="@Model.Ticket.Id" />
             <input type="hidden" asp-for="@Model.Ticket.Status" value="@Model.Ticket.Status" />
