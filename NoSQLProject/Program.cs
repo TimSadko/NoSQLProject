@@ -63,6 +63,9 @@ namespace NoSQLProject
 			builder.Services.AddScoped<IServiceDeskEmployeeService, ServiceDeskEmployeeService>();
 			builder.Services.AddScoped<ITicketRequestService, TicketRequestService>();
 
+            // Register password reset service
+            builder.Services.AddScoped<PasswordResetService>();
+
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
 
