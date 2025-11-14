@@ -115,7 +115,7 @@ namespace NoSQLProject.Services
 		{
 			Ticket? ticket = await _rep.GetByIdAsync(id);
 
-			if (ticket == null) throw new Exception("Ticket with the id does not exsist");
+			if (ticket == null) throw new Exception("Ticket with the id does not exist");
 
 			return ticket;
 		} 
@@ -124,7 +124,7 @@ namespace NoSQLProject.Services
 		{
 			Ticket? ticket_old = await _rep.GetByIdAsync(ticket_new.Id);
 
-			if (ticket_old == null) throw new Exception("Ticket with the id does not exsist");
+			if (ticket_old == null) throw new Exception("Ticket with the id does not exist");
 
 			if (ticket_old.Description != ticket_new.Description || ticket_old.Title != ticket_new.Title || ticket_old.Priority != ticket_new.Priority)
 			{

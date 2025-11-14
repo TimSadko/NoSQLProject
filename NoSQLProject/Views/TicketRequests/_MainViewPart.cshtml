@@ -1,45 +1,65 @@
 ﻿@model TicketRequest
 
-<link rel="stylesheet" href="~/css/common-styles.css" />
+<div class="info-section mb-4">
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="info-label">Sender</label>
+            <input type="text" class="form-control info-input" value="@(Model.Sender == null ? "???" : $"{Model.Sender.FullName} ({Model.Sender.Email})")" readonly />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="info-label">Recipient</label>
+            <input type="text" class="form-control info-input" value="@(Model.Recipient == null ? "???" : $"{Model.Recipient.FullName} ({Model.Recipient.Email})")" readonly />
+        </div>
+    </div>
 
-<div>
-	<label>Sender:</label>
-	<input type="text" value="@(Model.Sender == null ? "???" : $"{Model.Sender.FullName} ({Model.Sender.Email})")" readonly />
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="info-label">Ticket Title</label>
+            <input type="text" class="form-control info-input" value="@Model.Ticket.Title" readonly />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="info-label">Ticket Description</label>
+            <textarea class="form-control info-input" readonly rows="3">@Model.Ticket.Description</textarea>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="info-label">Ticket Status</label>
+            <input type="text" class="form-control info-input" value="@Model.Ticket.Status" readonly />
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="info-label">Priority</label>
+            <input type="text" class="form-control info-input" value="@Model.Ticket.Priority" readonly />
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="info-label">Logs Number</label>
+            <input type="text" class="form-control info-input" value="@Model.Ticket.Logs.Count" readonly />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id" class="btn btn-view">Go to Ticket</a>
+        </div>
+    </div>
 </div>
-<div>
-	<label>Recipient:</label>
-	<input type="text" value="@(Model.Recipient == null ? "???" : $"{Model.Recipient.FullName} ({Model.Recipient.Email})")" readonly />
+
+<div class="form-group mb-3">
+    <label class="form-label fw-semibold">Message</label>
+    <textarea class="form-control" readonly rows="3">@Model.Message</textarea>
 </div>
-<div>
-	<label>Ticket:</label>
-	<div>
-		<label>Title:</label>
-		<input type="text" value="@Model.Ticket.Title" readonly />
 
-		<label>Description:</label>
-		<input type="text" value="@Model.Ticket.Description" readonly />
-
-		<label>Status:</label>
-		<input type="text" value="@Model.Ticket.Status" readonly />
-
-		<label>Priority:</label>
-		<input type="text" value="@Model.Ticket.Priority" readonly />
-
-		<label>Logs Number:</label>
-		<input type="text" value="@Model.Ticket.Logs.Count" readonly />
-
-		<a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Go to Ticket</a>
-	</div>
-</div>
-<div>
-	<label>Message:</label>
-	<input type="text" value="@Model.Message" readonly />
-</div>
-<div>
-	<label>Sent At:</label>
-	<input type="text" value="@Model.CreatedAt" readonly />
-</div>
-<div>
-	<label>Last Update:</label>
-	<input type="text" value="@Model.UpdatedAt" readonly />
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="info-label">Sent At</label>
+        <input type="text" class="form-control info-input" value="@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")" readonly />
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="info-label">Last Update</label>
+        <input type="text" class="form-control info-input" value="@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")" readonly />
+    </div>
 </div>

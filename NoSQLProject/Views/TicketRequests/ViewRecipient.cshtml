@@ -1,53 +1,58 @@
 ﻿@model NoSQLProject.Models.TicketRequest
 
 @{
-	ViewData["Title"] = "View Request";
+    ViewData["Title"] = "View Request";
 }
 
-<link rel="stylesheet" href="~/css/common-styles.css" />
+<partial name="_ErrorMessage" />
 
-<partial name="_ErrorMessage"/>
+<div class="fade-in">
+    <div class="request-card">
+        <h2 class="request-title">Request View</h2>
 
-<h1>Request View</h1>
+        <partial name="~/Views/TicketRequests/_MainViewPart.cshtml" model="@Model" />
 
-<div>
-	<partial name="~/Views/TicketRequests/_MainViewPart.cshtml" model="@Model" />
+        <div class="form-group mb-3">
+            <label class="form-label fw-semibold">Status</label>
+            <input type="text" class="form-control info-input" value="@Model.Status.ToString()" readonly />
+        </div>
 
-	<div>
-		<label>Status:</label>
-		<input type="text" value="@Model.Status.ToString()" readonly />
-		
-		@{
-			if (Model.Status == TicketRequestStatus.Open)
-			{
-				<label>Actions:</label>
-				
-				<form action="/TicketRequests/ViewAccept" method="post">
-					<input type="hidden" asp-for="@Model.Id" value="@Model.Id"/>
+        @if (Model.Status == TicketRequestStatus.Open)
+        {
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Actions</label>
+            </div>
 
-					<button type="submit">Accept Request</button>
-				</form>
+            <div class="d-flex gap-2 mb-3">
+                <form action="/TicketRequests/ViewAccept" method="post" style="flex: 1;">
+                    <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-save w-100">Accept Request</button>
+                </form>
 
-				<form action="/TicketRequests/ViewReject" method="post">
-					<input type="hidden" asp-for="@Model.Id" value="@Model.Id"/>
+                <form action="/TicketRequests/ViewReject" method="post" style="flex: 1;">
+                    <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-delete w-100">Reject Request</button>
+                </form>
+            </div>
+        }
+        else if (Model.Status == TicketRequestStatus.Accepted)
+        {
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Actions</label>
+            </div>
 
-					<button type="submit">Reject Request</button>
-				</form>
-			}
-			else if (Model.Status == TicketRequestStatus.Accepted)
-			{
-				<label>Actions:</label>
-				<a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Go to Ticket</a>
+            <div class="d-flex gap-2 mb-3">
+                <a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id" class="btn btn-view" style="flex: 1; text-align: center;">Go to Ticket</a>
 
-				<form action="/TicketRequests/ViewFail" method="post">
-					<input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                <form action="/TicketRequests/ViewFail" method="post" style="flex: 1;">
+                    <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-delete w-100">Fail Request</button>
+                </form>
+            </div>
+        }
 
-					<button type="submit">Fail Request</button>
-				</form>
-			}
-		}
-	</div>
-</div>	
-
-
-<a href="/TicketRequests/Received">Go Back</a>
+        <div class="text-center">
+            <a href="/TicketRequests/Received" class="btn btn-back px-4 py-2">Go Back</a>
+        </div>
+    </div>
+</div>

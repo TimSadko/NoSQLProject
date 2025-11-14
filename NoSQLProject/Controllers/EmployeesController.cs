@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NoSQLProject.Models;
 using NoSQLProject.Other;
 using NoSQLProject.Services;
@@ -57,6 +53,27 @@ namespace NoSQLProject.Controllers
                     }
                 }
 
+                // ===================== SORTING LOGIC =====================
+                employees = sortField switch
+                {
+                    "FirstName" => sortOrder == 1 ? employees.OrderBy(e => e.FirstName).ToList() : employees.OrderByDescending(e => e.FirstName).ToList(),
+                    "LastName" => sortOrder == 1 ? employees.OrderBy(e => e.LastName).ToList() : employees.OrderByDescending(e => e.LastName).ToList(),
+                    "Email" => sortOrder == 1 ? employees.OrderBy(e => e.Email).ToList() : employees.OrderByDescending(e => e.Email).ToList(),
+                    "Status" => sortOrder == 1 ? employees.OrderBy(e => e.Status).ToList() : employees.OrderByDescending(e => e.Status).ToList(),
+                    "Role" => sortOrder == 1 ? employees.OrderBy(e => e.GetType().Name).ToList() : employees.OrderByDescending(e => e.GetType().Name).ToList(),
+                    _ => employees.OrderBy(e => e.FirstName).ToList()
+                };
+
+                // Debug logs (optional) 
+                /*Console.WriteLine($"SORT FIELD = {sortField}, ORDER = {sortOrder}");
+                if (employees.Count > 0)
+                {
+                    Console.WriteLine($"Top result after sorting: {employees[0].FirstName} {employees[0].LastName}");
+                }*/
+
+                // ========================================================== 
+
+                ViewBag.Status = status;
                 ViewBag.SortField = sortField;
                 ViewBag.SortOrder = sortOrder;
                 ViewBag.Status = status;
@@ -87,23 +104,16 @@ namespace NoSQLProject.Controllers
             {
                 if (!ModelState.IsValid) throw new Exception("The model is invalid");
 
-                Employee toAdd;
-
-                if (Role == "ServiceDeskEmployee")
-                {
-                    toAdd = new ServiceDeskEmployee
+                Employee toAdd = Role == "ServiceDeskEmployee"
+                    ? new ServiceDeskEmployee
                     {
                         FirstName = employee.FirstName,
                         LastName = employee.LastName,
                         Email = employee.Email,
                         Password = employee.Password,
                         Status = employee.Status
-                    };
-                }
-                else
-                {
-                    toAdd = employee;
-                }
+                    }
+                    : employee;
 
                 await _employeeService.AddEmployeeAsync(toAdd);
                 return RedirectToAction("Index");
@@ -124,6 +134,7 @@ namespace NoSQLProject.Controllers
             {
                 var employee = await _employeeService.GetEmployeeByIdAsync(id);
                 if (employee == null) throw new Exception("Employee not found");
+
                 return View(employee);
             }
             catch (Exception ex)
@@ -193,6 +204,7 @@ namespace NoSQLProject.Controllers
             {
                 var employee = await _employeeService.GetEmployeeByIdAsync(id);
                 if (employee == null) throw new Exception("Employee not found");
+
                 return View(employee);
             }
             catch (Exception ex)
@@ -211,7 +223,7 @@ namespace NoSQLProject.Controllers
             {
                 var currentUserId = HttpContext.Session.GetString("UserId");
                 if (currentUserId == id)
-                    throw new Exception("You cannot delete your own account while logged in.");
+                    throw new Exception("You cannot delete your own account.");
 
                 var employee = await _employeeService.GetEmployeeByIdAsync(id);
                 if (employee != null)
@@ -292,8 +304,8 @@ namespace NoSQLProject.Controllers
 
         public bool Authenticate()
         {
-            Employee? emp = Authorization.GetLoggedInEmployee(this.HttpContext);
-            return emp is ServiceDeskEmployee;
+            Employee? emp = Authorization.GetLoggedInEmployee(HttpContext);
+            return emp is ServiceDeskEmployee; // Only ServiceDeskEmployee can access
         }
     }
 }
