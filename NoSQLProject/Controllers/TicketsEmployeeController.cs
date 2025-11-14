@@ -195,52 +195,52 @@ namespace NoSQLProject.Controllers
             return View(ticket);
         }
 
-		[HttpPost]
-		public async Task<IActionResult> Delete(Ticket? ticket)
-		{
-			if (!IsAuthenticated())
-				return RedirectToAction("Login", "Home");
+        [HttpPost]
+        public async Task<IActionResult> Delete(Ticket? ticket)
+        {
+            if (!IsAuthenticated())
+                return RedirectToAction("Login", "Home");
 
-			try
-			{
-				if (ticket == null || string.IsNullOrEmpty(ticket.Id))
-					throw new Exception("Ticket id is empty or null!");
+            try
+            {
+                if (ticket == null || string.IsNullOrEmpty(ticket.Id))
+                    throw new Exception("Ticket id is empty or null!");
 
-				var ticketToRemove = await ticketRepository.GetByIdAsync(ticket.Id);
-				if (ticketToRemove == null)
-				{
-					TempData["Exception"] = "Ticket not found.";
-					return View(ticket);
-				}
+                var ticketToRemove = await ticketRepository.GetByIdAsync(ticket.Id);
+                if (ticketToRemove == null)
+                {
+                    TempData["Exception"] = "Ticket not found.";
+                    return View(ticket);
+                }
 
-				await ticketRepository.DeleteAsync(ticket.Id);
+                await ticketRepository.DeleteAsync(ticket.Id);
 
-				return RedirectToAction("Index");
-			}
-			catch (Exception ex)
-			{
-				TempData["Exception"] = ex.Message;
-				return RedirectToAction("Index");
-			}
-		}
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Exception"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
 
-		[HttpGet]
-		public async Task<IActionResult> Archive(string? id)
-		{
-			if (!IsAuthenticated())
-				return RedirectToAction("Login", "Home");
+        [HttpGet]
+        public async Task<IActionResult> Archive(string? id)
+        {
+            if (!IsAuthenticated())
+                return RedirectToAction("Login", "Home");
 
-			if (string.IsNullOrEmpty(id))
-				throw new Exception("Ticket id is empty or null!");
+            if (string.IsNullOrEmpty(id))
+                throw new Exception("Ticket id is empty or null!");
 
-			var ticket = await _ticketRepository.GetByIdAsync(id);
-			if (ticket == null)
-				TempData["Exception"] = "Ticket is null. Something went wrong!";
+            var ticket = await _ticketRepository.GetByIdAsync(id);
+            if (ticket == null)
+                TempData["Exception"] = "Ticket is null. Something went wrong!";
 
-			return View(ticket);
-		}
+            return View(ticket);
+        }
 
-		[HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Archive(Ticket? ticket)
         {
             if (!IsAuthenticated())
