@@ -28,9 +28,7 @@ namespace NoSQLProject.Repositories
         {
             if (string.IsNullOrEmpty(id)) return null;
 
-            return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)))
-                                 .Result
-                                 .FirstOrDefaultAsync();
+            return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id))).Result.FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(Ticket t)
