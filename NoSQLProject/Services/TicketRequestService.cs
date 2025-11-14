@@ -16,9 +16,18 @@ namespace NoSQLProject.Services
             _employees_rep = employees_rep;
         }
 
-        public async Task<List<TicketRequest>> GetReceivedTicketRequestsAsync(string employee_id)
+        public async Task<List<TicketRequest>> GetReceivedTicketRequestsAsync(string sort_field, int sort_order, string employee_id)
         {
-            List<TicketRequest> ticket_requests = await _rep.GetAllByRecipientAsync(employee_id);
+            List<TicketRequest> ticket_requests;
+            
+            if(sort_field == "Sender" || sort_field == "Ticket")
+            {
+                ticket_requests = await _rep.GetAllByRecipientAsync(employee_id);
+			}
+            else
+            {
+                ticket_requests = await _rep.GetAllByRecipientSortedAsync(sort_field, sort_order, employee_id);
+            }
 
             List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
             List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
@@ -38,14 +47,56 @@ namespace NoSQLProject.Services
                 ticket_requests[i].Ticket = ticket_tasks[i].Result;
             }
 
-            return ticket_requests;
+            if(sort_field == "Sender")
+            {
+                ticket_requests.Sort((TicketRequest r, TicketRequest r2) =>
+				{
+					if (r.Sender == null)
+					{
+						if (r2.Sender == null) return 0;
+						else return sort_order;
+					}
+					else
+					{
+						if (r2.Sender == null) return -sort_order;
+						else return r.Sender.FullName.CompareTo(r2.Sender.FullName) * sort_order;
+					}
+				});
+			}
+			else if (sort_field == "Ticket")
+			{
+				ticket_requests.Sort((TicketRequest r, TicketRequest r2) =>
+				{
+					if (r.Ticket == null)
+					{
+						if (r2.Ticket == null) return 0;
+						else return sort_order;
+					}
+					else
+					{
+						if (r2.Ticket == null) return -sort_order;
+						else return r.Ticket.Title.CompareTo(r2.Ticket.Title) * sort_order;
+					}
+				});
+			}
+
+			return ticket_requests;
         }
 
-        public async Task<List<TicketRequest>> GetSentTicketRequestsAsync(string employee_id)
+        public async Task<List<TicketRequest>> GetSentTicketRequestsAsync(string sort_field, int sort_order, string employee_id)
         {
-            List<TicketRequest> ticket_requests = await _rep.GetAllBySenderAsync(employee_id);
+            List<TicketRequest> ticket_requests;
 
-            List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
+			if (sort_field == "Recipient" || sort_field == "Ticket")
+			{
+				ticket_requests = await _rep.GetAllBySenderAsync(employee_id);
+			}
+			else
+			{
+				ticket_requests = await _rep.GetAllBySenderSortedAsync(sort_field, sort_order, employee_id);
+			}
+
+			List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
             List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
 
             for (int i = 0; i < ticket_requests.Count; i++)
@@ -63,14 +114,56 @@ namespace NoSQLProject.Services
                 ticket_requests[i].Ticket = ticket_tasks[i].Result;
             }
 
-            return ticket_requests;
+			if (sort_field == "Recipient")
+			{
+				ticket_requests.Sort((TicketRequest r, TicketRequest r2) =>
+				{
+					if (r.Recipient == null)
+					{
+						if (r2.Recipient == null) return 0;
+						else return sort_order;
+					}
+					else
+					{
+						if (r2.Recipient == null) return -sort_order;
+						else return r.Recipient.FullName.CompareTo(r2.Recipient.FullName) * sort_order;
+					}
+				});
+			}
+			else if (sort_field == "Ticket")
+			{
+				ticket_requests.Sort((TicketRequest r, TicketRequest r2) =>
+				{
+					if (r.Ticket == null)
+					{
+						if (r2.Ticket == null) return 0;
+						else return sort_order;
+					}
+					else
+					{
+						if (r2.Ticket == null) return -sort_order;
+						else return r.Ticket.Title.CompareTo(r2.Ticket.Title) * sort_order;
+					}
+				});
+			}
+
+			return ticket_requests;
         }
 
-        public async Task<List<TicketRequest>> GetAllTicketRequestsAsync()
+        public async Task<List<TicketRequest>> GetAllTicketRequestsAsync(string sort_field, int sort_order)
         {
-            List<TicketRequest> ticket_requests = await _rep.GetAllAsync();
+            List<TicketRequest> ticket_requests;
 
-            List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
+			if (sort_field == "Sender" || sort_field == "Recipient" || sort_field == "Ticket")
+			{
+				ticket_requests = await _rep.GetAllAsync();
+			}
+			else
+			{
+				ticket_requests = await _rep.GetAllSortedAsync(sort_field, sort_order);
+			}
+
+			List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
             List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
 
             for (int i = 0; i < ticket_requests.Count; i++)
@@ -94,7 +187,56 @@ namespace NoSQLProject.Services
                 ticket_requests[i].Ticket = ticket_tasks[i].Result;
             }
 
-            return ticket_requests;
+			if (sort_field == "Sender")
+			{
+				ticket_requests.Sort((TicketRequest r, TicketRequest r2) =>
+				{
+					if (r.Sender == null)
+					{
+						if (r2.Sender == null) return 0;
+						else return sort_order;
+					}
+					else
+					{
+						if (r2.Sender == null) return -sort_order;
+						else return r.Sender.FullName.CompareTo(r2.Sender.FullName) * sort_order;
+					}
+				});
+			}
+			else if (sort_field == "Recipient")
+			{
+				ticket_requests.Sort((TicketRequest r, TicketRequest r2) =>
+				{
+					if (r.Recipient == null)
+					{
+						if (r2.Recipient == null) return 0;
+						else return sort_order;
+					}
+					else
+					{
+						if (r2.Recipient == null) return -sort_order;
+						else return r.Recipient.FullName.CompareTo(r2.Recipient.FullName) * sort_order;
+					}
+				});
+			}
+			else if (sort_field == "Ticket")
+			{
+				ticket_requests.Sort((TicketRequest r, TicketRequest r2) =>
+				{
+					if (r.Ticket == null)
+					{
+						if (r2.Ticket == null) return 0;
+						else return sort_order;
+					}
+					else
+					{
+						if (r2.Ticket == null) return -sort_order;
+						else return r.Ticket.Title.CompareTo(r2.Ticket.Title) * sort_order;
+					}
+				});
+			}
+
+			return ticket_requests;
         }
 
         public async Task AddRequestAsync(string email, string logged_in_employee_id, string ticket_id, string message)

@@ -19,22 +19,22 @@ namespace NoSQLProject.Services
 			_request_rep = request_rep;
 		}
 
-		public async Task<List<Ticket>> GetTicketsSortedAsync(string sortField, int sortOrder)
+		public async Task<List<Ticket>> GetTicketsSortedAsync(string sortField, int sortOrder, bool archived = false)
 		{
 			List<Ticket> tickets;
 
 			if (sortField == "CreatedBy")
 			{
-				tickets = await _rep.GetAllAsync();
+				tickets = await _rep.GetAllAsync(archived);
 			}
 			else if (sortField == "LogsNumber")
 			{
-				tickets = await _rep.GetAllAsync();
+				tickets = await _rep.GetAllAsync(archived);
 				tickets.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count) * sortOrder; });
 			}
 			else
 			{
-				tickets = await _rep.GetAllSortedAsync(sortField, sortOrder);
+				tickets = await _rep.GetAllSortedAsync(sortField, sortOrder, archived);
 			}
 
 			List<Task<Employee?>> tasks = new List<Task<Employee?>>();
@@ -104,9 +104,7 @@ namespace NoSQLProject.Services
 				ticket.Logs[i].Creator = log_creator_tasks[i].Result;
 			}
 
-			Employee? ticket_creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
-
-			ticket.Creator = ticket_creator;
+			ticket.Creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
 
 			return ticket;
 		}
@@ -153,18 +151,18 @@ namespace NoSQLProject.Services
 			foreach (var r in request_list) // Go through the ticket requests, changing their status if needed 
 			{
 				if (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)
-				{		
+				{
 					if (r.RecipientId == creator.Id)
 					{
-						if (log.NewStatus == Ticket_Status.Closed)
-							update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Closed));
-						else if (log.NewStatus == Ticket_Status.Resolved)
+						if (log.NewStatus == Ticket_Status.Closed || log.NewStatus == Ticket_Status.Resolved)
+						{
 							update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Fulfilled));
+						}
 					}
 					else if (log.NewStatus != Ticket_Status.Open)
+					{
 						update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Cancelled));
-
-					break;
+					}
 				}
 			}
 
@@ -181,9 +179,7 @@ namespace NoSQLProject.Services
 
 			if (l == null) throw new Exception($"Log with the id does not exist");
 
-			Employee? creator = await _employees_rep.GetByIdAsync(l.CreatedById);
-
-			l.Creator = creator;
+			l.Creator = await _employees_rep.GetByIdAsync(l.CreatedById);
 
 			return new LogViewModel(t, l);
 		}
@@ -198,9 +194,9 @@ namespace NoSQLProject.Services
 			await _rep.DeleteAsync(ticket_id);
 		}
 
-		public async Task ArchiveTicketAsync(string ticket_id)
+		public async Task SetArchiveTicketAsync(string ticket_id, bool archive = true)
 		{
-			await _rep.ArchiveAsync(ticket_id);
+			await _rep.SetArchiveAsync(ticket_id, archive);
 		}
 
 		public async Task DeleteLogAsync(string ticket_id, string log_id)
@@ -260,9 +256,9 @@ namespace NoSQLProject.Services
 			}
 		}
 
-		private async Task CloseTicketsRequestsAsync(string ticekt_id, string logged_in_employee_id)
+		private async Task CloseTicketsRequestsAsync(string ticket_id, string logged_in_employee_id)
 		{
-			var requests = await _request_rep.GetRequestsByTicketAsync(ticekt_id);
+			var requests = await _request_rep.GetRequestsByTicketAsync(ticket_id);
 
 			List<Task> tasks = new List<Task>();
 
@@ -270,7 +266,7 @@ namespace NoSQLProject.Services
 			{
 				if (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)
 				{
-					if (r.RecipientId == logged_in_employee_id) tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Closed));				
+					if (r.RecipientId == logged_in_employee_id) tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Fulfilled));				
 					else tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Cancelled));
 				}
 			}
@@ -278,9 +274,9 @@ namespace NoSQLProject.Services
 			await Task.WhenAll(tasks);
 		}
 
-		private async Task EscalateTicketsRequestsAsync(string ticekt_id)
+		private async Task EscalateTicketsRequestsAsync(string ticket_id)
 		{
-			var requests = await _request_rep.GetRequestsByTicketAsync(ticekt_id);
+			var requests = await _request_rep.GetRequestsByTicketAsync(ticket_id);
 
 			List<Task> tasks = new List<Task>();
 

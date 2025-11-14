@@ -24,7 +24,7 @@ namespace NoSQLProject.Controllers
         {
             var loggedin = Authorization.GetLoggedInEmployee(HttpContext);
             if (loggedin == null)
-                return RedirectToAction("Login");
+            return RedirectToAction("Login");
 
             return View("Home", loggedin);
         }
@@ -96,18 +96,27 @@ namespace NoSQLProject.Controllers
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(string email)
         {
-            var user = await _rep.GetByEmailAsync(email);
-            if (user == null)
-                return View("Password/ForgotPasswordConfirmation");
+            try
+            {
+                var user = await _rep.GetByEmailAsync(email);
+                if (user == null)
+                    return View("Password/ForgotPasswordConfirmation");
 
             string token = _passwordResetService.GenerateTokenForUser(user);
             string resetLink = Url.Action("ResetPassword", "Home", 
                 new { userId = user.Id, token }, protocol: Request.Scheme);
 
-            ViewBag.Link = resetLink;
-            ViewBag.Email = email;
-            return View("Password/DisplayResetLink");
-        }
+                ViewBag.Link = resetLink;
+                ViewBag.Email = email;
+
+                return View("Password/DisplayResetLink");
+            }
+			catch (Exception ex)
+			{
+				ViewData["Exception"] = ex.Message;
+				return View();
+			}
+		}
 
 
         [HttpGet]

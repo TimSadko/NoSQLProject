@@ -15,7 +15,7 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Received()
+        public async Task<IActionResult> Received(string sortField = "UpdatedAt", int sortOrder = -1)
         {
             var logged_in_employee = Authenticate();
             
@@ -23,7 +23,10 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                return View(await _service.GetReceivedTicketRequestsAsync(logged_in_employee.Id));
+				ViewBag.SortField = sortField;
+				ViewBag.SortOrder = sortOrder;
+
+				return View(await _service.GetReceivedTicketRequestsAsync(sortField, sortOrder, logged_in_employee.Id));
             }
             catch (Exception ex)
             {
@@ -33,7 +36,7 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Sent()
+        public async Task<IActionResult> Sent(string sortField = "UpdatedAt", int sortOrder = -1)
         {
             var logged_in_employee = Authenticate();
 
@@ -41,7 +44,10 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                return View(await _service.GetSentTicketRequestsAsync(logged_in_employee.Id));
+				ViewBag.SortField = sortField;
+				ViewBag.SortOrder = sortOrder;
+
+				return View(await _service.GetSentTicketRequestsAsync(sortField, sortOrder, logged_in_employee.Id));
             }
             catch (Exception ex)
             {
@@ -51,7 +57,7 @@ namespace NoSQLProject.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(string sortField = "UpdatedAt", int sortOrder = -1)
         {
             var logged_in_employee = Authenticate();
 
@@ -59,7 +65,10 @@ namespace NoSQLProject.Controllers
 
             try
             {
-                return View(await _service.GetAllTicketRequestsAsync());
+				ViewBag.SortField = sortField;
+				ViewBag.SortOrder = sortOrder;
+
+				return View(await _service.GetAllTicketRequestsAsync(sortField, sortOrder));
             }
             catch (Exception ex)
             {

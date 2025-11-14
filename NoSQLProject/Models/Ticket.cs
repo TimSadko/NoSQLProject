@@ -7,9 +7,9 @@ namespace NoSQLProject.Models
     public enum Ticket_Status
     {
         Open = 0,
-        Closed = 1,
-        Resolved = 2,
-        Escalated = 3
+		Escalated = 1,
+		Closed = 2,
+        Resolved = 3   
 	}
 
     public enum Ticket_Priority

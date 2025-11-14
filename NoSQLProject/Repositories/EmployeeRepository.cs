@@ -7,25 +7,24 @@ namespace NoSQLProject.Repositories
     public class EmployeeRepository : IEmployeeRepository
     {
         private readonly IMongoCollection<Employee> _employees;
+        private readonly IMongoCollection<TicketRequest> _requests;
 
         public EmployeeRepository(IMongoDatabase db)
         {
             _employees = db.GetCollection<Employee>("employees");
+			_requests = db.GetCollection<TicketRequest>("ticket_requests");
         }
 
-        // Get employee by ID (Fernando)
         public async Task<Employee?> GetByIdAsync(string id)
         {
             return await _employees.FindAsync(Builders<Employee>.Filter.Eq("_id", ObjectId.Parse(id))).Result.FirstOrDefaultAsync();
         }
 
-        // Get all employees (Fernando)
         public async Task<List<Employee>> GetAllAsync()
         {
             return await _employees.FindAsync(new BsonDocument()).Result.ToListAsync();
         }
 
-        // Get by credentials (Fernando)
         public async Task<Employee?> GetByCredentialsAsync(string login, string password)
         {
             var builder = Builders<Employee>.Filter;
@@ -33,14 +32,12 @@ namespace NoSQLProject.Repositories
             return await _employees.FindAsync(filter).Result.FirstOrDefaultAsync();
         }
 
-        // Get by email (Fernando)
         public async Task<Employee?> GetByEmailAsync(string email)
         {
             var filter = Builders<Employee>.Filter.Eq(e => e.Email, email);
             return await _employees.Find(filter).FirstOrDefaultAsync();
         }
 
-        // Add, Update, Delete methods added by Fernando
         public async Task AddAsync(Employee employee)
         {
             await _employees.InsertOneAsync(employee);
@@ -54,8 +51,13 @@ namespace NoSQLProject.Repositories
 
         public async Task DeleteAsync(Employee employee)
         {
-            var filter = Builders<Employee>.Filter.Eq(e => e.Id, employee.Id);
-            await _employees.DeleteOneAsync(filter);
+            List<Task<DeleteResult>> delete_tasks = new List<Task<DeleteResult>>();
+
+            delete_tasks.Add(_requests.DeleteManyAsync(Builders<TicketRequest>.Filter.Or(Builders<TicketRequest>.Filter.Eq("sender_id", employee.Id), Builders<TicketRequest>.Filter.Eq("recipient_id", employee.Id))));
+
+            delete_tasks.Add(_employees.DeleteOneAsync(Builders<Employee>.Filter.Eq("_id", ObjectId.Parse(employee.Id))));
+
+            await Task.WhenAll(delete_tasks);
         }
 
         public async Task<List<Employee>> GetEmployeesByIdsAsync(IEnumerable<string> ids)
@@ -64,14 +66,8 @@ namespace NoSQLProject.Repositories
             return await _employees.Find(filter).ToListAsync();
         }
 
-
-        //  Added by TAREK — Sorting functionality for Employees
-        // This method allows sorting employees by any visible field.
-        // Default: sort by Status ascending, then CreatedAt (if available).
         public async Task<List<Employee>> GetAllSortedAsync(string sortField = "Status", int sortOrder = 1)
         {
-            //Console.WriteLine($"[TAREK] Sorting Employees by {sortField} ({(sortOrder == 1 ? "ASC" : "DESC")})"); Debug
-
             var sortBuilder = Builders<Employee>.Sort;
             SortDefinition<Employee> sortDef;
 

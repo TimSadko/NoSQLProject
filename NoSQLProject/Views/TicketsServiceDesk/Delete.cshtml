@@ -11,10 +11,9 @@
         <h2 class="delete-title">Delete Ticket</h2>
 
         <div class="alert alert-danger text-center fw-semibold mb-4">
-            Are you sure you want to permanently delete this ticket?
+            Are you sure you want to permanently delete this ticket and all of its requests?
         </div>
 
-        <!-- Ticket Details -->
         <div class="ticket-details">
             <div class="detail-row">
                 <span class="detail-label">Creator:</span>
@@ -49,7 +48,7 @@
                             Ticket_Priority.Undefined => "priority-undefined",
                             _ => "priority-undefined"
                         };
-                   
+
                     }
                     <span class="priority-badge @priorityClass">
                         @Model.Priority
@@ -58,7 +57,6 @@
             </div>
         </div>
 
-        <!-- Logs Section -->
         <div class="logs-section">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="logs-title">Activity Logs</h3>
@@ -66,7 +64,7 @@
 
             @if (Model.Logs.Count == 0)
             {
-                <div class="alert alert-info text-center">No logs.</div>
+                <div class="alert alert-info text-center"> No logs.</div>
             }
             else
             {
@@ -87,9 +85,7 @@
                                     <td class="fw-semibold">@(log.Creator == null ? "???" : log.Creator.FullName)</td>
                                     <td class="date-cell">@log.CreatedAt.ToString("MMM dd, HH:mm")</td>
                                     <td>
-                                        <span class="status-badge status-@log.NewStatus.ToString().ToLower()">
-                                            @log.NewStatus
-                                        </span>
+                                        <span class="status-badge status-@log.NewStatus.ToString().ToLower()">@log.NewStatus</span>
                                     </td>
                                     <td class="description-cell">
                                         @if (string.IsNullOrEmpty(log.Description))
@@ -99,8 +95,8 @@
                                         else if (log.Description.Length > 100)
                                         {
                                             @(log.Description.Substring(0, 100))
-                                            
-                                                                }
+
+                                        }
                                         else
                                         {
                                             @log.Description
@@ -114,7 +110,7 @@
             }
         </div>
 
-        <!-- Delete Form -->
+
         <form action="/TicketsServiceDesk/Delete" method="post">
             <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
 
