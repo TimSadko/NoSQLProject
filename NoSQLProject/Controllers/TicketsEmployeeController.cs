@@ -143,6 +143,7 @@ namespace NoSQLProject.Controllers
                 throw new Exception("Ticket id is empty or null!");
 
             var ticket = await _ticketRepository.GetByIdAsync(id);
+
             if (ticket == null)
                 TempData["Exception"] = "Ticket is null. Something went wrong!";
 
@@ -168,8 +169,9 @@ namespace NoSQLProject.Controllers
                     return View(ticket);
                 }
 
-                ticketToUpdate.Title = ticket.Title;
-                ticketToUpdate.Description = ticket.Description;
+                ticketToChange.Title = ticket.Title;
+                ticketToChange.Description = ticket.Description;
+                ticketToChange.UpdatedAt = DateTime.UtcNow;
 
                 await _ticketRepository.EditAsync(ticketToUpdate);
 

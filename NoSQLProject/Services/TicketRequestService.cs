@@ -119,19 +119,21 @@ namespace NoSQLProject.Services
 
             List<Task> tasks = new List<Task>();
 
-            tasks.Add(_rep.AddAsync(request));
+			request.CreatedAt = DateTime.UtcNow;
+			request.UpdatedAt = DateTime.UtcNow;
+
+			List<Task> tasks = new List<Task>();
 
             // Request redirection part
             List<TicketRequest> ticket_requests = await _rep.GetTicketRequestsAsync(ticket_id);
 
-            foreach (TicketRequest r in ticket_requests)
-            {
-                if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted))
-                    tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
-            }
+			// Request redirection part
+			List<TicketRequest> ticket_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
 
-            await Task.WhenAll(tasks);
-        }
+			foreach (TicketRequest r in ticket_requests)
+			{
+				if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
+			}
 
         public async Task<(string, TicketRequest)> GetViewPageAsync(string request_id, string logged_in_employee_id)
         {
@@ -188,7 +190,9 @@ namespace NoSQLProject.Services
 
             if (request == null) throw new Exception("Ticket request with the id do not exsists");
 
+            if (request == null) throw new Exception("Ticket request with the id do not exsists");
+
             if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
         }
-    }    
+	  }	
 }

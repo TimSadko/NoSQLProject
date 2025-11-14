@@ -18,12 +18,12 @@ namespace NoSQLProject.Controllers
         public async Task<IActionResult> Received()
         {
             var logged_in_employee = Authenticate();
+            
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
-                var requests = await _service.GetReceivedTicketRequestsAsync(logged_in_employee.Id);
-                return View(requests);
+                return View(await _service.GetReceivedTicketRequestsAsync(logged_in_employee.Id));
             }
             catch (Exception ex)
             {
@@ -36,12 +36,12 @@ namespace NoSQLProject.Controllers
         public async Task<IActionResult> Sent()
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
-                var requests = await _service.GetSentTicketRequestsAsync(logged_in_employee.Id);
-                return View(requests);
+                return View(await _service.GetSentTicketRequestsAsync(logged_in_employee.Id));
             }
             catch (Exception ex)
             {
@@ -54,12 +54,12 @@ namespace NoSQLProject.Controllers
         public async Task<IActionResult> All()
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
-                var requests = await _service.GetAllTicketRequestsAsync();
-                return View(requests);
+                return View(await _service.GetAllTicketRequestsAsync());
             }
             catch (Exception ex)
             {
@@ -72,11 +72,15 @@ namespace NoSQLProject.Controllers
         public ActionResult Add(string ticket_id)
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
-                var view_model = new AddTicketRequestViewModel { TicketId = ticket_id };
+                var view_model = new AddTicketRequestViewModel();
+
+                view_model.TicketId = ticket_id;
+
                 return View(view_model);
             }
             catch (Exception ex)
@@ -90,11 +94,13 @@ namespace NoSQLProject.Controllers
         public async Task<ActionResult> Add(AddTicketRequestViewModel view_model)
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
                 await _service.AddRequestAsync(view_model.Email, logged_in_employee.Id, view_model.TicketId, view_model.Message);
+
                 return RedirectToAction("Index", "TicketsServiceDesk");
             }
             catch (Exception ex)
@@ -108,11 +114,13 @@ namespace NoSQLProject.Controllers
         public async Task<ActionResult> View(string request_id)
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
                 var (viewName, model) = await _service.GetViewPageAsync(request_id, logged_in_employee.Id);
+
                 return View(viewName, model);
             }
             catch (Exception ex)
@@ -126,12 +134,12 @@ namespace NoSQLProject.Controllers
         public async Task<ActionResult> Delete(string request_id)
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
-                var request = await _service.GetRequestForDeleteAsync(request_id, logged_in_employee.Id);
-                return View(request);
+                return View(await _service.GetRequestForDeleteAsync(request_id, logged_in_employee.Id));
             }
             catch (Exception ex)
             {
@@ -144,11 +152,13 @@ namespace NoSQLProject.Controllers
         public async Task<ActionResult> Delete(TicketRequest request_id_only)
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
                 await _service.DeleteRequestAsync(request_id_only.Id, logged_in_employee.Id);
+
                 return RedirectToAction("Sent");
             }
             catch (Exception ex)
@@ -162,11 +172,13 @@ namespace NoSQLProject.Controllers
         public async Task<ActionResult> ViewAccept(TicketRequest request_id_only)
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
                 await _service.ChangeRequestStausOnConditionAsync(request_id_only.Id, TicketRequestStatus.Open, TicketRequestStatus.Accepted);
+
                 return RedirectToAction("View", new { request_id = request_id_only.Id });
             }
             catch (Exception ex)
@@ -180,11 +192,13 @@ namespace NoSQLProject.Controllers
         public async Task<ActionResult> ViewReject(TicketRequest request_id_only)
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
                 await _service.ChangeRequestStausOnConditionAsync(request_id_only.Id, TicketRequestStatus.Open, TicketRequestStatus.Rejected);
+
                 return RedirectToAction("View", new { request_id = request_id_only.Id });
             }
             catch (Exception ex)
@@ -198,11 +212,13 @@ namespace NoSQLProject.Controllers
         public async Task<ActionResult> ViewFail(TicketRequest request_id_only)
         {
             var logged_in_employee = Authenticate();
+
             if (logged_in_employee == null) return RedirectToAction("Login", "Home");
 
             try
             {
                 await _service.ChangeRequestStausOnConditionAsync(request_id_only.Id, TicketRequestStatus.Accepted, TicketRequestStatus.Failed);
+
                 return RedirectToAction("View", new { request_id = request_id_only.Id });
             }
             catch (Exception ex)

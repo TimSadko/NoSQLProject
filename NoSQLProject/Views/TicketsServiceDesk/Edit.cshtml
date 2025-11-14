@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Ticket";
+    var creatorName = ViewData["ticket_creator"]?.ToString() ?? "Unknown";
 }
 
 <partial name="_ErrorMessage" />
@@ -14,8 +15,8 @@
         <div class="info-section mb-4">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="info-label">Creator</label>
-                    <input type="text" class="form-control info-input" readonly value="@ViewData["ticket_creator"]" />
+                    <label class="info-label">Created By</label>
+                    <input type="text" class="form-control info-input" readonly value="@creatorName" />
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created At</label>
@@ -49,15 +50,15 @@
                 <select class="form-select form-select-lg" asp-for="Priority" asp-items="@Html.GetEnumSelectList<Ticket_Priority>()"></select>
             </div>
 
+            <div class="mb-3">
+                <a href="/TicketRequests/Add/@Model.Id" class="btn btn-request px-4 py-2">Add Ticket Request</a>
+            </div>
+
             <div class="d-flex justify-content-between mb-4">
-                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">Back</a>
+                <a href="/TicketsServiceDesk/Index" class="btn btn-back px-4 py-2">Back to List</a>
                 <button type="submit" class="btn btn-save px-4 py-2">Save Changes</button>
             </div>
         </form>
-
-        <div class="mb-4 text-center">
-            <a href="/TicketRequests/Add/@Model.Id" class="btn btn-request px-4 py-2">Add Ticket Request</a>
-        </div>
 
         <!-- Logs Section -->
         <div class="logs-section">
@@ -126,251 +127,3 @@
         </div>
     </div>
 </div>
-
-<style>
-    body {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .ticket-edit-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 40px 50px;
-        max-width: 1000px;
-        margin: 40px auto;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .ticket-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #4e54c8;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .info-section {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
-    }
-
-    .info-label {
-        font-weight: 600;
-        color: #666;
-        font-size: 0.85rem;
-        margin-bottom: 6px;
-    }
-
-    .info-input {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-size: 0.95rem;
-        color: #333;
-    }
-
-    .ticket-form .form-label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 8px;
-    }
-
-    .ticket-form .form-control,
-    .ticket-form .form-select {
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        padding: 12px 16px;
-        transition: all 0.3s ease;
-    }
-
-        .ticket-form .form-control:focus,
-        .ticket-form .form-select:focus {
-            border-color: #4e54c8;
-            box-shadow: 0 0 0 3px rgba(78, 84, 200, 0.15);
-            outline: none;
-        }
-
-    .btn-save {
-        background: linear-gradient(135deg, #2575fc, #6a11cb);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
-
-        .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.4);
-            color: white;
-        }
-
-    .btn-back {
-        background: #f3f4f6;
-        color: #333;
-        font-weight: 500;
-        border: none;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
-
-        .btn-back:hover {
-            background: #e0e7ff;
-            color: #4e54c8;
-        }
-
-    .btn-request {
-        background: linear-gradient(135deg, #ff9800, #f57c00);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-        .btn-request:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
-            color: white;
-        }
-
-    .logs-section {
-        margin-top: 40px;
-        padding-top: 30px;
-        border-top: 2px solid #e0e0e0;
-    }
-
-    .logs-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #4e54c8;
-    }
-
-    .btn-add-log {
-        background: linear-gradient(135deg, #00bcd4, #0097a7);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 10px;
-        padding: 8px 16px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-        .btn-add-log:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
-            color: white;
-        }
-
-    .logs-table {
-        border-collapse: separate;
-        border-spacing: 0 8px;
-    }
-
-        .logs-table thead th {
-            background: #f8f9fa;
-            padding: 12px;
-            font-weight: 600;
-            color: #555;
-            border: none;
-        }
-
-        .logs-table tbody tr {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-        }
-
-            .logs-table tbody tr:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                transform: translateY(-2px);
-            }
-
-        .logs-table tbody td {
-            padding: 14px 12px;
-            vertical-align: middle;
-            border: none;
-        }
-
-    .date-cell {
-        font-size: 0.9rem;
-        color: #666;
-    }
-
-    .description-cell {
-        max-width: 300px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 16px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .status-open {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-    .status-closed {
-        background: #f3e5f5;
-        color: #7b1fa2;
-    }
-
-    .status-resolved {
-        background: #e8f5e9;
-        color: #388e3c;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 6px;
-    }
-
-    .btn-action {
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-
-    .btn-edit-sm {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-        .btn-edit-sm:hover {
-            background: #1976d2;
-            color: white;
-        }
-
-    .btn-delete-sm {
-        background: #ffebee;
-        color: #d32f2f;
-    }
-
-        .btn-delete-sm:hover {
-            background: #d32f2f;
-            color: white;
-        }
-
-    .fade-in {
-        opacity: 1;
-        transform: translateY(0);
-        transition: all 0.6s ease-in-out;
-    }
-</style>

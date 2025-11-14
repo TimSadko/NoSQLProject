@@ -2,22 +2,31 @@
 
 @{
     ViewData["Title"] = "Employees";
-
     int nextOrder = ViewBag.SortOrder == 1 ? -1 : 1;
-    string currentSortField = ViewBag.SortField ?? "FirstName";
+    string currentSortField = ViewBag.SortField ?? "Status";
+    string currentStatus = ViewBag.Status ?? "All";
 }
 
+<partial name="_ErrorMessage" />
+
 <div class="fade-in">
-    <div class="employees-card shadow-lg">
+    <div class="tickets-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="tickets-title">Employees</h2>
+            <a asp-action="Add" class="btn-add px-4 py-2">+ Add Employee</a>
+        </div>
 
-        <h2 class="employees-title mb-4">Employees</h2>
-
-        @if (TempData["Exception"] != null)
-        {
-            <div class="alert alert-danger text-center fw-semibold">
-                @TempData["Exception"]
-            </div>
-        }
+        <!-- Status Filter -->
+        <div class="filter-buttons">
+            <a asp-action="Index" asp-route-status="All" asp-route-sortField="@currentSortField" asp-route-sortOrder="@ViewBag.SortOrder"
+               class="btn @(currentStatus == "All" ? "btn-primary" : "btn-outline-primary")">All</a>
+            <a asp-action="Index" asp-route-status="Active" asp-route-sortField="@currentSortField" asp-route-sortOrder="@ViewBag.SortOrder"
+               class="btn @(currentStatus == "Active" ? "btn-success" : "btn-outline-success")">Active</a>
+            <a asp-action="Index" asp-route-status="Deactivated" asp-route-sortField="@currentSortField" asp-route-sortOrder="@ViewBag.SortOrder"
+               class="btn @(currentStatus == "Deactivated" ? "btn-warning" : "btn-outline-warning")">Deactivated</a>
+            <a asp-action="Index" asp-route-status="Archived" asp-route-sortField="@currentSortField" asp-route-sortOrder="@ViewBag.SortOrder"
+               class="btn @(currentStatus == "Archived" ? "btn-secondary" : "btn-outline-secondary")">Archived</a>
+        </div>
 
         @if (Model == null || !Model.Any())
         {
@@ -32,59 +41,73 @@
                     <thead class="table-gradient text-white">
                         <tr>
                             <th>
-                                <a asp-action="Index" asp-route-sortField="FirstName" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    First Name @(currentSortField == "FirstName" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                <a asp-action="Index" asp-route-sortField="FirstName" asp-route-sortOrder="@nextOrder" asp-route-status="@currentStatus" class="sort-link">
+                                    First Name ↕
                                 </a>
                             </th>
 
                             <th>
-                                <a asp-action="Index" asp-route-sortField="LastName" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Last Name @(currentSortField == "LastName" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                <a asp-action="Index" asp-route-sortField="LastName" asp-route-sortOrder="@nextOrder" asp-route-status="@currentStatus" class="sort-link">
+                                    Last Name ↕
                                 </a>
                             </th>
 
                             <th>
-                                <a asp-action="Index" asp-route-sortField="Email" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Email @(currentSortField == "Email" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                <a asp-action="Index" asp-route-sortField="Email" asp-route-sortOrder="@nextOrder" asp-route-status="@currentStatus" class="sort-link">
+                                    Email ↕
                                 </a>
                             </th>
 
                             <th>
-                                <a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Status @(currentSortField == "Status" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
+                                <a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" asp-route-status="@currentStatus" class="sort-link">
+                                    Status ↕
                                 </a>
                             </th>
-
-                            <th>
-                                <a asp-action="Index" asp-route-sortField="Role" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Role @(currentSortField == "Role" ? (ViewBag.SortOrder == 1 ? "↑" : "↓") : "")
-                                </a>
-                            </th>
-
+                            <th>Role</th>
+                            <th>Managing</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach (var e in Model)
+                        @foreach (var emp in Model)
                         {
                             <tr>
-                                <td>@e.FirstName</td>
-                                <td>@e.LastName</td>
-                                <td>@e.Email</td>
-
+                                <td class="employee-cell">@emp.FirstName</td>
+                                <td class="employee-cell">@emp.LastName</td>
+                                <td>@emp.Email</td>
                                 <td>
-                                    <span class="status-badge status-@e.Status.ToString().ToLower()">
-                                        @e.Status
-                                    </span>
+                                    @{
+                                        var statusClass = emp.Status switch
+                                        {
+                                            NoSQLProject.Models.Employee_Status.Active => "status-resolved",
+                                            NoSQLProject.Models.Employee_Status.Deactivated => "status-open",
+                                            NoSQLProject.Models.Employee_Status.Archived => "status-closed",
+                                            _ => "status-closed"
+                                        };
+                                    }
+                                    <span class="status-badge @statusClass">@emp.Status</span>
                                 </td>
-
-                                <td>@e.GetType().Name</td>
-
+                                <td>
+                                    @if (emp is NoSQLProject.Models.ServiceDeskEmployee)
+                                    {
+                                        <span class="role-badge">Service Desk</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="type-badge">Employee</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (emp is NoSQLProject.Models.ServiceDeskEmployee)
+                                    {
+                                        <a asp-action="ManagedEmployees" asp-route-id="@emp.Id" class="btn-add-log">Managed</a>
+                                    }
+                                </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-edit">Edit</a>
-                                        <a asp-action="Delete" asp-route-id="@e.Id" class="btn btn-delete">Delete</a>
+                                        <a asp-action="Edit" asp-route-id="@emp.Id" class="btn btn-edit">Edit</a>
+                                        <a asp-action="Delete" asp-route-id="@emp.Id" class="btn btn-delete">Delete</a>
                                     </div>
                                 </td>
                             </tr>
@@ -95,147 +118,3 @@
         }
     </div>
 </div>
-
-<style>
-
-    body {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Card Container */
-    .employees-card {
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 40px 50px;
-        max-width: 1100px;
-        margin: 40px auto;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        animation: fadeIn 0.6s ease;
-    }
-
-    keyframes fadeIn {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .employees-title {
-        font-size: 2.3rem;
-        font-weight: 700;
-        color: #4e54c8;
-        text-align: left;
-        margin-bottom: 25px;
-    }
-
-    /* Table */
-    .employees-table {
-        border-collapse: separate;
-        border-spacing: 0 12px;
-    }
-
-    .employees-table thead th {
-        padding: 14px;
-        font-weight: 600;
-        font-size: 1rem;
-        letter-spacing: 0.5px;
-    }
-
-    .employees-table tbody tr {
-        background: rgba(255, 255, 255, 0.85);
-        transition: transform 0.25s ease, background 0.25s ease;
-    }
-
-    .employees-table tbody tr:hover {
-        background: rgba(78, 84, 200, 0.12);
-        transform: scale(1.01);
-    }
-
-    .table-gradient {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-    }
-
-    /* Status Chips */
-    .status-badge {
-        display: inline-block;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .status-active {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-    .status-deactivated {
-        background: #ffebee;
-        color: #c62828;
-    }
-
-    /* Buttons */
-    .action-buttons {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .btn-edit {
-        background: #00bcd4;
-        color: white;
-        border-radius: 10px;
-        padding: 7px 16px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: 0.3s ease;
-    }
-
-    .btn-edit:hover {
-        background: #0097a7;
-        transform: translateY(-2px);
-    }
-
-    .btn-delete {
-        background: #ef5350;
-        color: white;
-        border-radius: 10px;
-        padding: 7px 14px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: 0.3s ease;
-    }
-
-    .btn-delete:hover {
-        background: #d32f2f;
-        transform: translateY(-2px);
-    }
-
-    /* Sort links */
-    .sort-link {
-        color: white;
-        font-weight: 600;
-        text-decoration: none;
-        transition: opacity 0.2s ease;
-    }
-
-    .sort-link:hover {
-        opacity: 0.8;
-        text-decoration: underline;
-    }
-
-    .fade-in {
-        opacity: 1;
-        transform: translateY(0);
-        transition: all 0.6s ease-in-out;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-</style>
