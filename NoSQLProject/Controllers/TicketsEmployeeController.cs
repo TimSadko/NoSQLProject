@@ -22,7 +22,6 @@ namespace NoSQLProject.Controllers
             this._employeeRepository = _employeeRepository;
         }
 
-        // ===================== INDEX ============================
         [HttpGet]
         public async Task<IActionResult> Index(string sortField = "Priority", int sortOrder = -1)
         {
@@ -66,7 +65,7 @@ namespace NoSQLProject.Controllers
                     break;
             }
 
-            // ======================= DEBUG LOGS ==========================
+            /* ======================= DEBUG LOGS ==========================
             Console.WriteLine("========== TICKET SORT DEBUG ==========");
             Console.WriteLine($"SortField = {sortField}");
             Console.WriteLine($"SortOrder = {sortOrder}");
@@ -84,6 +83,7 @@ namespace NoSQLProject.Controllers
             }
 
             Console.WriteLine("========================================");
+            // ================================================================== */
 
             var viewModel = new EmployeeTickets(tickets, authenticatedEmployee);
 
@@ -93,7 +93,6 @@ namespace NoSQLProject.Controllers
             return View(viewModel);
         }
 
-        // ===================== ADD (GET) ============================
         [HttpGet]
         public IActionResult Add()
         {
@@ -103,7 +102,6 @@ namespace NoSQLProject.Controllers
             return View(new Ticket());
         }
 
-        // ===================== ADD (POST) ============================
         [HttpPost]
         public async Task<IActionResult> Add(Ticket ticket)
         {
@@ -131,7 +129,6 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // ===================== EDIT (GET) ============================
         [HttpGet]
         public async Task<IActionResult> Edit(string? id)
         {
@@ -149,29 +146,35 @@ namespace NoSQLProject.Controllers
             return View(ticket);
         }
 
-        // ===================== EDIT (POST) ============================
         [HttpPost]
-        public async Task<IActionResult> Edit(Ticket? ticket)
+        public async Task<IActionResult> Edit(Ticket? ticketToChange)
         {
             if (!IsAuthenticated())
                 return RedirectToAction("Login", "Home");
 
             try
             {
-                if (ticket == null || string.IsNullOrEmpty(ticket.Id))
+                if (ticketToChange == null || string.IsNullOrEmpty(ticketToChange.Id))
                     throw new Exception("Ticket id is empty or null!");
 
-                var ticketToUpdate = await ticketRepository.GetByIdAsync(ticket.Id);
+                var ticketToUpdate = await ticketRepository.GetByIdAsync(ticketToChange.Id);
                 if (ticketToUpdate == null)
                 {
                     TempData["Exception"] = "Ticket not found.";
-                    return View(ticket);
+                    return View(ticketToChange);
                 }
 
+                ticketToChange.Title = ticketToChange.Title;
+                ticketToChange.Description = ticketToChange.Description;
+                ticketToChange.UpdatedAt = DateTime.UtcNow;
                 // ❗ FIXED MERGE BROKEN CODE
                 ticketToUpdate.Title = ticket.Title;
                 ticketToUpdate.Description = ticket.Description;
                 ticketToUpdate.UpdatedAt = DateTime.UtcNow;
+=========
+                ticketToUpdate.Title = ticket.Title;
+                ticketToUpdate.Description = ticket.Description;
+>>>>>>>>> Temporary merge branch 2
 
                 await _ticketRepository.EditAsync(ticketToUpdate);
 
@@ -184,7 +187,6 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // ===================== DELETE (GET) ============================
         [HttpGet]
         public async Task<IActionResult> Delete(string? id)
         {
@@ -201,7 +203,6 @@ namespace NoSQLProject.Controllers
             return View(ticket);
         }
 
-        // ===================== DELETE (POST) ============================
         [HttpPost]
         public async Task<IActionResult> Delete(Ticket? ticket)
         {
@@ -236,7 +237,6 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // ===================== LOGS ============================
         [HttpGet("TicketsEmployee/Logs/{id}")]
         public async Task<IActionResult> Logs(string? id)
         {
@@ -277,7 +277,6 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // ===================== AUTHENTICATION ============================
         private Employee? Authenticate()
         {
             return Authorization.GetLoggedInEmployee(HttpContext);

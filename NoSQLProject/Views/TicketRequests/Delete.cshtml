@@ -1,23 +1,24 @@
 ﻿@model NoSQLProject.Models.TicketRequest
 
 @{
-	ViewData["Title"] = "Delete Request";
+    ViewData["Title"] = "Delete Request";
 }
-
-<link rel="stylesheet" href="~/css/common-styles.css" />
 
 <partial name="_ErrorMessage" />
 
-<h1>Ticket Request Delete</h1>
+<div class="fade-in">
+    <div class="delete-card">
+        <h2 class="delete-title">Delete Ticket Request</h2>
 
-<div>
-	<div>Are you sure you want to delete the request?</div>
+        <p class="text-center mb-4">Are you sure you want to delete this request?</p>
 
-	<a href="/TicketRequests/Delete/@Model.Id">Cancel</a>
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="/TicketRequests/All" class="btn btn-back px-4 py-2">Cancel</a>
 
-	<form action="/TicketRequests/Delete" method="post">
-		<input type="hidden" asp-for="@Model.Id" value="@Model.Id"/>
-
-		<button type="submit">Delete</button>
-	</form>
+            <form action="/TicketRequests/Delete" method="post">
+                <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                <button type="submit" class="btn btn-delete px-4 py-2">Delete</button>
+            </form>
+        </div>
+    </div>
 </div>

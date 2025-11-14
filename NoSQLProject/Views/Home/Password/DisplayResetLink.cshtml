@@ -1,34 +1,26 @@
 ﻿@{
     ViewBag.Title = "Password Reset Link";
 }
-<div class="login-container">
-    <div class="forgot-password-form">
-        <h1 class="text-center" style="color:#4e54c8;margin-bottom:0.5rem;">Password Reset Link (Simulation)</h1>
 
-        <partial name="_ErrorMessage" />
+<div class="forgot-password-center">
+    <div class="forgot-password-card">
+        <h2 class="card-title">Password Reset Link</h2>
 
-        <p class="mt-2">An email would normally be sent to: <b>@ViewBag.Email</b></p>
-        <p class="mb-3">For this demo, the reset link is shown below — you can copy it or open it.</p>
+        <p class="text-center mb-3">An email would normally be sent to: <strong>@ViewBag.Email</strong></p>
+        <p class="text-center text-muted mb-4">For this demo, the reset link is shown below.</p>
 
-        <div class="form-group">
-            <label for="resetLink">Reset Link</label>
+        <div class="form-group mb-3">
+            <label for="resetLink" class="form-label fw-semibold">Reset Link</label>
             <input id="resetLink" class="form-control" readonly aria-readonly="true" value="@ViewBag.Link" />
         </div>
 
-        <div class="d-grid gap-2 mt-3">
-            <a href="@ViewBag.Link" class="btn btn-login w-100" role="button" aria-label="Open password reset link">
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="@ViewBag.Link" class="btn-save" role="button" aria-label="Open password reset link">
                 Open Reset Link
             </a>
-
-            <button type="button" class="btn reset-btn w-100" onclick="navigator.clipboard?.writeText(document.getElementById('resetLink').value)" aria-label="Copy reset link">
+            <button type="button" class="btn-back" onclick="navigator.clipboard?.writeText(document.getElementById('resetLink').value)" aria-label="Copy reset link">
                 Copy Link
             </button>
-        </div>
-
-        <div class="mt-3">
-            <a asp-controller="Home" asp-action="Login" class="btn btn-login w-100" role="button">
-                Return to Login
-            </a>
         </div>
     </div>
 </div>

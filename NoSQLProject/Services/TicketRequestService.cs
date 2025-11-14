@@ -125,22 +125,46 @@ namespace NoSQLProject.Services
                 UpdatedAt = DateTime.UtcNow
             };
 
-            var tasks = new List<Task>();
-            tasks.Add(_rep.AddAsync(request));
+            var request = new TicketRequest();
 
-            // Redirect previous requests
-            var previous_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
+            if (request.Message == null) request.Message = "";
 
-            foreach (var r in previous_requests)
+            request.TicketId = ticket_id;
+            request.Message = message;
+
+            request.SenderId = logged_in_employee_id;
+            request.RecipientId = emp.Id;
+
+            List<Task> tasks = new List<Task>();
+
+            request.CreatedAt = DateTime.UtcNow;
+            request.UpdatedAt = DateTime.UtcNow;        
+
+            // Request redirection part
+            List<TicketRequest> ticket_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
+
+            foreach (TicketRequest r in ticket_requests)
             {
-                if (r.RecipientId == logged_in_employee_id &&
-                    (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted))
-                {
-                    tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
-                }
+                if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
             }
 
-            await Task.WhenAll(tasks);
+			tasks.Add(_rep.AddAsync(request));
+<<<<<<<<< Temporary merge branch 1
+			// Request redirection part
+			List<TicketRequest> ticket_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
+
+			foreach (TicketRequest r in ticket_requests)
+			{
+				if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
+			}
+=========
+            foreach (TicketRequest r in ticket_requests)
+            {
+                if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted))
+                    tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
+            }
+
+			await Task.WhenAll(tasks);
         }
 
         // ========================= VIEW PAGE ============================
@@ -163,7 +187,7 @@ namespace NoSQLProject.Services
             request.Ticket = ticket;
 
             if (logged_in_employee_id == request.SenderId)
-                return ("Edit", request);
+            if (logged_in_employee_id != request.SenderId) throw new Exception("Page inaccessible! Log in as a sender to delete the request");
 
             if (logged_in_employee_id == request.RecipientId)
                 return ("ViewRecipient", request);
@@ -174,11 +198,10 @@ namespace NoSQLProject.Services
         // ========================= GET DELETE PAGE ============================
         public async Task<TicketRequest> GetRequestForDeleteAsync(string request_id, string logged_in_employee_id)
         {
-            var request = await _rep.GetByIdAsync(request_id)
+            if (logged_in_employee_id != loaded_request.SenderId) throw new Exception("Page inaccessible! Log in as a sender to delete the request");
                 ?? throw new Exception("Request not found.");
 
-            if (logged_in_employee_id != request.SenderId)
-                throw new Exception("Only the sender can delete this request.");
+            if (logged_in_employee_id != request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
 
             return request;
         }
@@ -186,26 +209,33 @@ namespace NoSQLProject.Services
         // ========================= DELETE REQUEST ============================
         public async Task DeleteRequestAsync(string request_id, string logged_in_employee_id)
         {
-            var req = await _rep.GetByIdAsync(request_id)
-                ?? throw new Exception("Request not found.");
+            TicketRequest? request = await _rep.GetByIdAsync(request_id);
 
-            if (req.SenderId != logged_in_employee_id)
-                throw new Exception("You can only delete requests you created.");
+            if (request == null) throw new Exception("Ticket request with the id do not exists");
 
+            if (request == null) throw new Exception("Ticket request with the id do not exists");
             if (req.Status != TicketRequestStatus.Open)
-                throw new Exception("Only unaccepted (Open) requests can be deleted.");
-
-            await _rep.DeleteAsync(req.Id);
+            if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
         }
-
+	  }	
+}
         // ========================= CHANGE STATUS ============================
         public async Task ChangeRequestStausOnConditionAsync(string request_id, TicketRequestStatus condition_status, TicketRequestStatus set_status)
         {
-            var request = await _rep.GetByIdAsync(request_id)
-                ?? throw new Exception("Ticket request does not exist.");
+            TicketRequest? request = await _rep.GetByIdAsync(request_id);
 
-            if (request.Status == condition_status)
-                await _rep.UpdateRequestStatusAsync(request_id, set_status);
-        }
-    }
+            if (request == null) throw new Exception("Ticket request with the id do not exsists");
+
+<<<<<<<<< Temporary merge branch 1
+			if (request == null) throw new Exception("Ticket request with the id do not exsists");
+
+			if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
+		}
+	}	
 }
+=========
+            if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
+        }
+    }    
+}
+>>>>>>>>> Temporary merge branch 2

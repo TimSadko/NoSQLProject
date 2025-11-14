@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Tickets";
+    int nextOrder = ViewBag.SortOrder == -1 ? 1 : -1;
     string currentField = Context.Request.Query["sortField"];
     string currentOrder = Context.Request.Query["sortOrder"];
 }
@@ -27,33 +28,31 @@
                         <tr>
                             <!-- TITLE -->
                             <th>
-                                <a href="?sortField=Title&sortOrder=@(currentOrder == "1" ? "-1" : "1")"
-                                   class="sort-link @(currentField=="Title" ? "active-sort" : "")">
-                                    Title @(currentField=="Title" ? (currentOrder=="1" ? "↑" : "↓") : "")
+                                <a asp-action="Index" asp-route-sortField="Priority" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Priority ↕
+                                </a>
+                            </th>
+                            <th>
+                                <a asp-action="Index" asp-route-sortField="Title" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Title ↕
                                 </a>
                             </th>
 
                             <!-- STATUS -->
                             <th>
-                                <a href="?sortField=Status&sortOrder=@(currentOrder == "1" ? "-1" : "1")"
-                                   class="sort-link @(currentField=="Status" ? "active-sort" : "")">
-                                    Status @(currentField=="Status" ? (currentOrder=="1" ? "↑" : "↓") : "")
+                                <a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Status ↕
                                 </a>
-                            </th>
-
-                            <!-- CREATED AT -->
                             <th>
-                                <a href="?sortField=CreatedAt&sortOrder=@(currentOrder == "1" ? "-1" : "1")"
-                                   class="sort-link @(currentField=="CreatedAt" ? "active-sort" : "")">
-                                    Created @(currentField=="CreatedAt" ? (currentOrder=="1" ? "↑" : "↓") : "")
+                                <a asp-action="Index" asp-route-sortField="CreatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Created ↕
                                 </a>
                             </th>
 
                             <!-- UPDATED AT -->
                             <th>
-                                <a href="?sortField=UpdatedAt&sortOrder=@(currentOrder == "1" ? "-1" : "1")"
-                                   class="sort-link @(currentField=="UpdatedAt" ? "active-sort" : "")">
-                                    Updated @(currentField=="UpdatedAt" ? (currentOrder=="1" ? "↑" : "↓") : "")
+                                <a asp-action="Index" asp-route-sortField="UpdatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">
+                                    Updated ↕
                                 </a>
                             </th>
 
@@ -67,6 +66,23 @@
                         @foreach (var ticket in Model.Tickets)
                         {
                             <tr>
+                                <td>
+                                    @{
+                                        var priorityClass = ticket.Priority switch
+                                        {
+                                            Ticket_Priority.Critical => "priority-critical",
+                                            Ticket_Priority.High => "priority-high",
+                                            Ticket_Priority.Medium => "priority-medium",
+                                            Ticket_Priority.Low => "priority-low",
+                                            Ticket_Priority.Undefined => "priority-undefined",
+                                            _ => "priority-undefined"
+                                        };
+
+                                    }
+                                    <span class="priority-badge @priorityClass">
+                                        @ticket.Priority
+                                    </span>
+                                </td>
                                 <td class="ticket-title-cell">@ticket.Title</td>
                                 <td>
                                     <span class="status-badge status-@ticket.Status.ToString().ToLower()">
@@ -93,127 +109,3 @@
         }
     </div>
 </div>
-
-<!-- 🔥 SORT DEBUG -->
-<script>
-    console.log("===== SORT DEBUG (CLIENT) =====");
-    console.log("SortField = '@currentField'");
-    console.log("SortOrder = '@currentOrder'");
-    console.log("First ticket = '@(Model.Tickets.FirstOrDefault()?.Title ?? "NONE")'");
-    console.log("================================");
-</script>
-
-<style>
-    body {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .tickets-card {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        padding: 40px 50px;
-        max-width: 1100px;
-        margin: 40px auto;
-    }
-
-    .tickets-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #4e54c8;
-    }
-
-    .btn-add {
-        background: linear-gradient(135deg, #2575fc, #6a11cb);
-        color: white;
-        font-weight: 600;
-        border-radius: 12px;
-        padding: 10px 20px;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-
-    .btn-add:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(37,117,252,0.3);
-    }
-
-    .table-gradient {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-    }
-
-    /* SORT LINK FIXES */
-    .sort-link {
-        color: #ffffff;
-        font-weight: 700;
-        text-decoration: none;
-        transition: 0.2s;
-    }
-
-    .sort-link:hover {
-        color: #ffeb3b; /* bright yellow */
-        text-decoration: underline;
-        font-weight: 800;
-    }
-
-    .active-sort {
-        color: #ffeb3b !important;
-        font-weight: 800 !important;
-        text-decoration: underline;
-    }
-
-    .ticket-title-cell {
-        font-weight: 600;
-        color: #333;
-        text-align: left;
-        max-width: 250px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-
-    .date-cell {
-        font-size: 0.9rem;
-        color: #666;
-    }
-
-    .employee-cell {
-        font-weight: 500;
-        color: #555;
-    }
-
-    .logs-badge {
-        background: #eef2ff;
-        color: #4e54c8;
-        padding: 6px 12px;
-        border-radius: 12px;
-        font-weight: 600;
-    }
-
-    .status-badge {
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .status-open { background: #e3f2fd; color: #1976d2; }
-    .status-closed { background: #f3e5f5; color: #7b1fa2; }
-    .status-resolved { background: #e8f5e9; color: #388e3c; }
-
-    .btn-edit {
-        background: #00bcd4;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 8px;
-        text-decoration: none;
-    }
-
-    .btn-delete {
-        background: #ef5350;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 8px;
-        text-decoration: none;
-    }
-</style>

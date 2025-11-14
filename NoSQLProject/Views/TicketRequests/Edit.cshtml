@@ -1,29 +1,28 @@
 ﻿@model NoSQLProject.Models.TicketRequest
 
 @{
-	ViewData["Title"] = "Edit Request";
+    ViewData["Title"] = "Edit Request";
 }
-
-<link rel="stylesheet" href="~/css/common-styles.css" />
 
 <partial name="_ErrorMessage" />
 
-<h1>Request View</h1>
+<div class="fade-in">
+    <div class="request-card">
+        <h2 class="request-title">Request View</h2>
 
-<div>
-	<partial name="~/Views/TicketRequests/_MainViewPart.cshtml" model="@Model" />
+        <partial name="~/Views/TicketRequests/_MainViewPart.cshtml" model="@Model" />
 
-	<div>
-		<label>Status:</label>
-		<input type="text" value="@Model.Status.ToString()" readonly />
-	</div>
+        <div class="form-group mb-4">
+            <label class="form-label fw-semibold">Status</label>
+            <input type="text" class="form-control info-input" value="@Model.Status.ToString()" readonly />
+        </div>
 
-	@{
-		if(Model.Status == TicketRequestStatus.Open)
-		{
-			<a href="/TicketRequests/Delete/@Model.Id">Delete</a>
-		}
-	}	
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="/TicketRequests/All" class="btn btn-back px-4 py-2">Go Back</a>
+            @if (Model.Status == TicketRequestStatus.Open)
+            {
+                <a href="/TicketRequests/Delete/@Model.Id" class="btn btn-delete px-4 py-2">Delete</a>
+            }
+        </div>
+    </div>
 </div>
-
-<a href="/TicketRequests/All">Go Back</a>

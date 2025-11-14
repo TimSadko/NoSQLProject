@@ -1,4 +1,11 @@
-﻿@if (ViewData["Exception"] != null)
+﻿@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success fade-in-alert">
+        @TempData["Success"]
+    </div>
+}
+
+@if (ViewData["Exception"] != null)
 {
     <div class="alert alert-danger">
         @ViewData["Exception"]

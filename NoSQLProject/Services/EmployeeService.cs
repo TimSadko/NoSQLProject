@@ -14,14 +14,11 @@ namespace NoSQLProject.Services
             _employeeRepository = employeeRepository;
         }
 
-        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
-            => await _employeeRepository.GetAllAsync();
+        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync() => await _employeeRepository.GetAllAsync();
 
-        public async Task<Employee?> GetEmployeeByIdAsync(string id)
-            => await _employeeRepository.GetByIdAsync(id);
+        public async Task<Employee?> GetEmployeeByIdAsync(string id) => await _employeeRepository.GetByIdAsync(id);
 
-        public async Task<Employee?> GetEmployeeByEmailAsync(string email)
-            => await _employeeRepository.GetByEmailAsync(email);
+        public async Task<Employee?> GetEmployeeByEmailAsync(string email) => await _employeeRepository.GetByEmailAsync(email);
 
         public async Task AddEmployeeAsync(Employee employee)
         {
@@ -99,8 +96,7 @@ namespace NoSQLProject.Services
             }
         }
 
-        public async Task DeleteEmployeeAsync(Employee employee)
-            => await _employeeRepository.DeleteAsync(employee);
+        public async Task DeleteEmployeeAsync(Employee employee) => await _employeeRepository.DeleteAsync(employee);
 
         public async Task<List<Employee>> GetEmployeesManagedByAsync(string serviceDeskEmployeeId)
         {
