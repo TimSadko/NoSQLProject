@@ -19,22 +19,22 @@ namespace NoSQLProject.Services
 			_request_rep = request_rep;
 		}
 
-		public async Task<List<Ticket>> GetTicketsSortedAsync(string sortField, int sortOrder)
+		public async Task<List<Ticket>> GetTicketsSortedAsync(string sortField, int sortOrder, bool archived = false)
 		{
 			List<Ticket> tickets;
 
 			if (sortField == "CreatedBy")
 			{
-				tickets = await _rep.GetAllAsync();
+				tickets = await _rep.GetAllAsync(archived);
 			}
 			else if (sortField == "LogsNumber")
 			{
-				tickets = await _rep.GetAllAsync();
+				tickets = await _rep.GetAllAsync(archived);
 				tickets.Sort((Ticket t, Ticket t2) => { return t.Logs.Count.CompareTo(t2.Logs.Count) * sortOrder; });
 			}
 			else
 			{
-				tickets = await _rep.GetAllSortedAsync(sortField, sortOrder);
+				tickets = await _rep.GetAllSortedAsync(sortField, sortOrder, archived);
 			}
 
 			List<Task<Employee?>> tasks = new List<Task<Employee?>>();
@@ -198,9 +198,9 @@ namespace NoSQLProject.Services
 			await _rep.DeleteAsync(ticket_id);
 		}
 
-		public async Task ArchiveTicketAsync(string ticket_id)
+		public async Task SetArchiveTicketAsync(string ticket_id, bool archive = true)
 		{
-			await _rep.ArchiveAsync(ticket_id);
+			await _rep.SetArchiveAsync(ticket_id, archive);
 		}
 
 		public async Task DeleteLogAsync(string ticket_id, string log_id)

@@ -8,20 +8,20 @@ namespace NoSQLProject.Repositories
     public class TicketRepository : ITicketRepository
     {
         private readonly IMongoCollection<Ticket> _tickets;
+        private readonly IMongoCollection<TicketRequest> _requests;
 
         public TicketRepository(IMongoDatabase db)
         {
             _tickets = db.GetCollection<Ticket>("tickets");
+			_requests = db.GetCollection<TicketRequest>("ticket_requests");
         }
 
-        public async Task<List<Ticket>> GetAllAsync(bool allow_archived = false)
+        public async Task<List<Ticket>> GetAllAsync(bool archived = false)
         {
-            if(!allow_archived) return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("archived", false)).Result.ToListAsync();
-
-			return await _tickets.FindAsync(new BsonDocument()).Result.ToListAsync();
+            return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("archived", archived)).Result.ToListAsync();
         }
 
-        public async Task<List<Ticket>> GetAllByEmployeeIdAsync(string id, bool allow_archived = true)
+		public async Task<List<Ticket>> GetAllByEmployeeIdAsync(string id, bool allow_archived = true)
         {
 			if (!allow_archived) return await _tickets.FindAsync(Builders<Ticket>.Filter.And(Builders<Ticket>.Filter.Eq("archived", false), Builders<Ticket>.Filter.Eq("created_by", id))).Result.ToListAsync();
 
@@ -93,17 +93,23 @@ namespace NoSQLProject.Repositories
             return ticket == null ? [] : ticket.Logs;
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(string ticket_id)
         {
-            await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)));
+            List<Task<DeleteResult>> delete_tasks = new List<Task<DeleteResult>>();
+
+            delete_tasks.Add(_requests.DeleteManyAsync(Builders<TicketRequest>.Filter.Eq("ticket_id", ticket_id)));
+
+			delete_tasks.Add(_tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id))));     
+            
+            await Task.WhenAll(delete_tasks);
         }
 
-        public async Task ArchiveAsync(string ticket_id)
+        public async Task SetArchiveAsync(string ticket_id, bool archive = true)
         {
-            await _tickets.UpdateOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id)), Builders<Ticket>.Update.Set("archived", true));
+            await _tickets.UpdateOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id)), Builders<Ticket>.Update.Set("archived", archive));
         }
 
-        public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1, bool allow_archived = false)
+        public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1, bool archived = false)
         {
             var sortBuilder = Builders<Ticket>.Sort;
 
@@ -118,9 +124,7 @@ namespace NoSQLProject.Repositories
                 sortDef = sortOrder == 1 ? sortBuilder.Ascending(sortField) : sortBuilder.Descending(sortField);
             }
 
-			if (!allow_archived) return await _tickets.Find(Builders<Ticket>.Filter.Eq("archived", false)).Sort(sortDef).ToListAsync();
-
-			return await _tickets.Find(new BsonDocument()).Sort(sortDef).ToListAsync();
+			return await _tickets.Find(Builders<Ticket>.Filter.Eq("archived", archived)).Sort(sortDef).ToListAsync();
         }
     }
 }

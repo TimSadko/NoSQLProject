@@ -258,7 +258,7 @@ namespace NoSQLProject.Controllers
                     return View(ticket);
                 }
 
-                await ticketRepository.ArchiveAsync(ticket.Id);
+                await ticketRepository.SetArchiveAsync(ticket.Id);
 
                 return RedirectToAction("Index");
             }

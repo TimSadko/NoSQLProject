@@ -1,7 +1,7 @@
 ﻿@model List<Ticket>
 
 @{
-    ViewData["Title"] = "Tickets (Service Desk)";
+    ViewData["Title"] = "Archived Tickets (Service Desk)";
     int nextOrder = ViewBag.SortOrder == -1 ? 1 : -1;
     string currentSortField = ViewBag.SortField ?? "Priority";
 }
@@ -12,15 +12,11 @@
     <div class="tickets-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="tickets-title">Service Desk Tickets</h2>
-            <div class="tabs-container mb-4">
-                <a href="/TicketsServiceDesk/Index" class="tab-link active">Normal</a>
-                <a href="/TicketsServiceDesk/ArchivedList" class="tab-link">Archived</a>
-            </div>                   
+            <div class="tabs-container mb-4 ">
+                <a href="/TicketsServiceDesk/Index" class="tab-link">Normal</a>
+                <a href="/TicketsServiceDesk/ArchivedList" class="tab-link active">Archived</a>
+            </div>
         </div>
-
-        <div class="d-flex justify-content-end mb-4">
-            <a href="/TicketsServiceDesk/Add" class="btn btn-add">Add New Ticket</a>
-        </div>     
 
         @if (Model == null || !Model.Any())
         {
@@ -98,37 +94,14 @@
                                 <td class="employee-cell">@(t.Creator == null ? "???" : t.Creator.FullName)</td>
                                 <td><span class="logs-badge">@t.Logs?.Count</span></td>
                                 <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            Actions
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="/TicketsServiceDesk/Edit/@t.Id">View</a></li>
-                                            <li>
-                                                <form action="/TicketsServiceDesk/Archive" method="post">
-                                                    <input type="hidden" name="ticket_id" value="@t.Id" />
+                                    <div class="action-buttons">
+                                        <form action="/TicketsServiceDesk/Unarchive" method="post">
+                                            <input type="hidden" name="ticket_id" value="@t.Id" />
 
-                                                    <button type="submit" class="dropdown-item">Archive</button>
-                                                </form>                                        
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post" style="margin:0;">
-                                                    <input type="hidden" name="ticket_id" value="@t.Id" />
-                                                    <input type="hidden" name="action_type" value="escalate" />
-                                                    <button type="submit" class="dropdown-item">Escalate</button>
-                                                </form>
-                                            </li>
-                                            <li>
-                                                <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post" style="margin:0;">
-                                                    <input type="hidden" name="ticket_id" value="@t.Id" />
-                                                    <input type="hidden" name="action_type" value="close" />
-                                                    <button type="submit" class="dropdown-item">Close</button>
-                                                </form>
-                                            </li>
-                                        </ul>
+                                            <button type="submit" class="btn btn-edit">Unarchive</button>
+                                        </form>
+                                        <a class="btn btn-delete" href="/TicketsServiceDesk/Delete/@t.Id">Delete</a>
                                     </div>
-
                                 </td>
                             </tr>
                         }

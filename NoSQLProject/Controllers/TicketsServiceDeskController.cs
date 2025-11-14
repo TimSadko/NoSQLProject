@@ -36,7 +36,28 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        [HttpGet]
+		[HttpGet]
+		public async Task<IActionResult> ArchivedList(string sortField = "Priority", int sortOrder = -1)
+		{
+			if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				var tickets = await _service.GetTicketsSortedAsync(sortField, sortOrder, true);
+
+				ViewBag.SortField = sortField;
+				ViewBag.SortOrder = sortOrder;
+
+				return View(tickets);
+			}
+			catch (Exception ex)
+			{
+				ViewData["Exception"] = ex.Message;
+				return View(new List<Ticket>());
+			}
+		}
+
+		[HttpGet]
         public IActionResult Add()
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
@@ -204,14 +225,16 @@ namespace NoSQLProject.Controllers
             }
         }
 
-		[HttpGet]
-		public async Task<IActionResult> Archive(string id)
+		[HttpPost]
+		public async Task<IActionResult> Archive(string ticket_id)
 		{
 			if (!Authenticate()) return RedirectToAction("Login", "Home");
 
 			try
 			{
-				return View(await _service.LoadTicketByIdAsync(id));
+				await _service.SetArchiveTicketAsync(ticket_id);
+
+				return RedirectToAction("Index");
 			}
 			catch (Exception ex)
 			{
@@ -221,15 +244,15 @@ namespace NoSQLProject.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Archive(Ticket ticket)
+		public async Task<IActionResult> Unarchive(string ticket_id)
 		{
 			if (!Authenticate()) return RedirectToAction("Login", "Home");
 
 			try
 			{
-				await _service.ArchiveTicketAsync(ticket.Id);
+				await _service.SetArchiveTicketAsync(ticket_id, false);
 
-				return RedirectToAction("Index");
+				return RedirectToAction("ArchivedList");
 			}
 			catch (Exception ex)
 			{
