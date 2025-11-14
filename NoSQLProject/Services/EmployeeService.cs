@@ -1,8 +1,7 @@
-﻿
-
-using NoSQLProject.Models;
+﻿using NoSQLProject.Models;
 using NoSQLProject.Repositories;
 using NoSQLProject.Other;
+using System.Linq;
 
 namespace NoSQLProject.Services
 {
@@ -36,9 +35,21 @@ namespace NoSQLProject.Services
             var existing = await _employeeRepository.GetByIdAsync(employee.Id);
             if (existing == null) throw new InvalidOperationException("Employee not found.");
 
-            if (!string.IsNullOrWhiteSpace(employee.Password) && employee.Password != existing.Password)
+            if (string.IsNullOrWhiteSpace(employee.Password))
             {
-                existing.Password = Hasher.GetHashedString(employee.Password);
+                employee.Password = existing.Password;
+            }
+            else if (employee.Password != existing.Password)
+            {
+                employee.Password = Hasher.GetHashedString(employee.Password);
+            }
+
+            employee.Id = existing.Id;
+
+            if (existing.GetType() != employee.GetType())
+            {
+                await _employeeRepository.UpdateAsync(employee);
+                return;
             }
 
             existing.FirstName = employee.FirstName;
@@ -51,7 +62,38 @@ namespace NoSQLProject.Services
                 sdeExisting.ManagedEmployees = sdeInput.ManagedEmployees;
             }
 
+            existing.Password = employee.Password;
+
             await _employeeRepository.UpdateAsync(existing);
+        }
+
+        public async Task AddManagedEmployeeAsync(string serviceDeskId, string employeeId)
+        {
+            var sde = await _employeeRepository.GetByIdAsync(serviceDeskId) as ServiceDeskEmployee;
+            if (sde == null) throw new InvalidOperationException("Service Desk employee not found.");
+
+            if (sde.ManagedEmployees == null)
+                sde.ManagedEmployees = new List<string>();
+
+            if (!sde.ManagedEmployees.Contains(employeeId))
+            {
+                sde.ManagedEmployees.Add(employeeId);
+                await _employeeRepository.UpdateAsync(sde);
+            }
+        }
+
+        public async Task RemoveManagedEmployeeAsync(string serviceDeskId, string employeeId)
+        {
+            var sde = await _employeeRepository.GetByIdAsync(serviceDeskId) as ServiceDeskEmployee;
+            if (sde == null) throw new InvalidOperationException("Service Desk employee not found.");
+
+            if (sde.ManagedEmployees == null || !sde.ManagedEmployees.Any()) return;
+
+            if (sde.ManagedEmployees.Contains(employeeId))
+            {
+                sde.ManagedEmployees.Remove(employeeId);
+                await _employeeRepository.UpdateAsync(sde);
+            }
         }
 
         public async Task DeleteEmployeeAsync(Employee employee) => await _employeeRepository.DeleteAsync(employee);
@@ -60,7 +102,7 @@ namespace NoSQLProject.Services
         {
             var sde = await _employeeRepository.GetByIdAsync(serviceDeskEmployeeId) as ServiceDeskEmployee;
             if (sde == null || sde.ManagedEmployees == null || !sde.ManagedEmployees.Any())
-            return new List<Employee>();
+                return new List<Employee>();
 
             return await _employeeRepository.GetEmployeesByIdsAsync(sde.ManagedEmployees);
         }
@@ -74,10 +116,20 @@ namespace NoSQLProject.Services
         }
 
         // Added by TAREK — Sorting functionality for Employees page (Assignment 2)
-        // This calls the repository's dynamic sort method to allow sorting by any field.
         public async Task<List<Employee>> GetAllEmployeesSortedAsync(string sortField = "Status", int sortOrder = 1)
         {
             return await _employeeRepository.GetAllSortedAsync(sortField, sortOrder);
+        }
+        // END of TAREK’s sorting feature
+
+        public async Task<HashSet<string>> GetAllManagedEmployeeIdsAsync()
+        {
+            var all = (await _employeeRepository.GetAllAsync()).OfType<ServiceDeskEmployee>();
+            var ids = all
+                .SelectMany(s => s.ManagedEmployees ?? new List<string>())
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .ToHashSet();
+            return ids;
         }
     }
 }

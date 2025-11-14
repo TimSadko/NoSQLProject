@@ -208,3 +208,31 @@ footer {
 .btn[onclick]:hover {
     background-color: #e1e9ef;
 }
+
+.btn-login,
+.btn-gradient-purple {
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(78, 84, 200, 0.3);
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-login:hover,
+.btn-gradient-purple:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(78, 84, 200, 0.35);
+}
+
+.btn-login:focus,
+.btn-gradient-purple:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(142, 116, 251, 0.6);
+}

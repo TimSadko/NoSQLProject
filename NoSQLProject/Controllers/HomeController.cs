@@ -23,7 +23,6 @@ namespace NoSQLProject.Controllers
             if (loggedin == null)
                 return RedirectToAction("Login");
 
-            // Pass the employee as the model
             return View("Home", loggedin);
         }
 
@@ -38,9 +37,9 @@ namespace NoSQLProject.Controllers
         {
             try
             {
-                var loggedin = Authorization.GetLoggedInEmployee(HttpContext); // Get employee from sessions
+                var loggedin = Authorization.GetLoggedInEmployee(HttpContext); 
 
-                if (loggedin != null) return RedirectEmployee(loggedin); // If employee is in sessions, redirect him to his main page, bypassing login
+                if (loggedin != null) return RedirectEmployee(loggedin); 
             }
             catch (Exception ex)
             {
@@ -55,12 +54,12 @@ namespace NoSQLProject.Controllers
         {
             try
             {
-                Employee? emp = await _rep.GetByCredentialsAsync(model.Email, Hasher.GetHashedString(model.Password)); // Get employee from db by credentials
+                Employee? emp = await _rep.GetByCredentialsAsync(model.Email, Hasher.GetHashedString(model.Password)); 
 
-                if (emp == null || emp.Status != Employee_Status.Active) throw new Exception("Incorrect Email or Password"); // If no employee found throw exception
+                if (emp == null || emp.Status != Employee_Status.Active) throw new Exception("Incorrect Email or Password"); 
 
-                Authorization.SetLoggedInEmployee(HttpContext, emp); // Save current logged in employee in session
-                HttpContext.Session.SetString("UserId", emp.Id); // Set the user ID in the session
+                Authorization.SetLoggedInEmployee(HttpContext, emp); 
+                HttpContext.Session.SetString("UserId", emp.Id); 
 
                 return RedirectEmployee(emp);
             }
@@ -73,7 +72,6 @@ namespace NoSQLProject.Controllers
 
         private RedirectToActionResult RedirectEmployee(Employee emp)
         {
-            // Redirect all employees to the shared welcome page
             return RedirectToAction("Index", "Home");
         }
 
@@ -85,7 +83,6 @@ namespace NoSQLProject.Controllers
             return RedirectToAction("Login");
         }
 
-        // GET: show the forgot-password form (now in Views/Home/Password/ForgotPassword.cshtml)
         [HttpGet]
         public IActionResult ForgotPassword()
         {
@@ -101,7 +98,8 @@ namespace NoSQLProject.Controllers
                 return View("Password/ForgotPasswordConfirmation");
 
             string token = Hasher.GetHashedString(user.Id + user.Password);
-            string resetLink = Url.Action("ResetPassword", "Home", new { userId = user.Id, token = token }, protocol: Request.Scheme);
+            string resetLink = Url.Action("ResetPassword", "Home", 
+                new { userId = user.Id, token }, protocol: Request.Scheme);
 
             ViewBag.Link = resetLink;
             ViewBag.Email = email;
