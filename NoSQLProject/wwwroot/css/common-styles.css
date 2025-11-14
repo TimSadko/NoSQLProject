@@ -447,11 +447,12 @@ textarea.form-control {
     font-weight: 600;
     border: none;
     border-radius: var(--radius-xl);
-    padding: 10px 20px;
+    padding: 6px 12px;
     transition: all var(--transition-slow);
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
+    font-size: 0.8rem;
 }
 
     .btn-delete:hover {
@@ -467,11 +468,11 @@ textarea.form-control {
     color: var(--color-white);
     border-radius: var(--radius-md);
     font-weight: 600;
-    padding: 8px 16px;
+    padding: 6px 12px;
     border: none;
     transition: all var(--transition-slow);
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     display: inline-block;
     cursor: pointer;
 }
@@ -510,11 +511,12 @@ textarea.form-control {
     font-weight: 600;
     border: none;
     border-radius: var(--radius-lg);
-    padding: 8px 16px;
+    padding: 6px 12px;
     transition: all var(--transition-slow);
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
+    font-size: 0.8rem;
 }
 
     .btn-add-log:hover {
@@ -929,6 +931,58 @@ textarea.form-control {
     border-radius: 15px;
     margin-bottom: 20px;
     animation: fadeIn 1.2s ease forwards;
+}
+/* Role Badge */
+.role-badge-sm {
+    background: #f3f4ff;
+    color: var(--color-accent);
+    font-weight: 600;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+/* Type Badge */
+.type-badge-sm {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: var(--radius-xl);
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--color-gray-100);
+    color: var(--color-gray-600);
+}
+
+
+
+/* Delete Button */
+.btn-delete-smm {
+    background: var(--gradient-delete);
+    color: var(--color-white);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-xl);
+    padding: 4px 12px;
+    transition: all var(--transition-slow);
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+/* View/Edit Buttons */
+.btn-view-smm,
+.btn-edit-smm {
+    background: #00bcd4;
+    color: var(--color-white);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    padding: 4px 12px;
+    border: none;
+    transition: all var(--transition-slow);
+    text-decoration: none;
+    font-size: 0.75rem;
+    display: inline-block;
+    cursor: pointer;
 }
 
 /* ═══════════════════════════════════════════════════════════
