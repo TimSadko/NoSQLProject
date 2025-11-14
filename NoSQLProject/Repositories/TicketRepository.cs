@@ -14,14 +14,18 @@ namespace NoSQLProject.Repositories
             _tickets = db.GetCollection<Ticket>("tickets");
         }
 
-        public async Task<List<Ticket>> GetAllAsync()
+        public async Task<List<Ticket>> GetAllAsync(bool allow_archived = false)
         {
-            return await _tickets.FindAsync(new BsonDocument()).Result.ToListAsync();
+            if(!allow_archived) return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("archived", false)).Result.ToListAsync();
+
+			return await _tickets.FindAsync(new BsonDocument()).Result.ToListAsync();
         }
 
-        public async Task<List<Ticket>> GetAllByEmployeeIdAsync(string id)
+        public async Task<List<Ticket>> GetAllByEmployeeIdAsync(string id, bool allow_archived = true)
         {
-            return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("created_by", id)).Result.ToListAsync();
+			if (!allow_archived) return await _tickets.FindAsync(Builders<Ticket>.Filter.And(Builders<Ticket>.Filter.Eq("archived", false), Builders<Ticket>.Filter.Eq("created_by", id))).Result.ToListAsync();
+
+			return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("created_by", id)).Result.ToListAsync();
         }
 
         public async Task<Ticket?> GetByIdAsync(string id)
@@ -45,6 +49,7 @@ namespace NoSQLProject.Repositories
         {
             var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id));
             var update = Builders<Ticket>.Update.Push(ticket => ticket.Logs, l);
+
             await _tickets.UpdateOneAsync(filter, update);
         }
 
@@ -93,7 +98,12 @@ namespace NoSQLProject.Repositories
             await _tickets.DeleteOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)));
         }
 
-        public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1)
+        public async Task ArchiveAsync(string ticket_id)
+        {
+            await _tickets.UpdateOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id)), Builders<Ticket>.Update.Set("archived", true));
+        }
+
+        public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1, bool allow_archived = false)
         {
             var sortBuilder = Builders<Ticket>.Sort;
 
@@ -101,18 +111,16 @@ namespace NoSQLProject.Repositories
 
             if (sortField == "Priority")
             {
-                sortDef = sortOrder == 1
-                    ? sortBuilder.Ascending(t => t.Priority).Descending(t => t.CreatedAt)
-                    : sortBuilder.Descending(t => t.Priority).Descending(t => t.CreatedAt);
+                sortDef = sortOrder == 1 ? sortBuilder.Ascending(t => t.Priority).Descending(t => t.CreatedAt) : sortBuilder.Descending(t => t.Priority).Descending(t => t.CreatedAt);
             }
             else
             {
-                sortDef = sortOrder == 1
-                    ? sortBuilder.Ascending(sortField)
-                    : sortBuilder.Descending(sortField);
+                sortDef = sortOrder == 1 ? sortBuilder.Ascending(sortField) : sortBuilder.Descending(sortField);
             }
 
-            return await _tickets.Find(new BsonDocument()).Sort(sortDef).ToListAsync();
+			if (!allow_archived) return await _tickets.Find(Builders<Ticket>.Filter.Eq("archived", false)).Sort(sortDef).ToListAsync();
+
+			return await _tickets.Find(new BsonDocument()).Sort(sortDef).ToListAsync();
         }
     }
 }

@@ -29,7 +29,7 @@ namespace NoSQLProject.Controllers
             if (authenticatedEmployee == null)
                 return RedirectToAction("Login", "Home");
 
-            var tickets = await ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id);
+            var tickets = await ticketRepository.GetAllByEmployeeIdAsync(authenticatedEmployee.Id, false);
 
             // ---------------- SORTING ----------------
             switch (sortField)
@@ -203,8 +203,53 @@ namespace NoSQLProject.Controllers
             return View(ticket);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(Ticket? ticket)
+		[HttpPost]
+		public async Task<IActionResult> Delete(Ticket? ticket)
+		{
+			if (!IsAuthenticated())
+				return RedirectToAction("Login", "Home");
+
+			try
+			{
+				if (ticket == null || string.IsNullOrEmpty(ticket.Id))
+					throw new Exception("Ticket id is empty or null!");
+
+				var ticketToRemove = await ticketRepository.GetByIdAsync(ticket.Id);
+				if (ticketToRemove == null)
+				{
+					TempData["Exception"] = "Ticket not found.";
+					return View(ticket);
+				}
+
+				await ticketRepository.DeleteAsync(ticket.Id);
+
+				return RedirectToAction("Index");
+			}
+			catch (Exception ex)
+			{
+				TempData["Exception"] = ex.Message;
+				return RedirectToAction("Index");
+			}
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> Archive(string? id)
+		{
+			if (!IsAuthenticated())
+				return RedirectToAction("Login", "Home");
+
+			if (string.IsNullOrEmpty(id))
+				throw new Exception("Ticket id is empty or null!");
+
+			var ticket = await _ticketRepository.GetByIdAsync(id);
+			if (ticket == null)
+				TempData["Exception"] = "Ticket is null. Something went wrong!";
+
+			return View(ticket);
+		}
+
+		[HttpPost]
+        public async Task<IActionResult> Archive(Ticket? ticket)
         {
             if (!IsAuthenticated())
                 return RedirectToAction("Login", "Home");
@@ -221,13 +266,8 @@ namespace NoSQLProject.Controllers
                     return View(ticket);
                 }
 
-                if (ticketToRemove.Logs.Count > 0)
-                {
-                    TempData["Exception"] = "Ticket has logs. You cannot delete it.";
-                    return View(ticket);
-                }
+                await ticketRepository.ArchiveAsync(ticket.Id);
 
-                await ticketRepository.DeleteAsync(ticket.Id);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
