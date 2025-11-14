@@ -42,74 +42,7 @@
         }
 
         <div class="text-center mt-4">
-            <a asp-action="Index" class="btn btn-back px-4 py-2">← Back to Employees</a>
+            <a asp-action="Index" class="btn btn-back px-4 py-2">Back to Employees</a>
         </div>
     </div>
 </div>
-
-<style>
-    body {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .managed-card {
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 40px 50px;
-        max-width: 900px;
-        width: 100%;
-        margin: 0 auto;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        animation: fadeIn 0.8s ease-in-out forwards;
-    }
-
-    .managed-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #4e54c8;
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .table-gradient {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-    }
-
-    table thead th {
-        font-weight: 600;
-        font-size: 1.05rem;
-    }
-
-    table tbody tr {
-        background: rgba(255, 255, 255, 0.8);
-        transition: all 0.25s ease;
-    }
-
-    table tbody tr:hover {
-        background: rgba(78, 84, 200, 0.1);
-        transform: scale(1.01);
-    }
-
-    .btn-back {
-        background: linear-gradient(135deg, #6c757d, #495057);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-back:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(73, 80, 87, 0.3);
-    }
-
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: translateY(25px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    
-</style>

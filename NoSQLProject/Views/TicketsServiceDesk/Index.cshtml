@@ -42,37 +42,37 @@
                         <tr>
                             <th>
                                 <a asp-action="Index" asp-route-sortField="Priority" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Priority @(currentSortField == "Priority" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                    Priority ↕
                                 </a>
                             </th>
                             <th>
                                 <a asp-action="Index" asp-route-sortField="Title" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Title @(currentSortField == "Title" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                    Title ↕
                                 </a>
                             </th>
                             <th>
                                 <a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Status @(currentSortField == "Status" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                    Status ↕
                                 </a>
                             </th>
                             <th>
                                 <a asp-action="Index" asp-route-sortField="CreatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Created @(currentSortField == "CreatedAt" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                    Created ↕
                                 </a>
                             </th>
                             <th>
                                 <a asp-action="Index" asp-route-sortField="UpdatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Updated @(currentSortField == "UpdatedAt" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                    Updated ↕
                                 </a>
                             </th>
                             <th>
                                 <a asp-action="Index" asp-route-sortField="CreatedBy" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Created By @(currentSortField == "CreatedBy" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                    Created By ↕
                                 </a>
                             </th>
                             <th>
                                 <a asp-action="Index" asp-route-sortField="LogsNumber" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Logs @(currentSortField == "LogsNumber" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                    Logs ↕
                                 </a>
                             </th>
                             <th>Actions</th>
@@ -104,20 +104,31 @@
                                 <td class="employee-cell">@(t.Creator == null ? "???" : t.Creator.FullName)</td>
                                 <td><span class="logs-badge">@t.Logs?.Count</span></td>
                                 <td>
-                                    <div class="action-buttons">
-                                        <a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-view">View</a>
-                                        <a href="/TicketsServiceDesk/Delete/@t.Id" class="btn btn-delete">Delete</a>
-                                        <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post">
-                                            <input type="hidden" name="ticket_id" value="@t.Id" />
-                                            <input type="hidden" name="action_type" value="escalate" />
-                                            <button type="submit" class="btn btn-escalate">Escalate</button>
-                                        </form>
-                                        <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post">
-                                            <input type="hidden" name="ticket_id" value="@t.Id" />
-                                            <input type="hidden" name="action_type" value="close" />
-                                            <button type="submit" class="btn btn-close">Close</button>
-                                        </form>
+                                    <div class="dropdown">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Actions
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="/TicketsServiceDesk/Edit/@t.Id">View</a></li>
+                                            <li><a class="dropdown-item" href="/TicketsServiceDesk/Delete/@t.Id">Delete</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post" style="margin:0;">
+                                                    <input type="hidden" name="ticket_id" value="@t.Id" />
+                                                    <input type="hidden" name="action_type" value="escalate" />
+                                                    <button type="submit" class="dropdown-item">Escalate</button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post" style="margin:0;">
+                                                    <input type="hidden" name="ticket_id" value="@t.Id" />
+                                                    <input type="hidden" name="action_type" value="close" />
+                                                    <button type="submit" class="dropdown-item">Close</button>
+                                                </form>
+                                            </li>
+                                        </ul>
                                     </div>
+
                                 </td>
                             </tr>
                         }
@@ -127,134 +138,3 @@
         }
     </div>
 </div>
-
-<style>
-    body {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .tickets-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 40px 50px;
-        max-width: 2100px;
-        margin: 40px auto;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .tickets-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #4e54c8;
-    }
-
-    .btn-add {
-        background: linear-gradient(135deg, #2575fc, #6a11cb);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 20px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-    .btn-add:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
-        color: white;
-    }
-
-    .fade-in-alert {
-        animation: fadeInSlide 0.6s ease forwards;
-        text-align: center;
-        font-weight: 600;
-        border-radius: 10px;
-        margin: 15px auto;
-        width: 90%;
-        max-width: 800px;
-    }
-
-    @@keyframes fadeInSlide {
-        0% { opacity: 0; transform: translateY(-10px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-
-    .alert-success {
-        background: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #66bb6a;
-        padding: 12px 20px;
-    }
-
-    .alert-danger {
-        background: #ffebee;
-        color: #c62828;
-        border: 1px solid #ef5350;
-        padding: 12px 20px;
-    }
-
-    .tickets-table {
-        border-collapse: separate;
-        border-spacing: 0 12px;
-    }
-
-    .tickets-table tbody tr {
-        background: rgba(255, 255, 255, 0.85);
-        transition: all 0.25s ease;
-    }
-
-    .tickets-table tbody tr:hover {
-        background: rgba(78, 84, 200, 0.1);
-        transform: scale(1.01);
-    }
-
-    .priority-badge, .status-badge, .logs-badge {
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-    .priority-critical { background: #ffebee; color: #c62828; border: 1px solid #ef5350; }
-    .priority-high { background: #fff3e0; color: #e65100; border: 1px solid #ff9800; }
-    .priority-medium { background: #fff9c4; color: #f57f17; border: 1px solid #fbc02d; }
-    .priority-low { background: #e8f5e9; color: #2e7d32; border: 1px solid #66bb6a; }
-
-    .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        justify-content: center;
-    }
-
-    .status-actions {
-        display: flex;
-        gap: 8px;
-        justify-content: center;
-    }
-
-    /* --- Simplified Action Buttons --- */
-    .btn-view, .btn-delete, .btn-escalate, .btn-close {
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 8px 16px;
-        font-size: 0.85rem;
-        color: white;
-        cursor: pointer;
-        transition: background 0.25s ease, transform 0.1s ease;
-    }
-
-    .btn-view { background: #00bcd4; }
-    .btn-view:hover { background: #0097a7; }
-
-    .btn-delete { background: #e74c3c; }
-    .btn-delete:hover { background: #c0392b; }
-
-    .btn-escalate { background: #f39c12; }
-    .btn-escalate:hover { background: #e67e22; }
-
-    .btn-close { background: #2ecc71; }
-    .btn-close:hover { background: #27ae60; }
-</style>

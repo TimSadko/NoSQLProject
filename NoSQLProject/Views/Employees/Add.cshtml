@@ -43,94 +43,9 @@
             </div>
 
             <div class="d-flex justify-content-between align-items-center">
-                <a asp-action="Index" class="btn btn-secondary btn-back">← Back</a>
+                <a asp-action="Index" class="btn btn-secondary btn-back">Back</a>
                 <button type="submit" class="btn btn-add">Add Employee</button>
             </div>
         </form>
     </div>
 </div>
-
-<style>
-    body {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .form-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 40px 50px;
-        max-width: 600px;
-        margin: 60px auto;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        animation: fadeIn 0.8s ease-in-out forwards;
-    }
-
-    .form-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #4e54c8;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 6px;
-    }
-
-    .input-style {
-        border-radius: 12px;
-        padding: 10px 14px;
-        font-size: 1rem;
-        border: 1px solid #ddd;
-        transition: all 0.3s ease;
-    }
-
-    .input-style:focus {
-        border-color: #6a11cb;
-        box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.15);
-        outline: none;
-    }
-
-    .btn-add {
-        background: linear-gradient(135deg, #2575fc, #6a11cb);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 25px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-    .btn-add:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
-    }
-
-    .btn-back {
-        background: #f3f4f6;
-        color: #333;
-        border-radius: 12px;
-        font-weight: 500;
-        padding: 10px 25px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-    .btn-back:hover {
-        background: #e0e7ff;
-        color: #4e54c8;
-    }
-
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: translateY(25px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>

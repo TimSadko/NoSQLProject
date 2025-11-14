@@ -1,27 +1,37 @@
-﻿@model NoSQLProject.ViewModels.EmployeeTickets
+﻿@model List<NoSQLProject.Models.Employee>
 
 @{
-    ViewData["Title"] = "My Ticket Tracker";
+    ViewData["Title"] = "Employees";
     int nextOrder = ViewBag.SortOrder == 1 ? -1 : 1;
-    string currentSortField = ViewBag.SortField ?? "Priority";
+    string currentSortField = ViewBag.SortField ?? "Status";
+    string currentStatus = ViewBag.Status ?? "All";
 }
+
+<partial name="_ErrorMessage" />
 
 <div class="fade-in">
     <div class="tickets-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="tickets-title">My Ticket Tracker</h2>
-            <a asp-action="Add" class="btn btn-add">+ Add Ticket</a>
+            <h2 class="tickets-title">Employees</h2>
+            <a asp-action="Add" class="btn-add px-4 py-2">+ Add Employee</a>
         </div>
 
-        @if (TempData["Exception"] != null)
-        {
-            <div class="alert alert-danger text-center fw-semibold">@TempData["Exception"]</div>
-        }
+        <!-- Status Filter -->
+        <div class="filter-buttons">
+            <a asp-action="Index" asp-route-status="All" asp-route-sortField="@currentSortField" asp-route-sortOrder="@ViewBag.SortOrder"
+               class="btn @(currentStatus == "All" ? "btn-primary" : "btn-outline-primary")">All</a>
+            <a asp-action="Index" asp-route-status="Active" asp-route-sortField="@currentSortField" asp-route-sortOrder="@ViewBag.SortOrder"
+               class="btn @(currentStatus == "Active" ? "btn-success" : "btn-outline-success")">Active</a>
+            <a asp-action="Index" asp-route-status="Deactivated" asp-route-sortField="@currentSortField" asp-route-sortOrder="@ViewBag.SortOrder"
+               class="btn @(currentStatus == "Deactivated" ? "btn-warning" : "btn-outline-warning")">Deactivated</a>
+            <a asp-action="Index" asp-route-status="Archived" asp-route-sortField="@currentSortField" asp-route-sortOrder="@ViewBag.SortOrder"
+               class="btn @(currentStatus == "Archived" ? "btn-secondary" : "btn-outline-secondary")">Archived</a>
+        </div>
 
-        @if (Model == null || Model.Tickets == null || !Model.Tickets.Any())
+        @if (Model == null || !Model.Any())
         {
             <div class="alert alert-info text-center fw-semibold mt-4">
-                No tickets found.
+                No employees found.
             </div>
         }
         else
@@ -31,74 +41,69 @@
                     <thead class="table-gradient text-white">
                         <tr>
                             <th>
-                                <a asp-action="Index" asp-route-sortField="Priority" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Priority @(currentSortField == "Priority" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                <a asp-action="Index" asp-route-sortField="FirstName" asp-route-sortOrder="@nextOrder" asp-route-status="@currentStatus" class="sort-link">
+                                    First Name ↕
                                 </a>
                             </th>
                             <th>
-                                <a asp-action="Index" asp-route-sortField="Title" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Title @(currentSortField == "Title" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                <a asp-action="Index" asp-route-sortField="LastName" asp-route-sortOrder="@nextOrder" asp-route-status="@currentStatus" class="sort-link">
+                                    Last Name ↕
                                 </a>
                             </th>
                             <th>
-                                <a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Status @(currentSortField == "Status" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                <a asp-action="Index" asp-route-sortField="Email" asp-route-sortOrder="@nextOrder" asp-route-status="@currentStatus" class="sort-link">
+                                    Email ↕
                                 </a>
                             </th>
                             <th>
-                                <a asp-action="Index" asp-route-sortField="CreatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Created @(currentSortField == "CreatedAt" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
+                                <a asp-action="Index" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" asp-route-status="@currentStatus" class="sort-link">
+                                    Status ↕
                                 </a>
                             </th>
-                            <th>
-                                <a asp-action="Index" asp-route-sortField="UpdatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">
-                                    Updated @(currentSortField == "UpdatedAt" ? (ViewBag.SortOrder == -1 ? "↓" : "↑") : "")
-                                </a>
-                            </th>
-                            <th>Description</th>
+                            <th>Role</th>
+                            <th>Managing</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var t in Model.Tickets)
+                        @foreach (var emp in Model)
                         {
                             <tr>
+                                <td class="employee-cell">@emp.FirstName</td>
+                                <td class="employee-cell">@emp.LastName</td>
+                                <td>@emp.Email</td>
                                 <td>
                                     @{
-                                        var priorityClass = t.Priority switch
+                                        var statusClass = emp.Status switch
                                         {
-                                            NoSQLProject.Models.Ticket_Priority.Critical => "priority-critical",
-                                            NoSQLProject.Models.Ticket_Priority.High => "priority-high",
-                                            NoSQLProject.Models.Ticket_Priority.Medium => "priority-medium",
-                                            NoSQLProject.Models.Ticket_Priority.Low => "priority-low",
-                                            _ => "priority-undefined"
+                                            NoSQLProject.Models.Employee_Status.Active => "status-resolved",
+                                            NoSQLProject.Models.Employee_Status.Deactivated => "status-open",
+                                            NoSQLProject.Models.Employee_Status.Archived => "status-closed",
+                                            _ => "status-closed"
                                         };
                                     }
-                                    <span class="priority-badge @priorityClass">@t.Priority</span>
+                                    <span class="status-badge @statusClass">@emp.Status</span>
                                 </td>
-                                <td>@t.Title</td>
                                 <td>
-                                    <span class="status-badge status-@t.Status.ToString().ToLower()">
-                                        @t.Status
-                                    </span>
-                                </td>
-                                <td>@t.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
-                                <td>@t.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</td>
-                                <td>
-                                    @if (string.IsNullOrEmpty(t.Description))
+                                    @if (emp is NoSQLProject.Models.ServiceDeskEmployee)
                                     {
-                                        <span class="text-muted">No description</span>
+                                        <span class="role-badge">Service Desk</span>
                                     }
                                     else
                                     {
-                                        @(t.Description.Length > 80 ? t.Description.Substring(0, 80) + "..." : t.Description)
+                                        <span class="type-badge">Employee</span>
                                     }
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-view">Edit</a>
-                                        <a asp-action="Logs" asp-route-id="@t.Id" class="btn btn-logs">Logs</a>
-                                        <a asp-action="Delete" asp-route-id="@t.Id" class="btn btn-delete">Delete</a>
+                                    @if (emp is NoSQLProject.Models.ServiceDeskEmployee)
+                                    {
+                                        <a asp-action="ManagedEmployees" asp-route-id="@emp.Id" class="btn-add-log">Managed</a>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="Edit" asp-route-id="@emp.Id" class="btn btn-edit">Edit</a>
+                                        <a asp-action="Delete" asp-route-id="@emp.Id" class="btn btn-delete">Delete</a>
                                     </div>
                                 </td>
                             </tr>
@@ -109,139 +114,3 @@
         }
     </div>
 </div>
-
-<style>
-    body {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .tickets-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 40px 50px;
-        max-width: 1200px;
-        margin: 40px auto;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .tickets-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #4e54c8;
-    }
-
-    .btn-add {
-        background: linear-gradient(135deg, #2575fc, #6a11cb);
-        color: white;
-        font-weight: 600;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 20px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-    .btn-add:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(37, 117, 252, 0.3);
-    }
-
-    .tickets-table {
-        border-collapse: separate;
-        border-spacing: 0 12px;
-    }
-
-    .tickets-table thead th {
-        padding: 14px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .tickets-table tbody tr {
-        background: rgba(255, 255, 255, 0.85);
-        transition: all 0.25s ease;
-    }
-
-    .tickets-table tbody tr:hover {
-        background: rgba(78, 84, 200, 0.1);
-        transform: scale(1.01);
-    }
-
-    .priority-badge {
-        padding: 6px 12px;
-        border-radius: 16px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .priority-critical { background: #ffebee; color: #c62828; }
-    .priority-high { background: #fff3e0; color: #e65100; }
-    .priority-medium { background: #fff9c4; color: #f57f17; }
-    .priority-low { background: #e8f5e9; color: #2e7d32; }
-    .priority-undefined { background: #f5f5f5; color: #757575; }
-
-    .status-badge {
-        display: inline-block;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .status-open { background: #e3f2fd; color: #1976d2; }
-    .status-closed { background: #f3e5f5; color: #7b1fa2; }
-    .status-resolved { background: #e8f5e9; color: #388e3c; }
-    .status-escalated { background: #fff8e1; color: #f57f17; }
-
-    .btn-view {
-        background: #00bcd4;
-        color: white;
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 8px 16px;
-        border: none;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        font-size: 0.9rem;
-    }
-
-    .btn-logs {
-        background: #9c27b0;
-        color: white;
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 8px 16px;
-        border: none;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        font-size: 0.9rem;
-    }
-
-    .btn-delete {
-        background: #ef5350;
-        color: white;
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 8px 16px;
-        border: none;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        font-size: 0.9rem;
-    }
-
-    .sort-link {
-        color: white;
-        font-weight: 600;
-        text-decoration: none;
-        transition: opacity 0.2s ease;
-    }
-
-    .sort-link:hover {
-        opacity: 0.8;
-        text-decoration: underline;
-    }
-</style>
