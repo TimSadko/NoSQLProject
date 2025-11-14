@@ -16,13 +16,12 @@ namespace NoSQLProject.Services
             _employees_rep = employees_rep;
         }
 
-        // ========================= GET RECEIVED ============================
         public async Task<List<TicketRequest>> GetReceivedTicketRequestsAsync(string employee_id)
         {
-            var ticket_requests = await _rep.GetAllByRecipientAsync(employee_id);
+            List<TicketRequest> ticket_requests = await _rep.GetAllByRecipientAsync(employee_id);
 
-            var employees_tasks = new List<Task<Employee?>>();
-            var ticket_tasks = new List<Task<Ticket?>>();
+            List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
+            List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
 
             for (int i = 0; i < ticket_requests.Count; i++)
             {
@@ -42,13 +41,12 @@ namespace NoSQLProject.Services
             return ticket_requests;
         }
 
-        // ========================= GET SENT ============================
         public async Task<List<TicketRequest>> GetSentTicketRequestsAsync(string employee_id)
         {
-            var ticket_requests = await _rep.GetAllBySenderAsync(employee_id);
+            List<TicketRequest> ticket_requests = await _rep.GetAllBySenderAsync(employee_id);
 
-            var employees_tasks = new List<Task<Employee?>>();
-            var ticket_tasks = new List<Task<Ticket?>>();
+            List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
+            List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
 
             for (int i = 0; i < ticket_requests.Count; i++)
             {
@@ -68,22 +66,19 @@ namespace NoSQLProject.Services
             return ticket_requests;
         }
 
-        // ========================= GET ALL ============================
         public async Task<List<TicketRequest>> GetAllTicketRequestsAsync()
         {
-            var ticket_requests = await _rep.GetAllAsync();
+            List<TicketRequest> ticket_requests = await _rep.GetAllAsync();
 
-            var employees_tasks = new List<Task<Employee?>>();
-            var ticket_tasks = new List<Task<Ticket?>>();
+            List<Task<Employee?>> employees_tasks = new List<Task<Employee?>>();
+            List<Task<Ticket?>> ticket_tasks = new List<Task<Ticket?>>();
 
-            // Recipient
             for (int i = 0; i < ticket_requests.Count; i++)
             {
                 employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].RecipientId));
                 ticket_tasks.Add(_ticket_rep.GetByIdAsync(ticket_requests[i].TicketId));
             }
 
-            // Sender
             for (int i = 0; i < ticket_requests.Count; i++)
             {
                 employees_tasks.Add(_employees_rep.GetByIdAsync(ticket_requests[i].SenderId));
@@ -102,28 +97,15 @@ namespace NoSQLProject.Services
             return ticket_requests;
         }
 
-        // ========================= ADD REQUEST ============================
         public async Task AddRequestAsync(string email, string logged_in_employee_id, string ticket_id, string message)
         {
             var emp = await _employees_rep.GetByEmailAsync(email);
-            if (emp == null) 
-                throw new Exception($"Employee with email \"{email}\" does not exist.");
 
-            if (emp.Id == logged_in_employee_id)
-                throw new Exception("You cannot send a ticket request to yourself.");
+            if (emp == null) throw new Exception($"Employee with email: \"{email}\" does not exist, please enter valid service desk employee email address");
 
-            if (emp is not ServiceDeskEmployee)
-                throw new Exception("Only service desk employees can receive ticket requests.");
+            if (emp.Id == logged_in_employee_id) throw new Exception($"You cannot sent ticket request to yourself");
 
-            var request = new TicketRequest
-            {
-                TicketId = ticket_id,
-                Message = message ?? "",
-                SenderId = logged_in_employee_id,
-                RecipientId = emp.Id,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+            if (emp is not ServiceDeskEmployee) throw new Exception($"You can sent ticket request only to service desk employees");
 
             var request = new TicketRequest();
 
@@ -138,7 +120,7 @@ namespace NoSQLProject.Services
             List<Task> tasks = new List<Task>();
 
             request.CreatedAt = DateTime.UtcNow;
-            request.UpdatedAt = DateTime.UtcNow;        
+            request.UpdatedAt = DateTime.UtcNow;
 
             // Request redirection part
             List<TicketRequest> ticket_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
@@ -148,94 +130,69 @@ namespace NoSQLProject.Services
                 if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
             }
 
-			tasks.Add(_rep.AddAsync(request));
-<<<<<<<<< Temporary merge branch 1
-			// Request redirection part
-			List<TicketRequest> ticket_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
+            tasks.Add(_rep.AddAsync(request));
 
-			foreach (TicketRequest r in ticket_requests)
-			{
-				if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
-			}
-=========
-            foreach (TicketRequest r in ticket_requests)
-            {
-                if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted))
-                    tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
-            }
-
-			await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
         }
 
-        // ========================= VIEW PAGE ============================
         public async Task<(string, TicketRequest)> GetViewPageAsync(string request_id, string logged_in_employee_id)
         {
-            var request = await _rep.GetByIdAsync(request_id)
-                ?? throw new Exception("Request not found.");
+            TicketRequest? request = await _rep.GetByIdAsync(request_id);
 
-            var recipient = await _employees_rep.GetByIdAsync(request.RecipientId)
-                ?? throw new Exception("Recipient not found.");
+            if (request == null) throw new Exception("Could not find request with the id");
 
-            var sender = await _employees_rep.GetByIdAsync(request.SenderId)
-                ?? throw new Exception("Sender not found.");
+            Employee? recipient = await _employees_rep.GetByIdAsync(request.RecipientId);
 
-            var ticket = await _ticket_rep.GetByIdAsync(request.TicketId)
-                ?? throw new Exception("Ticket not found.");
+            if (recipient == null) throw new Exception("Could not find ticket recipient with the id");
+
+            Employee? sender = await _employees_rep.GetByIdAsync(request.SenderId);
+            if (sender == null) throw new Exception("Could not find ticket sender with the id");
+
+            Ticket? ticket = await _ticket_rep.GetByIdAsync(request.TicketId);
+            if (ticket == null) throw new Exception("Could not find request ticket with the id");
 
             request.Sender = sender;
             request.Recipient = recipient;
             request.Ticket = ticket;
 
-            if (logged_in_employee_id == request.SenderId)
-            if (logged_in_employee_id != request.SenderId) throw new Exception("Page inaccessible! Log in as a sender to delete the request");
-
-            if (logged_in_employee_id == request.RecipientId)
-                return ("ViewRecipient", request);
-
-            return ("ViewGuest", request);
+            if (logged_in_employee_id == request.SenderId) return ("Edit", request);
+            else if (logged_in_employee_id == request.RecipientId) return ("ViewRecipient", request);
+            else return ("ViewGuest", request);
         }
 
-        // ========================= GET DELETE PAGE ============================
         public async Task<TicketRequest> GetRequestForDeleteAsync(string request_id, string logged_in_employee_id)
         {
-            if (logged_in_employee_id != loaded_request.SenderId) throw new Exception("Page inaccessible! Log in as a sender to delete the request");
-                ?? throw new Exception("Request not found.");
+            TicketRequest? request = await _rep.GetByIdAsync(request_id);
 
-            if (logged_in_employee_id != request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
+            if (request == null) throw new Exception("Could not found request with the id");
+
+            if (logged_in_employee_id != request.SenderId) throw new Exception("Page inaccessible! Log in as a sender to delete the request");
 
             return request;
         }
 
-        // ========================= DELETE REQUEST ============================
         public async Task DeleteRequestAsync(string request_id, string logged_in_employee_id)
         {
-            TicketRequest? request = await _rep.GetByIdAsync(request_id);
+            TicketRequest? loaded_request = await _rep.GetByIdAsync(request_id);
 
-            if (request == null) throw new Exception("Ticket request with the id do not exists");
+            if (loaded_request == null) throw new Exception("Could not found request with the id");
 
-            if (request == null) throw new Exception("Ticket request with the id do not exists");
-            if (req.Status != TicketRequestStatus.Open)
-            if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
+            if (logged_in_employee_id != loaded_request.SenderId) throw new Exception("Page inaccessible! Log in as a sender to delete the request");
+
+            if (loaded_request.Status != TicketRequestStatus.Open) throw new Exception("Only unaccepted requests could be deleted");
+
+            await _rep.DeleteAsync(loaded_request.Id);
         }
-	  }	
-}
-        // ========================= CHANGE STATUS ============================
+
         public async Task ChangeRequestStausOnConditionAsync(string request_id, TicketRequestStatus condition_status, TicketRequestStatus set_status)
         {
             TicketRequest? request = await _rep.GetByIdAsync(request_id);
 
-            if (request == null) throw new Exception("Ticket request with the id do not exsists");
+            if (request == null) throw new Exception("Ticket request with the id do not exists");
 
-<<<<<<<<< Temporary merge branch 1
-			if (request == null) throw new Exception("Ticket request with the id do not exsists");
+            if (request == null) throw new Exception("Ticket request with the id do not exists");
 
-			if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
-		}
-	}	
-}
-=========
             if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
         }
-    }    
+    }
 }
->>>>>>>>> Temporary merge branch 2
