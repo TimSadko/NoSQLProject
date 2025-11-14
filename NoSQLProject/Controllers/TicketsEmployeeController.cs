@@ -152,25 +152,25 @@ namespace NoSQLProject.Controllers
 
         // ===================== EDIT (POST) ============================
         [HttpPost]
-        public async Task<IActionResult> Edit(Ticket? ticket)
+        public async Task<IActionResult> Edit(Ticket? ticketToChange)
         {
             if (!IsAuthenticated())
                 return RedirectToAction("Login", "Home");
 
             try
             {
-                if (ticket == null || string.IsNullOrEmpty(ticket.Id))
+                if (ticketToChange == null || string.IsNullOrEmpty(ticketToChange.Id))
                     throw new Exception("Ticket id is empty or null!");
 
-                var ticketToUpdate = await ticketRepository.GetByIdAsync(ticket.Id);
+                var ticketToUpdate = await ticketRepository.GetByIdAsync(ticketToChange.Id);
                 if (ticketToUpdate == null)
                 {
                     TempData["Exception"] = "Ticket not found.";
-                    return View(ticket);
+                    return View(ticketToChange);
                 }
 
-                ticketToChange.Title = ticket.Title;
-                ticketToChange.Description = ticket.Description;
+                ticketToChange.Title = ticketToChange.Title;
+                ticketToChange.Description = ticketToChange.Description;
                 ticketToChange.UpdatedAt = DateTime.UtcNow;
 
                 await _ticketRepository.EditAsync(ticketToUpdate);

@@ -119,21 +119,19 @@ namespace NoSQLProject.Services
 
             List<Task> tasks = new List<Task>();
 
-			request.CreatedAt = DateTime.UtcNow;
-			request.UpdatedAt = DateTime.UtcNow;
-
-			List<Task> tasks = new List<Task>();
+            request.CreatedAt = DateTime.UtcNow;
+            request.UpdatedAt = DateTime.UtcNow;
 
             // Request redirection part
-            List<TicketRequest> ticket_requests = await _rep.GetTicketRequestsAsync(ticket_id);
+            List<TicketRequest> ticket_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
 
-			// Request redirection part
-			List<TicketRequest> ticket_requests = await _rep.GetRequestsByTicketAsync(ticket_id);
+            foreach (TicketRequest r in ticket_requests)
+            {
+                if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
+            }
 
-			foreach (TicketRequest r in ticket_requests)
-			{
-				if (r.RecipientId == logged_in_employee_id && (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)) tasks.Add(_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
-			}
+            await Task.WhenAll(tasks);
+        }
 
         public async Task<(string, TicketRequest)> GetViewPageAsync(string request_id, string logged_in_employee_id)
         {

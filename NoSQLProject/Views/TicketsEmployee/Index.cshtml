@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Tickets";
+    int nextOrder = ViewBag.SortOrder == -1 ? 1 : -1;
     string currentField = Context.Request.Query["sortField"];
     string currentOrder = Context.Request.Query["sortOrder"];
 }

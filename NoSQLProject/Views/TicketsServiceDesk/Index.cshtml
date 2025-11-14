@@ -6,19 +6,6 @@
     string currentSortField = ViewBag.SortField ?? "Priority";
 }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success fade-in-alert">
-        @TempData["Success"]
-    </div>
-}
-@if (TempData["Exception"] != null)
-{
-    <div class="alert alert-danger fade-in-alert">
-        @TempData["Exception"]
-    </div>
-}
-
 <partial name="_ErrorMessage" />
 
 <div class="fade-in">
