@@ -12,7 +12,7 @@ namespace NoSQLProject.Models
         Closed = 4, // Close due to issue not being a real error, e.g. user level error
         Redirected = 5, // Redirected to another employee
         Failed = 6, 
-        Cancelled = 7 // If another employee fisnish the ticket before the asigned one 
+        Cancelled = 7 // If another employee finish the ticket before the assigned one 
     }
 
     public class TicketRequest
