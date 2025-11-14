@@ -184,10 +184,10 @@ namespace NoSQLProject.Controllers
                 TempData["Exception"] = ex.Message;
                 return RedirectToAction("Index");
             }
-        }
+        }	
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(Ticket ticket)
+		[HttpPost]
+		public async Task<IActionResult> Delete(Ticket ticket)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
 
@@ -204,7 +204,41 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        [HttpGet("TicketsServiceDesk/DeleteLog/{ticket_id}/{log_id}")]
+		[HttpGet]
+		public async Task<IActionResult> Archive(string id)
+		{
+			if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				return View(await _service.LoadTicketByIdAsync(id));
+			}
+			catch (Exception ex)
+			{
+				TempData["Exception"] = ex.Message;
+				return RedirectToAction("Index");
+			}
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Archive(Ticket ticket)
+		{
+			if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				await _service.ArchiveTicketAsync(ticket.Id);
+
+				return RedirectToAction("Index");
+			}
+			catch (Exception ex)
+			{
+				TempData["Exception"] = ex.Message;
+				return RedirectToAction("Index");
+			}
+		}
+
+		[HttpGet("TicketsServiceDesk/DeleteLog/{ticket_id}/{log_id}")]
         public async Task<IActionResult> DeleteLog(string ticket_id, string log_id)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");

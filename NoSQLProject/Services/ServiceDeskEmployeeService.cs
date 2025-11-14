@@ -198,6 +198,11 @@ namespace NoSQLProject.Services
 			await _rep.DeleteAsync(ticket_id);
 		}
 
+		public async Task ArchiveTicketAsync(string ticket_id)
+		{
+			await _rep.ArchiveAsync(ticket_id);
+		}
+
 		public async Task DeleteLogAsync(string ticket_id, string log_id)
 		{
 			await _rep.DeleteLogAsync(ticket_id, log_id);

@@ -4,15 +4,16 @@ namespace NoSQLProject.Repositories
 {
     public interface ITicketRepository
     {
-        Task<List<Ticket>> GetAllAsync();
-        Task<List<Ticket>> GetAllByEmployeeIdAsync(string id);
-        Task<Ticket?> GetByIdAsync(string id);
+        Task<List<Ticket>> GetAllAsync(bool allow_archived = false);
+        Task<List<Ticket>> GetAllByEmployeeIdAsync(string id, bool allow_archived = true);
+		Task<Ticket?> GetByIdAsync(string id);
         Task AddAsync(Ticket t);
         Task EditAsync(Ticket t);
         Task UpdateTicketStatusAsync(string ticket_id, Ticket_Status status);
 		Task DeleteAsync(string id);
-        Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1);
-        Task AddLogAsync(Ticket t, Log l, Employee e);
+        Task ArchiveAsync(string ticket_id);
+		Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1, bool allow_archived = false);
+		Task AddLogAsync(Ticket t, Log l, Employee e);
         Task<Log?> GetLogByIdAsync(string ticket_id, string log_id);
         Task EditLogAsync(string ticket_id, Log log);
         Task DeleteLogAsync(string ticket_id, string log_id);

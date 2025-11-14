@@ -1,17 +1,17 @@
 ﻿@model NoSQLProject.Models.Ticket
 
 @{
-    ViewData["Title"] = "Delete Ticket";
+    ViewData["Title"] = "Archive Ticket";
 }
 
 <partial name="_ErrorMessage" />
 
 <div class="fade-in">
     <div class="delete-card">
-        <h2 class="delete-title">Delete Ticket</h2>
+        <h2 class="delete-title">Archive Ticket</h2>
 
         <div class="alert alert-danger text-center fw-semibold mb-4">
-            Are you sure you want to permanently delete this ticket?
+            Are you sure you want to archive this ticket?
         </div>
 
         <!-- Ticket Details -->
@@ -49,7 +49,7 @@
                             Ticket_Priority.Undefined => "priority-undefined",
                             _ => "priority-undefined"
                         };
-                   
+
                     }
                     <span class="priority-badge @priorityClass">
                         @Model.Priority
@@ -66,7 +66,7 @@
 
             @if (Model.Logs.Count == 0)
             {
-                <div class="alert alert-info text-center">No logs.</div>
+                <div class="alert alert-info text-center"> No logs.</div>
             }
             else
             {
@@ -87,9 +87,7 @@
                                     <td class="fw-semibold">@(log.Creator == null ? "???" : log.Creator.FullName)</td>
                                     <td class="date-cell">@log.CreatedAt.ToString("MMM dd, HH:mm")</td>
                                     <td>
-                                        <span class="status-badge status-@log.NewStatus.ToString().ToLower()">
-                                            @log.NewStatus
-                                        </span>
+                                        <span class="status-badge status-@log.NewStatus.ToString().ToLower()">@log.NewStatus</span>
                                     </td>
                                     <td class="description-cell">
                                         @if (string.IsNullOrEmpty(log.Description))
@@ -99,8 +97,8 @@
                                         else if (log.Description.Length > 100)
                                         {
                                             @(log.Description.Substring(0, 100))
-                                            
-                                                                }
+
+                                        }
                                         else
                                         {
                                             @log.Description
@@ -114,13 +112,13 @@
             }
         </div>
 
-        <!-- Delete Form -->
-        <form action="/TicketsServiceDesk/Delete" method="post">
+        <!-- Archive Form -->
+        <form action="/TicketsServiceDesk/Archive" method="post">
             <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
 
             <div class="d-flex justify-content-between align-items-center mt-4">
                 <a href="/TicketsServiceDesk/Index" class="btn btn-cancel px-4 py-2">Cancel</a>
-                <button type="submit" class="btn btn-delete px-4 py-2">Delete Ticket</button>
+                <button type="submit" class="btn btn-delete px-4 py-2">Archive Ticket</button>
             </div>
         </form>
     </div>

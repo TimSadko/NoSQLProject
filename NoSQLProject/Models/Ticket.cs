@@ -9,8 +9,8 @@ namespace NoSQLProject.Models
         Open = 0,
         Closed = 1,
         Resolved = 2,
-        Escalated = 3 // ✅ Added for "Escalate Ticket" feature
-    }
+        Escalated = 3
+	}
 
     public enum Ticket_Priority
     {
@@ -32,12 +32,13 @@ namespace NoSQLProject.Models
         private Ticket_Priority _priority = Ticket_Priority.Undefined;
         private DateTime _created_at;
         private DateTime _updated_at;
+        private bool _archived = false;
 
         private Employee? _creator = null;
 
         public Ticket() { }
 
-        public Ticket(string id, string created_by_id, List<Log> logs, string title, string description, Ticket_Status status, Ticket_Priority priority, DateTime created_at, DateTime updated_at)
+        public Ticket(string id, string created_by_id, List<Log> logs, string title, string description, Ticket_Status status, Ticket_Priority priority, DateTime created_at, DateTime updated_at, bool archived)
         {
             _id = id;
             _created_by_id = created_by_id;
@@ -48,7 +49,8 @@ namespace NoSQLProject.Models
             _priority = priority;
             _created_at = created_at;
             _updated_at = updated_at;
-        }
+			_archived = archived;
+		}
 
         [BsonId]
         [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
@@ -86,7 +88,11 @@ namespace NoSQLProject.Models
         [JsonPropertyName("updated_at")]
         public DateTime UpdatedAt { get => _updated_at; set => _updated_at = value; }
 
-        [BsonIgnore]
+		[BsonElement("archived")]
+		[JsonPropertyName("archived")]
+		public bool Archived { get => _archived; set => _archived = value; }
+
+		[BsonIgnore]
         [JsonIgnore]
         public Employee? Creator { get => _creator; set => _creator = value; }
 
