@@ -29,7 +29,8 @@ namespace NoSQLProject.Other
             // Convert the bytes to a hex string
             StringBuilder hex_sb = new StringBuilder();
 
-            for (int i = 0; i < input.Length; i++)
+            // Iterate over the hash bytes (was incorrectly iterating by input.Length which could exceed hash length)
+            for (int i = 0; i < hash.Length; i++)
             {
                 hex_sb.Append(hash[i].ToString("X2")); // Convert each byte to a hex value
             }
