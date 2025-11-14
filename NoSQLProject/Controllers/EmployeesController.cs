@@ -193,9 +193,52 @@ namespace NoSQLProject.Controllers
                 TempData["Exception"] = ex.Message;
                 return View(employee);
             }
-        }        
+        }
 
-        [HttpGet]
+		[HttpGet]
+		public async Task<IActionResult> Delete(string id)
+		{
+			if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				var employee = await _employeeService.GetEmployeeByIdAsync(id);
+				if (employee == null) throw new Exception("Employee not found");
+
+				return View(employee);
+			}
+			catch (Exception ex)
+			{
+				TempData["Exception"] = ex.Message;
+				return RedirectToAction("Index");
+			}
+		}
+
+		[HttpPost, ActionName("Delete")]
+		public async Task<IActionResult> DeleteConfirmed(string id)
+		{
+			if (!Authenticate()) return RedirectToAction("Login", "Home");
+
+			try
+			{
+				var currentUserId = HttpContext.Session.GetString("UserId");
+				if (currentUserId == id)
+					throw new Exception("You cannot delete your own account.");
+
+				var employee = await _employeeService.GetEmployeeByIdAsync(id);
+				if (employee != null)
+					await _employeeService.DeleteEmployeeAsync(employee);
+
+				return RedirectToAction("Index");
+			}
+			catch (Exception ex)
+			{
+				TempData["Exception"] = ex.Message;
+				return RedirectToAction("Index");
+			}
+		}
+
+		[HttpGet]
         public async Task<IActionResult> ManagedEmployees(string id)
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
@@ -263,49 +306,6 @@ namespace NoSQLProject.Controllers
         {
             Employee? emp = Authorization.GetLoggedInEmployee(HttpContext);
             return emp is ServiceDeskEmployee; // Only ServiceDeskEmployee can access
-        }
-
-		/*[HttpGet]
-		public async Task<IActionResult> Delete(string id)
-		{
-			if (!Authenticate()) return RedirectToAction("Login", "Home");
-
-			try
-			{
-				var employee = await _employeeService.GetEmployeeByIdAsync(id);
-				if (employee == null) throw new Exception("Employee not found");
-
-				return View(employee);
-			}
-			catch (Exception ex)
-			{
-				TempData["Exception"] = ex.Message;
-				return RedirectToAction("Index");
-			}
-		}
-
-		[HttpPost, ActionName("Delete")]
-		public async Task<IActionResult> DeleteConfirmed(string id)
-		{
-			if (!Authenticate()) return RedirectToAction("Login", "Home");
-
-			try
-			{
-				var currentUserId = HttpContext.Session.GetString("UserId");
-				if (currentUserId == id)
-					throw new Exception("You cannot delete your own account.");
-
-				var employee = await _employeeService.GetEmployeeByIdAsync(id);
-				if (employee != null)
-					await _employeeService.DeleteEmployeeAsync(employee);
-
-				return RedirectToAction("Index");
-			}
-			catch (Exception ex)
-			{
-				TempData["Exception"] = ex.Message;
-				return RedirectToAction("Index");
-			}
-		}*/
-	}
+        }      
+    }
 }

@@ -15,7 +15,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created By</label>
-                    <input type="text" class="form-control info-input" readonly value="@Model.Log.Creator.FullName" />
+                    <input type="text" class="form-control info-input" readonly value="@(Model.Log.Creator == null ? "???" : Model.Log.Creator.FullName)" />
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created At</label>

@@ -104,9 +104,7 @@ namespace NoSQLProject.Services
 				ticket.Logs[i].Creator = log_creator_tasks[i].Result;
 			}
 
-			Employee? ticket_creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
-
-			ticket.Creator = ticket_creator;
+			ticket.Creator = await _employees_rep.GetByIdAsync(ticket.CreatedById);
 
 			return ticket;
 		}
@@ -153,18 +151,18 @@ namespace NoSQLProject.Services
 			foreach (var r in request_list) // Go through the ticket requests, changing their status if needed 
 			{
 				if (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)
-				{		
+				{
 					if (r.RecipientId == creator.Id)
 					{
-						if (log.NewStatus == Ticket_Status.Closed)
-							update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Closed));
-						else if (log.NewStatus == Ticket_Status.Resolved)
+						if (log.NewStatus == Ticket_Status.Closed || log.NewStatus == Ticket_Status.Resolved)
+						{
 							update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Fulfilled));
+						}
 					}
 					else if (log.NewStatus != Ticket_Status.Open)
+					{
 						update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Cancelled));
-
-					break;
+					}
 				}
 			}
 
@@ -181,9 +179,7 @@ namespace NoSQLProject.Services
 
 			if (l == null) throw new Exception($"Log with the id does not exist");
 
-			Employee? creator = await _employees_rep.GetByIdAsync(l.CreatedById);
-
-			l.Creator = creator;
+			l.Creator = await _employees_rep.GetByIdAsync(l.CreatedById);
 
 			return new LogViewModel(t, l);
 		}
@@ -270,7 +266,7 @@ namespace NoSQLProject.Services
 			{
 				if (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)
 				{
-					if (r.RecipientId == logged_in_employee_id) tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Closed));				
+					if (r.RecipientId == logged_in_employee_id) tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Fulfilled));				
 					else tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Cancelled));
 				}
 			}

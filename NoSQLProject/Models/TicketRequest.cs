@@ -8,11 +8,10 @@ namespace NoSQLProject.Models
         Open = 0, // New unaccepted request
         Accepted = 1,
         Rejected = 2, 
-        Fulfilled = 3, 
-        Closed = 4, // Close due to issue not being a real error, e.g. user level error
-        Redirected = 5, // Redirected to another employee
-        Failed = 6, 
-        Cancelled = 7 // If another employee finish the ticket before the assigned one 
+        Fulfilled = 3,
+        Redirected = 4, // Redirected to another employee
+        Failed = 5, 
+        Cancelled = 6 // If another employee finish the ticket before the assigned one 
     }
 
     public class TicketRequest

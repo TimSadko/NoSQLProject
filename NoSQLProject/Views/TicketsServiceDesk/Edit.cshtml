@@ -2,7 +2,6 @@
 
 @{
     ViewData["Title"] = "Edit Ticket";
-    var creatorName = ViewData["ticket_creator"]?.ToString() ?? "Unknown";
 }
 
 <partial name="_ErrorMessage" />
@@ -16,7 +15,7 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created By</label>
-                    <input type="text" class="form-control info-input" readonly value="@creatorName" />
+                    <input type="text" class="form-control info-input" readonly value="@(Model.Creator == null ? "???" : Model.Creator.FullName)" />
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="info-label">Created At</label>
@@ -97,21 +96,7 @@
                                             @log.NewStatus
                                         </span>
                                     </td>
-                                    <td class="description-cell">
-                                        @if (string.IsNullOrEmpty(log.Description))
-                                        {
-                                            <span class="text-muted">-</span>
-                                        }
-                                        else if (log.Description.Length > 100)
-                                        {
-                                            @(log.Description.Substring(0, 100))
-                                            
-                                                                }
-                                        else
-                                        {
-                                            @log.Description
-                                        }
-                                    </td>
+                                    <td class="description-cell">@NoSQLProject.Controllers.TicketRequestsController.CutString(100, log.Description)</td>
                                     <td>
                                         <div class="action-buttons">
                                             <a href="/TicketsServiceDesk/EditLog/@(Model.Id)/@(log.Id)" class="btn-action btn-edit-sm">Edit</a>

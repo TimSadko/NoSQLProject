@@ -21,7 +21,7 @@ namespace NoSQLProject.Controllers
         {
             var loggedin = Authorization.GetLoggedInEmployee(HttpContext);
             if (loggedin == null)
-                return RedirectToAction("Login");
+            return RedirectToAction("Login");
 
             return View("Home", loggedin);
         }
@@ -93,18 +93,26 @@ namespace NoSQLProject.Controllers
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(string email)
         {
-            var user = await _rep.GetByEmailAsync(email);
-            if (user == null)
-                return View("Password/ForgotPasswordConfirmation");
+            try
+            {
+                var user = await _rep.GetByEmailAsync(email);
+                if (user == null)
+                    return View("Password/ForgotPasswordConfirmation");
 
-            string token = Hasher.GetHashedString(user.Id + user.Password);
-            string resetLink = Url.Action("ResetPassword", "Home", 
-                new { userId = user.Id, token }, protocol: Request.Scheme);
+                string token = Hasher.GetHashedString(user.Id + user.Password);
+                string resetLink = Url.Action("ResetPassword", "Home", new { userId = user.Id, token }, protocol: Request.Scheme);
 
-            ViewBag.Link = resetLink;
-            ViewBag.Email = email;
-            return View("Password/DisplayResetLink");
-        }
+                ViewBag.Link = resetLink;
+                ViewBag.Email = email;
+
+                return View("Password/DisplayResetLink");
+            }
+			catch (Exception ex)
+			{
+				ViewData["Exception"] = ex.Message;
+				return View();
+			}
+		}
 
 
         [HttpGet]
@@ -122,22 +130,30 @@ namespace NoSQLProject.Controllers
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
-            var user = await _rep.GetByIdAsync(model.UserId);
-            if (user == null)
-                return View("Password/ResetPasswordConfirmation");
-
-            var expectedToken = Hasher.GetHashedString(user.Id + user.Password);
-            if (model.Token != expectedToken)
+            try
             {
-                ModelState.AddModelError(string.Empty, "Invalid or expired token.");
-                return View("Password/ResetPassword", model);
+                var user = await _rep.GetByIdAsync(model.UserId);
+                if (user == null)
+                    return View("Password/ResetPasswordConfirmation");
+
+                var expectedToken = Hasher.GetHashedString(user.Id + user.Password);
+                if (model.Token != expectedToken)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid or expired token.");
+                    return View("Password/ResetPassword", model);
+                }
+
+                user.Password = Hasher.GetHashedString(model.NewPassword);
+                await _rep.UpdateAsync(user);
+
+                return View("Password/ResetPasswordConfirmation");
             }
-
-            user.Password = Hasher.GetHashedString(model.NewPassword);
-            await _rep.UpdateAsync(user);
-
-            return View("Password/ResetPasswordConfirmation");
-        }
+			catch (Exception ex) 
+			{
+				ViewData["Exception"] = ex.Message;
+				return View();
+			}
+		}
 
 
         [HttpGet]
