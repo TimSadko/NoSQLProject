@@ -6,12 +6,15 @@ namespace NoSQLProject.Models
 {
     public enum Ticket_Status
     {
-        Open = 0, Closed = 1, Resolved = 2
+        Open = 0,
+        Closed = 1,
+        Resolved = 2,
+        Escalated = 3 // ✅ Added for "Escalate Ticket" feature
     }
 
     public enum Ticket_Priority
     {
-        Undefined = 0, 
+        Undefined = 0,
         Low = 1,
         Medium = 2,
         High = 3,

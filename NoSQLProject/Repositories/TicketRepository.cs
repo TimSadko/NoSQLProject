@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using NoSQLProject.Models;
-using NoSQLProject.Services;
+using System.Threading.Tasks;
 
 namespace NoSQLProject.Repositories
 {
@@ -38,90 +38,39 @@ namespace NoSQLProject.Repositories
 
         public async Task EditAsync(Ticket t)
         {
-            t.UpdatedAt = DateTime.UtcNow;
-
             await _tickets.ReplaceOneAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id)), t);
-        }
-
-        public async Task CheckUpdateAsync(Ticket _new_ticket_version)
-        {
-            var old_ticket_version = await GetByIdAsync(_new_ticket_version.Id);
-
-            if (old_ticket_version.Description == _new_ticket_version.Description &&
-                old_ticket_version.Title == _new_ticket_version.Title &&
-                old_ticket_version.Status == _new_ticket_version.Status &&
-                old_ticket_version.Priority == _new_ticket_version.Priority) return;
-
-            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(_new_ticket_version.Id));
-
-            List<Task<UpdateResult>> update_tasks = new List<Task<UpdateResult>>();
-
-            if (old_ticket_version.Title != _new_ticket_version.Title)
-            {
-                update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("title", _new_ticket_version.Title)));
-            }
-
-            if (old_ticket_version.Description != _new_ticket_version.Description)
-            {
-                update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("description", _new_ticket_version.Description)));
-            }
-
-            if (old_ticket_version.Status != _new_ticket_version.Status)
-            {
-                update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", _new_ticket_version.Status)));
-            }
-
-            // ✅ NEW: Priority update
-            if (old_ticket_version.Priority != _new_ticket_version.Priority)
-            {
-                update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("priority", _new_ticket_version.Priority)));
-            }
-
-            update_tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.UtcNow)));
-
-            await Task.WhenAll(update_tasks);
         }
 
         public async Task AddLogAsync(Ticket t, Log l, Employee e)
         {
             var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(t.Id));
+            var update = Builders<Ticket>.Update.Push(ticket => ticket.Logs, l);
+            await _tickets.UpdateOneAsync(filter, update);
+        }
 
-            List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>();
+        public async Task UpdateTicketStatusAsync(string ticket_id, Ticket_Status status)
+        {
+            if (string.IsNullOrEmpty(ticket_id)) throw new ArgumentException("Ticket ID cannot be null or empty", nameof(ticket_id));
 
-            l.Id = ObjectId.GenerateNewId().ToString();
-            l.CreatedAt = DateTime.UtcNow;
-            l.CreatedById = e.Id;
+            var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id));
+            var update = Builders<Ticket>.Update.Set(t => t.Status, status).Set(t => t.UpdatedAt, DateTime.UtcNow);
 
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Push(ticket => ticket.Logs, l)));
-
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("status", l.NewStatus)));
-
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("updated_at", DateTime.UtcNow)));
-
-            await Task.WhenAll(tasks);
+            await _tickets.UpdateOneAsync(filter, update);
         }
 
         public async Task<Log?> GetLogByIdAsync(string ticket_id, string log_id)
         {
             Ticket? t = await GetByIdAsync(ticket_id);
 
-            if (t == null) return null;
-
-            Log? l = t.Logs.FirstOrDefault(log => log.Id == log_id);
-
-            return l;
+            return t?.Logs.FirstOrDefault(log => log.Id == log_id);
         }
 
         public async Task EditLogAsync(string ticket_id, Log log)
         {
-            var filter = Builders<Ticket>.Filter.And(Builders<Ticket>.Filter.Eq(t => t.Id, ticket_id), Builders<Ticket>.Filter.ElemMatch(t => t.Logs, l => l.Id == log.Id));
+            var filter = Builders<Ticket>.Filter.And( Builders<Ticket>.Filter.Eq(t => t.Id, ticket_id), Builders<Ticket>.Filter.ElemMatch(t => t.Logs, l => l.Id == log.Id));
+            var update = Builders<Ticket>.Update.Set("logs.$.description", log.Description).Set("logs.$.new_status", log.NewStatus).Set("updated_at", DateTime.UtcNow);
 
-            List<Task<UpdateResult>> tasks = new List<Task<UpdateResult>>();
-
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("logs.$.description", log.Description)));
-            tasks.Add(_tickets.UpdateOneAsync(filter, Builders<Ticket>.Update.Set("logs.$.new_status", log.NewStatus)));
-
-            await Task.WhenAll(tasks);
+            await _tickets.UpdateOneAsync(filter, update);
         }
 
         public async Task DeleteLogAsync(string ticket_id, string log_id)
@@ -135,6 +84,7 @@ namespace NoSQLProject.Repositories
         public async Task<List<Log>> GetLogsByTicketIdAsync(string id)
         {
             var ticket = await GetByIdAsync(id);
+
             return ticket == null ? [] : ticket.Logs;
         }
 
@@ -146,22 +96,20 @@ namespace NoSQLProject.Repositories
         public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1)
         {
             var sortBuilder = Builders<Ticket>.Sort;
+
             SortDefinition<Ticket> sortDef;
 
             if (sortField == "Priority")
             {
-                if (sortOrder == 1)
-                {
-                    sortDef = sortBuilder.Ascending(t => t.Priority).Descending(t => t.CreatedAt);
-                }
-                else
-                {
-                    sortDef = sortBuilder.Descending(t => t.Priority).Descending(t => t.CreatedAt);
-                }
+                sortDef = sortOrder == 1
+                    ? sortBuilder.Ascending(t => t.Priority).Descending(t => t.CreatedAt)
+                    : sortBuilder.Descending(t => t.Priority).Descending(t => t.CreatedAt);
             }
             else
             {
-                sortDef = sortOrder == 1 ? sortBuilder.Ascending(sortField) : sortBuilder.Descending(sortField);
+                sortDef = sortOrder == 1
+                    ? sortBuilder.Ascending(sortField)
+                    : sortBuilder.Descending(sortField);
             }
 
             return await _tickets.Find(new BsonDocument()).Sort(sortDef).ToListAsync();

@@ -1,0 +1,22 @@
+﻿@model NoSQLProject.Models.TicketRequest
+
+@{
+	ViewData["Title"] = "View Request";
+}
+
+<link rel="stylesheet" href="~/css/common-styles.css" />
+
+<partial name="_ErrorMessage" />
+
+<h1>Request View</h1>
+
+<div>
+	<partial name="~/Views/TicketRequests/_MainViewPart.cshtml" model="@Model" />
+
+	<div>
+		<label>Status:</label>
+		<input type="text" value="@Model.Status.ToString()" readonly />
+	</div>
+</div>
+
+<a href="/TicketRequests/All">Go Back</a>

@@ -6,6 +6,19 @@
     string currentSortField = ViewBag.SortField ?? "Priority";
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success fade-in-alert">
+        @TempData["Success"]
+    </div>
+}
+@if (TempData["Exception"] != null)
+{
+    <div class="alert alert-danger fade-in-alert">
+        @TempData["Exception"]
+    </div>
+}
+
 <partial name="_ErrorMessage" />
 
 <div class="fade-in">
@@ -15,7 +28,7 @@
             <a href="/TicketsServiceDesk/Add" class="btn btn-add">Add New Ticket</a>
         </div>
 
-        @if (Model == null)
+        @if (Model == null || !Model.Any())
         {
             <div class="alert alert-info text-center fw-semibold mt-4">
                 No tickets found.
@@ -77,39 +90,33 @@
                                             Ticket_Priority.High => "priority-high",
                                             Ticket_Priority.Medium => "priority-medium",
                                             Ticket_Priority.Low => "priority-low",
-                                            Ticket_Priority.Undefined => "priority-undefined",
                                             _ => "priority-undefined"
                                         };
-                                        var priorityIcon = t.Priority switch
-                                        {
-                                            Ticket_Priority.Critical => "🔴",
-                                            Ticket_Priority.High => "🟠",
-                                            Ticket_Priority.Medium => "🟡",
-                                            Ticket_Priority.Low => "🟢",
-                                            Ticket_Priority.Undefined => "⚪",
-                                            _ => "⚪"
-                                        };
                                     }
-                                    <span class="priority-badge @priorityClass">
-                                        @priorityIcon @t.Priority
-                                    </span>
+                                    <span class="priority-badge @priorityClass">@t.Priority</span>
                                 </td>
                                 <td class="ticket-title-cell">@t.Title</td>
                                 <td>
-                                    <span class="status-badge status-@t.Status.ToString().ToLower()">
-                                        @t.Status
-                                    </span>
+                                    <span class="status-badge status-@t.Status.ToString().ToLower()">@t.Status</span>
                                 </td>
                                 <td class="date-cell">@t.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
                                 <td class="date-cell">@t.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss")</td>
                                 <td class="employee-cell">@(t.Creator == null ? "???" : t.Creator.FullName)</td>
-                                <td>
-                                    <span class="logs-badge">@t.Logs?.Count</span>
-                                </td>
+                                <td><span class="logs-badge">@t.Logs?.Count</span></td>
                                 <td>
                                     <div class="action-buttons">
                                         <a href="/TicketsServiceDesk/Edit/@t.Id" class="btn btn-view">View</a>
                                         <a href="/TicketsServiceDesk/Delete/@t.Id" class="btn btn-delete">Delete</a>
+                                        <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post">
+                                            <input type="hidden" name="ticket_id" value="@t.Id" />
+                                            <input type="hidden" name="action_type" value="escalate" />
+                                            <button type="submit" class="btn btn-escalate">Escalate</button>
+                                        </form>
+                                        <form asp-action="UpdateStatus" asp-controller="TicketsServiceDesk" method="post">
+                                            <input type="hidden" name="ticket_id" value="@t.Id" />
+                                            <input type="hidden" name="action_type" value="close" />
+                                            <button type="submit" class="btn btn-close">Close</button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -165,26 +172,26 @@
         border-spacing: 0 12px;
     }
 
-    .tickets-table thead th {
-        padding: 14px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
+        .tickets-table thead th {
+            padding: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
 
-    .tickets-table tbody tr {
-        background: rgba(255, 255, 255, 0.85);
-        transition: all 0.25s ease;
-    }
+        .tickets-table tbody tr {
+            background: rgba(255, 255, 255, 0.85);
+            transition: all 0.25s ease;
+        }
 
-    .tickets-table tbody tr:hover {
-        background: rgba(78, 84, 200, 0.1);
-        transform: scale(1.01);
-    }
+            .tickets-table tbody tr:hover {
+                background: rgba(78, 84, 200, 0.1);
+                transform: scale(1.01);
+            }
 
-    .tickets-table tbody td {
-        padding: 16px 12px;
-        vertical-align: middle;
-    }
+        .tickets-table tbody td {
+            padding: 16px 12px;
+            vertical-align: middle;
+        }
 
     .table-gradient {
         background: linear-gradient(135deg, #4e54c8, #8f94fb);
@@ -305,11 +312,11 @@
         font-size: 0.9rem;
     }
 
-    .btn-view:hover {
-        background: #0097a7;
-        color: white;
-        transform: translateY(-2px);
-    }
+        .btn-view:hover {
+            background: #0097a7;
+            color: white;
+            transform: translateY(-2px);
+        }
 
     .btn-delete {
         background: #ef5350;
@@ -323,11 +330,11 @@
         font-size: 0.9rem;
     }
 
-    .btn-delete:hover {
-        background: #d32f2f;
-        color: white;
-        transform: translateY(-2px);
-    }
+        .btn-delete:hover {
+            background: #d32f2f;
+            color: white;
+            transform: translateY(-2px);
+        }
 
     .sort-link {
         color: white;
@@ -336,10 +343,10 @@
         transition: opacity 0.2s ease;
     }
 
-    .sort-link:hover {
-        opacity: 0.8;
-        text-decoration: underline;
-    }
+        .sort-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
 
     .fade-in {
         opacity: 1;

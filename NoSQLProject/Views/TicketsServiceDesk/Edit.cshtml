@@ -44,16 +44,9 @@
                 <textarea class="form-control form-control-lg" asp-for="Description" rows="4" required>@Model?.Description</textarea>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="Status" class="form-label fw-semibold">Status</label>
-                    <select class="form-select form-select-lg" asp-for="Status" asp-items="@Html.GetEnumSelectList<Ticket_Status>()"></select>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label for="Priority" class="form-label fw-semibold">Priority</label>
-                    <select class="form-select form-select-lg" asp-for="Priority" asp-items="@Html.GetEnumSelectList<Ticket_Priority>()"></select>
-                </div>
+            <div class="col-md-6 mb-3">
+                <label for="Priority" class="form-label fw-semibold">Priority</label>
+                <select class="form-select form-select-lg" asp-for="Priority" asp-items="@Html.GetEnumSelectList<Ticket_Priority>()"></select>
             </div>
 
             <div class="d-flex justify-content-between mb-4">
@@ -62,7 +55,9 @@
             </div>
         </form>
 
-        <a href="/TicketRequests/Add/@Model.Id">Add Ticket Request</a>
+        <div class="mb-4 text-center">
+            <a href="/TicketRequests/Add/@Model.Id" class="btn btn-request px-4 py-2">Add Ticket Request</a>
+        </div>
 
         <!-- Logs Section -->
         <div class="logs-section">
@@ -228,6 +223,23 @@
             color: #4e54c8;
         }
 
+    .btn-request {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-request:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+            color: white;
+        }
+
     .logs-section {
         margin-top: 40px;
         padding-top: 30px;
@@ -251,41 +263,41 @@
         text-decoration: none;
     }
 
-    .btn-add-log:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
-        color: white;
-    }
+        .btn-add-log:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 188, 212, 0.3);
+            color: white;
+        }
 
     .logs-table {
         border-collapse: separate;
         border-spacing: 0 8px;
     }
 
-    .logs-table thead th {
-        background: #f8f9fa;
-        padding: 12px;
-        font-weight: 600;
-        color: #555;
-        border: none;
-    }
+        .logs-table thead th {
+            background: #f8f9fa;
+            padding: 12px;
+            font-weight: 600;
+            color: #555;
+            border: none;
+        }
 
-    .logs-table tbody tr {
-        background: white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        transition: all 0.2s ease;
-    }
+        .logs-table tbody tr {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
 
-    .logs-table tbody tr:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
+            .logs-table tbody tr:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                transform: translateY(-2px);
+            }
 
-    .logs-table tbody td {
-        padding: 14px 12px;
-        vertical-align: middle;
-        border: none;
-    }
+        .logs-table tbody td {
+            padding: 14px 12px;
+            vertical-align: middle;
+            border: none;
+        }
 
     .date-cell {
         font-size: 0.9rem;

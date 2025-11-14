@@ -1,0 +1,45 @@
+﻿@model TicketRequest
+
+<link rel="stylesheet" href="~/css/common-styles.css" />
+
+<div>
+	<label>Sender:</label>
+	<input type="text" value="@(Model.Sender == null ? "???" : $"{Model.Sender.FullName} ({Model.Sender.Email})")" readonly />
+</div>
+<div>
+	<label>Recipient:</label>
+	<input type="text" value="@(Model.Recipient == null ? "???" : $"{Model.Recipient.FullName} ({Model.Recipient.Email})")" readonly />
+</div>
+<div>
+	<label>Ticket:</label>
+	<div>
+		<label>Title:</label>
+		<input type="text" value="@Model.Ticket.Title" readonly />
+
+		<label>Description:</label>
+		<input type="text" value="@Model.Ticket.Description" readonly />
+
+		<label>Status:</label>
+		<input type="text" value="@Model.Ticket.Status" readonly />
+
+		<label>Priority:</label>
+		<input type="text" value="@Model.Ticket.Priority" readonly />
+
+		<label>Logs Number:</label>
+		<input type="text" value="@Model.Ticket.Logs.Count" readonly />
+
+		<a href="/TicketsServiceDesk/Edit/@Model.Ticket.Id">Go to Ticket</a>
+	</div>
+</div>
+<div>
+	<label>Message:</label>
+	<input type="text" value="@Model.Message" readonly />
+</div>
+<div>
+	<label>Sent At:</label>
+	<input type="text" value="@Model.CreatedAt" readonly />
+</div>
+<div>
+	<label>Last Update:</label>
+	<input type="text" value="@Model.UpdatedAt" readonly />
+</div>
