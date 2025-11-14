@@ -256,9 +256,9 @@ namespace NoSQLProject.Services
 			}
 		}
 
-		private async Task CloseTicketsRequestsAsync(string ticekt_id, string logged_in_employee_id)
+		private async Task CloseTicketsRequestsAsync(string ticket_id, string logged_in_employee_id)
 		{
-			var requests = await _request_rep.GetRequestsByTicketAsync(ticekt_id);
+			var requests = await _request_rep.GetRequestsByTicketAsync(ticket_id);
 
 			List<Task> tasks = new List<Task>();
 
@@ -274,9 +274,9 @@ namespace NoSQLProject.Services
 			await Task.WhenAll(tasks);
 		}
 
-		private async Task EscalateTicketsRequestsAsync(string ticekt_id)
+		private async Task EscalateTicketsRequestsAsync(string ticket_id)
 		{
-			var requests = await _request_rep.GetRequestsByTicketAsync(ticekt_id);
+			var requests = await _request_rep.GetRequestsByTicketAsync(ticket_id);
 
 			List<Task> tasks = new List<Task>();
 

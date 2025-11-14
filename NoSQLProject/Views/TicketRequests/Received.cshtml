@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Received Ticket Requests";
+
+    int nextOrder = ViewBag.SortOrder == -1 ? 1 : -1;
+    string currentSortField = ViewBag.SortField ?? "UpdatedAt";
 }
 
 <partial name="_ErrorMessage" />
@@ -29,12 +32,12 @@
                 <table class="table table-hover align-middle text-center requests-table">
                     <thead class="table-gradient text-white">
                         <tr>
-                            <th>Sender</th>
-                            <th>Ticket</th>
-                            <th>Message</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Updated</th>
+                            <th><a asp-action="Received" asp-route-sortField="Sender" asp-route-sortOrder="@nextOrder" class="sort-link">Sender ↕</a></th>
+                            <th><a asp-action="Received" asp-route-sortField="Ticket" asp-route-sortOrder="@nextOrder" class="sort-link">Ticket ↕</a></th>
+                            <th><a asp-action="Received" asp-route-sortField="Message" asp-route-sortOrder="@nextOrder" class="sort-link">Message ↕</a></th>
+                            <th><a asp-action="Received" asp-route-sortField="Status" asp-route-sortOrder="@nextOrder" class="sort-link">Status ↕</a></th>
+                            <th><a asp-action="Received" asp-route-sortField="CreatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">Created ↕</a></th>
+                            <th><a asp-action="Received" asp-route-sortField="UpdatedAt" asp-route-sortOrder="@nextOrder" class="sort-link">Updated ↕</a></th>
                             <th>Actions</th>
                         </tr>
                     </thead>

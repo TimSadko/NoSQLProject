@@ -15,9 +15,11 @@
         {
             <div class="role-badge">Service Desk Employee</div>
             <p class="welcome-sub">You can manage employees, oversee ticket operations and see all of your requests.</p>
-            <a asp-action="Index" asp-controller="Employees" class="btn-modern">Manage Employees</a>
-            <a asp-action="Index" asp-controller="TicketsServiceDesk" class="btn-modern">Manage Tickets</a>
-            <a asp-action="Received" asp-controller="TicketRequests" class="btn-modern">Manage Requests</a>
+            <div class="container-md">
+                <a asp-action="Index" asp-controller="Employees" class="btn-modern">Manage Employees</a>
+                <a asp-action="Index" asp-controller="TicketsServiceDesk" class="btn-modern">Manage Tickets</a>
+                <a asp-action="Received" asp-controller="TicketRequests" class="btn-modern">Manage Requests</a>
+            </div>       
         }
         else
         {

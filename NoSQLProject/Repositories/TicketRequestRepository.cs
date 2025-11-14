@@ -13,37 +13,43 @@ namespace NoSQLProject.Repositories
             _requests = db.GetCollection<TicketRequest>("ticket_requests");
         }
 
-        public async Task<List<TicketRequest>> GetAllAsync(bool allow_archived = false)
+        public async Task<List<TicketRequest>> GetAllAsync()
         {
-            if (!allow_archived)
-            {
-                return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("archived", false)).Result.ToListAsync();
-            }
-
             return await _requests.FindAsync(new BsonDocument()).Result.ToListAsync();
         }
 
-        public async Task<List<TicketRequest>> GetAllByRecipientAsync(string recipient_id, bool allow_archived = false)
-        {
-            if (!allow_archived)
-            {
-                return await _requests.FindAsync(Builders<TicketRequest>.Filter.And(Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id), Builders<TicketRequest>.Filter.Eq("archived", false))).Result.ToListAsync();
-            }
+		public async Task<List<TicketRequest>> GetAllSortedAsync(string sort_field, int sort_order)
+		{
+			SortDefinition<TicketRequest> sort = sort_order == 1 ? Builders<TicketRequest>.Sort.Ascending(sort_field) : Builders<TicketRequest>.Sort.Descending(sort_field);
 
+			return await _requests.Find(new BsonDocument()).Sort(sort).ToListAsync();
+		}
+
+		public async Task<List<TicketRequest>> GetAllByRecipientAsync(string recipient_id)
+        {
             return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id)).Result.ToListAsync();
         }
 
-        public async Task<List<TicketRequest>> GetAllBySenderAsync(string sender_id, bool allow_archived = false)
-        {
-            if (!allow_archived)
-            {
-                return await _requests.FindAsync(Builders<TicketRequest>.Filter.And(Builders<TicketRequest>.Filter.Eq("sender_id", sender_id), Builders<TicketRequest>.Filter.Eq("archived", false))).Result.ToListAsync();
-            }
+		public async Task<List<TicketRequest>> GetAllByRecipientSortedAsync(string sort_field, int sort_order, string recipient_id)
+		{
+			SortDefinition<TicketRequest> sort = sort_order == 1 ? Builders<TicketRequest>.Sort.Ascending(sort_field) : Builders<TicketRequest>.Sort.Descending(sort_field);
+			
+			return await _requests.Find(Builders<TicketRequest>.Filter.Eq("recipient_id", recipient_id)).Sort(sort).ToListAsync();
+        }
 
+        public async Task<List<TicketRequest>> GetAllBySenderAsync(string sender_id)
+        {
             return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("sender_id", sender_id)).Result.ToListAsync();
         }
 
-        public async Task<TicketRequest?> GetByIdAsync(string request_id)
+		public async Task<List<TicketRequest>> GetAllBySenderSortedAsync(string sort_field, int sort_order, string sender_id)
+		{
+			SortDefinition<TicketRequest> sort = sort_order == 1 ? Builders<TicketRequest>.Sort.Ascending(sort_field) : Builders<TicketRequest>.Sort.Descending(sort_field);
+
+			return await _requests.Find(Builders<TicketRequest>.Filter.Eq("sender_id", sender_id)).Sort(sort).ToListAsync();
+		}
+
+		public async Task<TicketRequest?> GetByIdAsync(string request_id)
         {
             return await _requests.FindAsync(Builders<TicketRequest>.Filter.Eq("_id", ObjectId.Parse(request_id))).Result.FirstOrDefaultAsync();
         }
