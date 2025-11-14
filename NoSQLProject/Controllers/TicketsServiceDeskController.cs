@@ -9,17 +9,10 @@ namespace NoSQLProject.Controllers
     public class TicketsServiceDeskController : Controller
     {
         private readonly IServiceDeskEmployeeService _service;
-        private readonly ITicketRequestRepository _requestRepository;
-        private readonly IEmployeeRepository _employeeRepository;
 
-        public TicketsServiceDeskController(
-            IServiceDeskEmployeeService service,
-            ITicketRequestRepository requestRepository,
-            IEmployeeRepository employeeRepository)
+        public TicketsServiceDeskController(IServiceDeskEmployeeService service)
         {
             _service = service;
-            _requestRepository = requestRepository;
-            _employeeRepository = employeeRepository;
         }
 
         [HttpGet]
@@ -30,8 +23,10 @@ namespace NoSQLProject.Controllers
             try
             {
                 var tickets = await _service.GetTicketsSortedAsync(sortField, sortOrder);
+
                 ViewBag.SortField = sortField;
                 ViewBag.SortOrder = sortOrder;
+
                 return View(tickets);
             }
             catch (Exception ex)
@@ -45,6 +40,7 @@ namespace NoSQLProject.Controllers
         public IActionResult Add()
         {
             if (!Authenticate()) return RedirectToAction("Login", "Home");
+
             return View(new Ticket());
         }
 
@@ -52,12 +48,13 @@ namespace NoSQLProject.Controllers
         public async Task<IActionResult> Add(Ticket t)
         {
             var emp = Authorization.GetLoggedInEmployee(HttpContext);
-            if (emp == null || emp is not ServiceDeskEmployee)
-                return RedirectToAction("Login", "Home");
+
+            if (emp == null || emp is not ServiceDeskEmployee) return RedirectToAction("Login", "Home");
 
             try
             {
                 await _service.AddTicketAsync(t, emp);
+
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -91,6 +88,7 @@ namespace NoSQLProject.Controllers
             try
             {
                 await _service.EditTicketAsync(ticket);
+
                 return RedirectToAction("Edit", new { id = ticket.Id });
             }
             catch (Exception ex)
@@ -108,6 +106,7 @@ namespace NoSQLProject.Controllers
             try
             {
                 Ticket? t = await _service.GetTicketByIdAsync(id);
+
                 return View(new LogViewModel(t, new Log() { NewStatus = t.Status }));
             }
             catch (Exception ex)
@@ -121,12 +120,13 @@ namespace NoSQLProject.Controllers
         public async Task<IActionResult> AddLog(LogViewModel model)
         {
             var emp = Authorization.GetLoggedInEmployee(this.HttpContext);
-            if (emp == null || emp is not ServiceDeskEmployee)
-                return RedirectToAction("Login", "Home");
+
+            if (emp == null || emp is not ServiceDeskEmployee) return RedirectToAction("Login", "Home");
 
             try
             {
                 await _service.AddLogAsync(model.Ticket, model.Log, emp);
+
                 return RedirectToAction("Edit", new { id = model.Ticket.Id });
             }
             catch (Exception ex)
@@ -160,6 +160,7 @@ namespace NoSQLProject.Controllers
             try
             {
                 await _service.EditLogAsync(view_model.Ticket.Id, view_model.Log);
+
                 return RedirectToAction("Edit", new { id = view_model.Ticket.Id });
             }
             catch (Exception ex)
@@ -193,6 +194,7 @@ namespace NoSQLProject.Controllers
             try
             {
                 await _service.DeleteTicketAsync(ticket.Id);
+
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -226,6 +228,7 @@ namespace NoSQLProject.Controllers
             try
             {
                 await _service.DeleteLogAsync(view_model.Ticket.Id, view_model.Log.Id);
+
                 return RedirectToAction("Edit", new { id = view_model.Ticket.Id });
             }
             catch (Exception ex)
@@ -235,58 +238,16 @@ namespace NoSQLProject.Controllers
             }
         }
 
-        // ✅ NEW: Escalate / Close Ticket
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(string id, string actionType)
+        public async Task<IActionResult> UpdateStatus(string ticket_id, string action_type)
         {
-            if (!Authenticate()) return RedirectToAction("Login", "Home");
+			var emp = Authorization.GetLoggedInEmployee(HttpContext);
 
-            try
+			if (emp == null || emp is not ServiceDeskEmployee) return RedirectToAction("Login", "Home");
+
+			try
             {
-                if (string.IsNullOrEmpty(id)) throw new Exception("Ticket ID is missing.");
-                var emp = Authorization.GetLoggedInEmployee(HttpContext);
-                if (emp == null || emp is not ServiceDeskEmployee) throw new Exception("Not authorized.");
-
-                var ticket = await _service.GetTicketByIdAsync(id);
-                if (ticket == null) throw new Exception("Ticket not found.");
-
-                if (actionType == "escalate")
-                {
-                    // Change ticket status to Escalated
-                    ticket.Status = Ticket_Status.Escalated;
-                    await _service.EditTicketAsync(ticket);
-
-                    // Create a TicketRequest to Management
-                    var managers = await _employeeRepository.GetAllAsync();
-                    var manager = managers.FirstOrDefault(e => !(e is ServiceDeskEmployee));
-                    if (manager != null)
-                    {
-                        var request = new TicketRequest
-                        {
-                            TicketId = ticket.Id,
-                            SenderId = emp.Id,
-                            RecipientId = manager.Id,
-                            Message = $"Ticket '{ticket.Title}' has been escalated for review.",
-                            Status = TicketRequestStatus.Open,
-                            CreatedAt = DateTime.UtcNow,
-                            UpdatedAt = DateTime.UtcNow
-                        };
-
-                        await _requestRepository.AddAsync(request);
-                    }
-
-                    TempData["Success"] = "Ticket escalated successfully and request sent to management.";
-                }
-                else if (actionType == "close")
-                {
-                    ticket.Status = Ticket_Status.Closed;
-                    await _service.EditTicketAsync(ticket);
-                    TempData["Success"] = "Ticket closed successfully.";
-                }
-                else
-                {
-                    throw new Exception("Unknown action type.");
-                }
+                TempData["Success"] = await _service.UpdateStatusAsync(ticket_id, action_type, emp.Id);
 
                 return RedirectToAction("Index");
             }

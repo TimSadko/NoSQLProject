@@ -84,7 +84,6 @@ namespace NoSQLProject.Controllers
             }
 
             Console.WriteLine("========================================");
-            // ==================================================================
 
             var viewModel = new EmployeeTickets(tickets, authenticatedEmployee);
 
@@ -143,6 +142,7 @@ namespace NoSQLProject.Controllers
                 throw new Exception("Ticket id is empty or null!");
 
             var ticket = await _ticketRepository.GetByIdAsync(id);
+
             if (ticket == null)
                 TempData["Exception"] = "Ticket is null. Something went wrong!";
 
@@ -168,8 +168,10 @@ namespace NoSQLProject.Controllers
                     return View(ticket);
                 }
 
+                // ❗ FIXED MERGE BROKEN CODE
                 ticketToUpdate.Title = ticket.Title;
                 ticketToUpdate.Description = ticket.Description;
+                ticketToUpdate.UpdatedAt = DateTime.UtcNow;
 
                 await _ticketRepository.EditAsync(ticketToUpdate);
 
@@ -278,7 +280,6 @@ namespace NoSQLProject.Controllers
         // ===================== AUTHENTICATION ============================
         private Employee? Authenticate()
         {
-            // FIXED: Now returns correct employee (ServiceDeskEmployee + others)
             return Authorization.GetLoggedInEmployee(HttpContext);
         }
 

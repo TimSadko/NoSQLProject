@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using MongoDB.Bson;
 using NoSQLProject.Models;
 using NoSQLProject.Repositories;
 using System.Net.Sockets;
@@ -125,9 +126,7 @@ namespace NoSQLProject.Services
 
 			if (ticket_old == null) throw new Exception("Ticket with the id does not exsist");
 
-			if (ticket_old.Description != ticket_new.Description ||
-				ticket_old.Title != ticket_new.Title ||
-				ticket_old.Priority != ticket_new.Priority)
+			if (ticket_old.Description != ticket_new.Description || ticket_old.Title != ticket_new.Title || ticket_old.Priority != ticket_new.Priority)
 			{
 				ticket_old.Description = ticket_new.Description;
 				ticket_old.Title = ticket_new.Title;
@@ -149,7 +148,7 @@ namespace NoSQLProject.Services
 			update_list.Add(_rep.AddLogAsync(ticket, log, creator));
 			update_list.Add(_rep.UpdateTicketStatusAsync(ticket.Id, log.NewStatus));
 
-			var request_list = await _request_rep.GetTicketRequestsAsync(ticket.Id);
+			var request_list = await _request_rep.GetRequestsByTicketAsync(ticket.Id);
 
 			foreach (var r in request_list) // Go through the ticket requests, changing their status if needed 
 			{
@@ -163,7 +162,7 @@ namespace NoSQLProject.Services
 							update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Fulfilled));
 					}
 					else if (log.NewStatus != Ticket_Status.Open)
-						update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Canceled));
+						update_list.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Cancelled));
 
 					break;
 				}
@@ -176,11 +175,11 @@ namespace NoSQLProject.Services
 		{
 			Ticket? t = await _rep.GetByIdAsync(ticket_id);
 
-			if (t == null) throw new Exception($"Ticket with Id({ticket_id}) does not exist");
+			if (t == null) throw new Exception($"Ticket with the id does not exist");
 
 			Log? l = t.Logs.FirstOrDefault(log => log.Id == log_id);
 
-			if (l == null) throw new Exception($"Log with Id({log_id}) does not exist");
+			if (l == null) throw new Exception($"Log with the id does not exist");
 
 			Employee? creator = await _employees_rep.GetByIdAsync(l.CreatedById);
 
@@ -202,6 +201,93 @@ namespace NoSQLProject.Services
 		public async Task DeleteLogAsync(string ticket_id, string log_id)
 		{
 			await _rep.DeleteLogAsync(ticket_id, log_id);
+		}
+
+		public async Task<string> UpdateStatusAsync(string ticket_id, string action_type, string logged_in_employee_id)
+		{
+			var ticket = await _rep.GetByIdAsync(ticket_id);
+
+			if (ticket == null) throw new Exception("Ticket not found.");
+
+			if (action_type == "escalate")
+			{
+				ticket.Status = Ticket_Status.Escalated;
+
+				await _rep.EditAsync(ticket);
+
+				await EscalateTicketsRequestsAsync(ticket_id);
+
+				var managers = await _employees_rep.GetAllAsync();
+
+				var manager = managers.FirstOrDefault(e => e is ServiceDeskEmployee);
+
+				if (manager != null)
+				{
+					var request = new TicketRequest
+					{
+						TicketId = ticket.Id,
+						SenderId = logged_in_employee_id,
+						RecipientId = manager.Id,
+						Message = $"Ticket '{ticket.Title}' has been escalated for review.",
+						Status = TicketRequestStatus.Open,
+						CreatedAt = DateTime.UtcNow,
+						UpdatedAt = DateTime.UtcNow
+					};
+
+					await _request_rep.AddAsync(request);
+				}			
+
+				return "Ticket escalated successfully and request sent to management.";
+			}
+			else if (action_type == "close")
+			{
+				ticket.Status = Ticket_Status.Closed;
+
+				await _rep.EditAsync(ticket);
+
+				await CloseTicketsRequestsAsync(ticket_id, logged_in_employee_id);
+
+				return "Ticket closed successfully.";
+			}
+			else
+			{
+				throw new Exception("Unknown action type.");
+			}
+		}
+
+		private async Task CloseTicketsRequestsAsync(string ticekt_id, string logged_in_employee_id)
+		{
+			var requests = await _request_rep.GetRequestsByTicketAsync(ticekt_id);
+
+			List<Task> tasks = new List<Task>();
+
+			foreach (var r in requests)
+			{
+				if (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)
+				{
+					if (r.RecipientId == logged_in_employee_id) tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Closed));				
+					else tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Cancelled));
+				}
+			}
+
+			await Task.WhenAll(tasks);
+		}
+
+		private async Task EscalateTicketsRequestsAsync(string ticekt_id)
+		{
+			var requests = await _request_rep.GetRequestsByTicketAsync(ticekt_id);
+
+			List<Task> tasks = new List<Task>();
+
+			foreach (var r in requests)
+			{
+				if (r.Status == TicketRequestStatus.Open || r.Status == TicketRequestStatus.Accepted)
+				{
+					tasks.Add(_request_rep.UpdateRequestStatusAsync(r.Id, TicketRequestStatus.Redirected));
+				}
+			}
+
+			await Task.WhenAll(tasks);
 		}
 	}
 }

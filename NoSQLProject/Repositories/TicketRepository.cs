@@ -28,9 +28,7 @@ namespace NoSQLProject.Repositories
         {
             if (string.IsNullOrEmpty(id)) return null;
 
-            return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id)))
-                                 .Result
-                                 .FirstOrDefaultAsync();
+            return await _tickets.FindAsync(Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(id))).Result.FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(Ticket t)
@@ -50,16 +48,12 @@ namespace NoSQLProject.Repositories
             await _tickets.UpdateOneAsync(filter, update);
         }
 
-        // ✅ Escalate / Close ticket functionality
         public async Task UpdateTicketStatusAsync(string ticket_id, Ticket_Status status)
         {
-            if (string.IsNullOrEmpty(ticket_id))
-                throw new ArgumentException("Ticket ID cannot be null or empty", nameof(ticket_id));
+            if (string.IsNullOrEmpty(ticket_id)) throw new ArgumentException("Ticket ID cannot be null or empty", nameof(ticket_id));
 
             var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id));
-            var update = Builders<Ticket>.Update
-                .Set(t => t.Status, status)
-                .Set(t => t.UpdatedAt, DateTime.UtcNow);
+            var update = Builders<Ticket>.Update.Set(t => t.Status, status).Set(t => t.UpdatedAt, DateTime.UtcNow);
 
             await _tickets.UpdateOneAsync(filter, update);
         }
@@ -67,20 +61,14 @@ namespace NoSQLProject.Repositories
         public async Task<Log?> GetLogByIdAsync(string ticket_id, string log_id)
         {
             Ticket? t = await GetByIdAsync(ticket_id);
+
             return t?.Logs.FirstOrDefault(log => log.Id == log_id);
         }
 
         public async Task EditLogAsync(string ticket_id, Log log)
         {
-            var filter = Builders<Ticket>.Filter.And(
-                Builders<Ticket>.Filter.Eq(t => t.Id, ticket_id),
-                Builders<Ticket>.Filter.ElemMatch(t => t.Logs, l => l.Id == log.Id)
-            );
-
-            var update = Builders<Ticket>.Update
-                .Set("logs.$.description", log.Description)
-                .Set("logs.$.new_status", log.NewStatus)
-                .Set("updated_at", DateTime.UtcNow);
+            var filter = Builders<Ticket>.Filter.And( Builders<Ticket>.Filter.Eq(t => t.Id, ticket_id), Builders<Ticket>.Filter.ElemMatch(t => t.Logs, l => l.Id == log.Id));
+            var update = Builders<Ticket>.Update.Set("logs.$.description", log.Description).Set("logs.$.new_status", log.NewStatus).Set("updated_at", DateTime.UtcNow);
 
             await _tickets.UpdateOneAsync(filter, update);
         }
@@ -89,12 +77,14 @@ namespace NoSQLProject.Repositories
         {
             var filter = Builders<Ticket>.Filter.Eq("_id", ObjectId.Parse(ticket_id));
             var update = Builders<Ticket>.Update.PullFilter(t => t.Logs, Builders<Log>.Filter.Eq("_id", ObjectId.Parse(log_id)));
+
             await _tickets.UpdateOneAsync(filter, update);
         }
 
         public async Task<List<Log>> GetLogsByTicketIdAsync(string id)
         {
             var ticket = await GetByIdAsync(id);
+
             return ticket == null ? [] : ticket.Logs;
         }
 
@@ -106,6 +96,7 @@ namespace NoSQLProject.Repositories
         public async Task<List<Ticket>> GetAllSortedAsync(string sortField = "CreatedAt", int sortOrder = -1)
         {
             var sortBuilder = Builders<Ticket>.Sort;
+
             SortDefinition<Ticket> sortDef;
 
             if (sortField == "Priority")
