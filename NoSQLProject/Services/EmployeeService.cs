@@ -15,19 +15,12 @@ namespace NoSQLProject.Services
             _employeeRepository = employeeRepository;
         }
 
-        // ✅ Get all employees (default unsorted)
-        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
-            => await _employeeRepository.GetAllAsync();
+        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync() => await _employeeRepository.GetAllAsync();
 
-        // ✅ Get single employee by ID
-        public async Task<Employee?> GetEmployeeByIdAsync(string id)
-            => await _employeeRepository.GetByIdAsync(id);
+        public async Task<Employee?> GetEmployeeByIdAsync(string id) => await _employeeRepository.GetByIdAsync(id);
 
-        // ✅ Get employee by email
-        public async Task<Employee?> GetEmployeeByEmailAsync(string email)
-            => await _employeeRepository.GetByEmailAsync(email);
+        public async Task<Employee?> GetEmployeeByEmailAsync(string email) => await _employeeRepository.GetByEmailAsync(email);
 
-        // ✅ Add employee (with hashed password + email validation)
         public async Task AddEmployeeAsync(Employee employee)
         {
             var existing = await _employeeRepository.GetByEmailAsync(employee.Email);
@@ -38,7 +31,6 @@ namespace NoSQLProject.Services
             await _employeeRepository.AddAsync(employee);
         }
 
-        // ✅ Update employee (hashes new password if changed)
         public async Task UpdateEmployeeAsync(Employee employee)
         {
             var existing = await _employeeRepository.GetByIdAsync(employee.Id);
@@ -62,18 +54,15 @@ namespace NoSQLProject.Services
             await _employeeRepository.UpdateAsync(existing);
         }
 
-        // ✅ Delete employee
-        public async Task DeleteEmployeeAsync(Employee employee)
-            => await _employeeRepository.DeleteAsync(employee);
+        public async Task DeleteEmployeeAsync(Employee employee) => await _employeeRepository.DeleteAsync(employee);
 
-        // ✅ Get all employees managed by a specific Service Desk employee
         public async Task<List<Employee>> GetEmployeesManagedByAsync(string serviceDeskEmployeeId)
         {
-        var sde = await _employeeRepository.GetByIdAsync(serviceDeskEmployeeId) as ServiceDeskEmployee;
-        if (sde == null || sde.ManagedEmployees == null || !sde.ManagedEmployees.Any())
-        return new List<Employee>();
+            var sde = await _employeeRepository.GetByIdAsync(serviceDeskEmployeeId) as ServiceDeskEmployee;
+            if (sde == null || sde.ManagedEmployees == null || !sde.ManagedEmployees.Any())
+            return new List<Employee>();
 
-        return await _employeeRepository.GetEmployeesByIdsAsync(sde.ManagedEmployees);
+            return await _employeeRepository.GetEmployeesByIdsAsync(sde.ManagedEmployees);
         }
 
         public async Task<List<Employee>> GetEmployeesByStatusAsync(string status)
@@ -84,12 +73,11 @@ namespace NoSQLProject.Services
             return await _employeeRepository.GetByStatusAsync(status);
         }
 
-        // ✅✅✅ Added by TAREK — Sorting functionality for Employees page (Assignment 2)
+        // Added by TAREK — Sorting functionality for Employees page (Assignment 2)
         // This calls the repository's dynamic sort method to allow sorting by any field.
         public async Task<List<Employee>> GetAllEmployeesSortedAsync(string sortField = "Status", int sortOrder = 1)
         {
             return await _employeeRepository.GetAllSortedAsync(sortField, sortOrder);
         }
-        // ✅ END of TAREK’s sorting feature
     }
 }

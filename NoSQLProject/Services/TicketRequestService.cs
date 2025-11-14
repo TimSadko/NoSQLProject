@@ -164,7 +164,7 @@ namespace NoSQLProject.Services
 
             if (request == null) throw new Exception("Could not found request with the id");
 
-            if (logged_in_employee_id != request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
+            if (logged_in_employee_id != request.SenderId) throw new Exception("Page inaccessible! Log in as a sender to delete the request");
 
             return request;
         }
@@ -175,7 +175,7 @@ namespace NoSQLProject.Services
 
             if (loaded_request == null) throw new Exception("Could not found request with the id");
 
-            if (logged_in_employee_id != loaded_request.SenderId) throw new Exception("Page unaccessable! Log in as a sender to delete the request");
+            if (logged_in_employee_id != loaded_request.SenderId) throw new Exception("Page inaccessible! Log in as a sender to delete the request");
 
             if (loaded_request.Status != TicketRequestStatus.Open) throw new Exception("Only unaccepted requests could be deleted");
 
@@ -186,9 +186,9 @@ namespace NoSQLProject.Services
         {
             TicketRequest? request = await _rep.GetByIdAsync(request_id);
 
-            if (request == null) throw new Exception("Ticket request with the id do not exsists");
+            if (request == null) throw new Exception("Ticket request with the id do not exists");
 
-            if (request == null) throw new Exception("Ticket request with the id do not exsists");
+            if (request == null) throw new Exception("Ticket request with the id do not exists");
 
             if (request.Status == condition_status) await _rep.UpdateRequestStatusAsync(request_id, set_status);
         }

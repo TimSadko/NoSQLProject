@@ -101,8 +101,7 @@ namespace NoSQLProject.Controllers
                 return View("Password/ForgotPasswordConfirmation");
 
             string token = Hasher.GetHashedString(user.Id + user.Password);
-            string resetLink = Url.Action("ResetPassword", "Home",
-                new { userId = user.Id, token = token }, protocol: Request.Scheme);
+            string resetLink = Url.Action("ResetPassword", "Home", new { userId = user.Id, token = token }, protocol: Request.Scheme);
 
             ViewBag.Link = resetLink;
             ViewBag.Email = email;
